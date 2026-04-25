@@ -1,5 +1,5 @@
 import { useState } from "react";
-import brandMark from "../assets/bgn-logo-color.png";
+import brandMark from "../assets/bgn-logo-color-optimized.png";
 import { useAuth } from "../auth/AuthContext.jsx";
 
 export default function Login() {

@@ -9,7 +9,17 @@ function base64UrlDecode(value) {
 }
 
 function getJwtSecret() {
-  return process.env.JWT_SECRET || "change-this-dev-secret";
+  const secret = String(process.env.JWT_SECRET || "").trim();
+  if (!secret) {
+    throw new Error(
+      "JWT_SECRET is required. Set JWT_SECRET in server/.env before starting the API."
+    );
+  }
+  return secret;
+}
+
+export function assertJwtSecretConfigured() {
+  getJwtSecret();
 }
 
 function signInput(input) {

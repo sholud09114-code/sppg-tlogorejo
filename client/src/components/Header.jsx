@@ -1,4 +1,4 @@
-import brandMark from "../assets/bgn-logo-color.png";
+import brandMark from "../assets/bgn-logo-color-optimized.png";
 
 function BrandIcon() {
   return (
