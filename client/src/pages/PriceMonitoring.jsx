@@ -7,27 +7,14 @@ import {
   fetchItemMasters,
   fetchPriceIncreaseDetection,
   fetchShoppingReports,
-} from "../api/reportApi.js";
+} from "../api/shoppingReportApi.js";
+import { formatDateLong, formatMoney } from "../shared/utils/formatters.js";
 
 function getTodayISO() {
   const now = new Date();
   const offset = now.getTimezoneOffset();
   const local = new Date(now.getTime() - offset * 60 * 1000);
   return local.toISOString().slice(0, 10);
-}
-
-function formatDateLong(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatMoney(value) {
-  return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 }
 
 function formatPercent(value) {

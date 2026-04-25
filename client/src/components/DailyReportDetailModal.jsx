@@ -1,12 +1,5 @@
-function formatDateLong(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
+import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
+import { formatDateLong } from "../shared/utils/formatters.js";
 
 function formatStatus(value) {
   if (value === "penuh") return "Dilayani penuh";
@@ -14,8 +7,6 @@ function formatStatus(value) {
   if (value === "sebagian") return "Dilayani sebagian";
   return value || "-";
 }
-
-const CATEGORY_ORDER = ["PAUD/TK/KB", "SD", "SMP", "SMK"];
 
 function scaleActualPortions(detail) {
   const savedSplitTotal =

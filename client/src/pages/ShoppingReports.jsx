@@ -8,7 +8,6 @@ import Toast from "../components/Toast.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
 import {
   createItemMaster,
-  fetchMenuReports,
   createShoppingReport,
   deleteItemMaster,
   deleteShoppingReport,
@@ -17,15 +16,9 @@ import {
   fetchShoppingReports,
   updateItemMaster,
   updateShoppingReport,
-} from "../api/reportApi.js";
-
-function formatMoney(value) {
-  return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
-}
-
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString("id-ID");
-}
+} from "../api/shoppingReportApi.js";
+import { fetchMenuReports } from "../api/menuReportApi.js";
+import { formatMoney, formatNumber } from "../shared/utils/formatters.js";
 
 function getDifferenceTone(value) {
   const amount = Number(value || 0);

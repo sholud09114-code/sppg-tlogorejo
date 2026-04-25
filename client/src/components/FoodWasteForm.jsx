@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchFoodWasteMenuReference, fetchReportByDate } from "../api/reportApi.js";
+import { fetchReportByDate } from "../api/dailyReportApi.js";
+import { fetchFoodWasteMenuReference } from "../api/foodWasteApi.js";
 
 function getInitialState(initialData) {
   return {

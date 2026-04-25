@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import {
   importBeneficiaryGroups,
   previewBeneficiaryGroupImport,
-} from "../api/reportApi.js";
+} from "../api/beneficiaryGroupApi.js";
 
 const TEMPLATE_HEADERS = [
   "jenis_kelompok",

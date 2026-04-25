@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { extractMenuReportImage } from "../api/reportApi.js";
+import { extractMenuReportImage } from "../api/menuReportApi.js";
 
 const MENU_NAME_FIELDS = [
   "menu_name_1",

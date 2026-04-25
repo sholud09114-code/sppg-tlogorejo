@@ -2,23 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext.jsx";
 import HomeEmptyCard from "../components/HomeEmptyCard.jsx";
 import Toast from "../components/Toast.jsx";
-import { fetchHomeSummary } from "../api/reportApi.js";
+import { fetchHomeSummary } from "../api/dailyReportApi.js";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
-
-function formatDateLong(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString("id-ID");
-}
+import { formatDateLong, formatNumber } from "../shared/utils/formatters.js";
 
 function formatWeight(value) {
   return `${Number(value || 0).toLocaleString("id-ID", {

@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import {
   importReportsBatch,
   previewReportImport,
-} from "../api/reportApi.js";
+} from "../api/dailyReportApi.js";
+import { formatDateLong } from "../shared/utils/formatters.js";
 
 function arrayBufferToBase64(buffer) {
   let binary = "";
@@ -14,16 +15,6 @@ function arrayBufferToBase64(buffer) {
   }
 
   return btoa(binary);
-}
-
-function formatDateLong(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
 }
 
 function downloadTemplate(units) {

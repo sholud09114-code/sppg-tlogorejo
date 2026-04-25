@@ -1,4 +1,4 @@
-const CATEGORY_ORDER = ["PAUD/TK/KB", "SD", "SMP", "SMK"];
+import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
 
 export default function SummaryPanel({
   totals,

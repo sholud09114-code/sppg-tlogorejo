@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { extractShoppingReportImage, fetchReportByDate } from "../api/reportApi.js";
+import { fetchReportByDate } from "../api/dailyReportApi.js";
+import { extractShoppingReportImage } from "../api/shoppingReportApi.js";
+import { formatMoney } from "../shared/utils/formatters.js";
 
 const UNIT_OPTIONS = ["kg", "gram", "liter", "ml", "pack", "pcs", "ikat", "buah"];
 const SMALL_PORTION_RATE = 8000;
@@ -43,10 +45,6 @@ function getInitialState(initialData) {
           }))
         : [createEmptyItem()],
   };
-}
-
-function formatMoney(value) {
-  return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 }
 
 function getMenuReportName(report) {

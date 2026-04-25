@@ -1,19 +1,5 @@
 import ActionIconButton from "./ActionIconButton.jsx";
-
-function formatDate(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatDateTime(value) {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("id-ID");
-}
+import { formatDate, formatDateTime } from "../shared/utils/formatters.js";
 
 export default function DailyReportTable({
   reports,

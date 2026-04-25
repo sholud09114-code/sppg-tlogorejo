@@ -16,9 +16,9 @@ import {
   fetchReportsForPrint,
   listReports,
   saveReport,
-} from "../api/reportApi.js";
-
-const CATEGORY_ORDER = ["PAUD/TK/KB", "SD", "SMP", "SMK"];
+} from "../api/dailyReportApi.js";
+import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
+import { formatDateLong } from "../shared/utils/formatters.js";
 
 // get today's date as YYYY-MM-DD in local time zone
 function getTodayISO() {
@@ -26,16 +26,6 @@ function getTodayISO() {
   const offset = now.getTimezoneOffset();
   const local = new Date(now.getTime() - offset * 60 * 1000);
   return local.toISOString().slice(0, 10);
-}
-
-function formatDateLong(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
 }
 
 function escapeHtml(value) {

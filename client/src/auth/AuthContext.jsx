@@ -1,15 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { clearAuthToken, getAuthToken, setAuthToken } from "./tokenStorage.js";
+import { fetchCurrentUser, loginRequest } from "../api/authApi.js";
 
 const AuthContext = createContext(null);
-
-async function parseResponse(res) {
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data.error || `HTTP ${res.status}`);
-  }
-  return data;
-}
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => getAuthToken());
@@ -37,12 +30,7 @@ export function AuthProvider({ children }) {
     let active = true;
     setLoading(true);
 
-    fetch("/api/auth/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(parseResponse)
+    fetchCurrentUser()
       .then((data) => {
         if (!active) return;
         setUser(data.user);
@@ -61,12 +49,7 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = async ({ username, password }) => {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await parseResponse(res);
+    const data = await loginRequest({ username, password });
     setAuthToken(data.token);
     setToken(data.token);
     setUser(data.user);

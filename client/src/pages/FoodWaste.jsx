@@ -11,25 +11,8 @@ import {
   deleteFoodWaste,
   fetchFoodWasteReports,
   updateFoodWaste,
-} from "../api/reportApi.js";
-
-function formatDate(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatWeight(value) {
-  return `${Number(value || 0).toLocaleString("id-ID")} kg`;
-}
-
-function formatPortions(value) {
-  return Number(value || 0).toLocaleString("id-ID");
-}
+} from "../api/foodWasteApi.js";
+import { formatDate, formatPortions, formatWeight } from "../shared/utils/formatters.js";
 
 function getWastePerPortion(report) {
   const totalKg = Number(report?.total_kg || 0);

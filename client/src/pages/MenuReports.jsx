@@ -12,7 +12,7 @@ import {
   fetchMenuReportById,
   fetchMenuReports,
   updateMenuReport,
-} from "../api/reportApi.js";
+} from "../api/menuReportApi.js";
 
 export default function MenuReports() {
   const { user } = useAuth();

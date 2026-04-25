@@ -11,7 +11,7 @@ import {
   fetchBeneficiaryGroupById,
   fetchBeneficiaryGroups,
   updateBeneficiaryGroup,
-} from "../api/reportApi.js";
+} from "../api/beneficiaryGroupApi.js";
 
 const GROUP_TYPE_OPTIONS = ["Paud/KB/TK", "SD", "SMP/MTs", "SMK"];
 

@@ -1,20 +1,4 @@
-function formatDate(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatMoney(value) {
-  return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
-}
-
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString("id-ID");
-}
+import { formatDate, formatMoney, formatNumber } from "../shared/utils/formatters.js";
 
 export default function ShoppingReportDetail({ open, data, onClose }) {
   if (!open || !data) return null;

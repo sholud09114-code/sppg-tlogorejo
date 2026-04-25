@@ -1,26 +1,8 @@
 import { useState } from "react";
 import Toast from "../components/Toast.jsx";
-import { fetchWeeklySummary } from "../api/reportApi.js";
-
-const CATEGORY_ORDER = ["PAUD/TK/KB", "SD", "SMP", "SMK"];
-
-function formatDateLong(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString("id-ID");
-}
-
-function formatMoney(value) {
-  return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
-}
+import { fetchWeeklySummary } from "../api/dailyReportApi.js";
+import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
+import { formatDateLong, formatMoney, formatNumber } from "../shared/utils/formatters.js";
 
 function renderNutritionBlock(report, portionSize) {
   const prefix = portionSize === "small" ? "small" : "large";

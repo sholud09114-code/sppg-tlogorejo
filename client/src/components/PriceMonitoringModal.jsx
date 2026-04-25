@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchItemPriceMonitoring } from "../api/reportApi.js";
+import { fetchItemPriceMonitoring } from "../api/shoppingReportApi.js";
+import { formatMoney } from "../shared/utils/formatters.js";
 
 function formatDateLong(value) {
   if (!value) return "-";
@@ -8,10 +9,6 @@ function formatDateLong(value) {
     month: "short",
     year: "numeric",
   }).format(new Date(`${value}T00:00:00`));
-}
-
-function formatMoney(value) {
-  return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 }
 
 function normalizeSuggestionText(value) {
