@@ -1,0 +1,21 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="36" fill="url(#paint0_linear_7_12)"/>
+  <rect x="10" y="10" width="108" height="108" rx="28" fill="url(#paint1_linear_7_12)" fill-opacity="0.82"/>
+  <path d="M40 38C40 34.6863 42.6863 32 46 32H82C85.3137 32 88 34.6863 88 38V46C88 49.3137 85.3137 52 82 52H46C42.6863 52 40 49.3137 40 46V38Z" fill="white" fill-opacity="0.94"/>
+  <path d="M34 64C34 60.6863 36.6863 58 40 58H88C91.3137 58 94 60.6863 94 64V82C94 85.3137 91.3137 88 88 88H40C36.6863 88 34 85.3137 34 82V64Z" fill="white" fill-opacity="0.18" stroke="white" stroke-opacity="0.34" stroke-width="2"/>
+  <path d="M52 71H76" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <path d="M52 81H68" stroke="white" stroke-width="6" stroke-linecap="round" stroke-opacity="0.82"/>
+  <circle cx="83.5" cy="75.5" r="9.5" fill="#F4D35E"/>
+  <path d="M83.5 69.5V75.5L87.5 78" stroke="#2E4057" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="64" y="46" text-anchor="middle" fill="#2855C5" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="1.2">SPPG</text>
+  <defs>
+    <linearGradient id="paint0_linear_7_12" x1="10" y1="8" x2="118" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3E73F0"/>
+      <stop offset="1" stop-color="#2A9D8F"/>
+    </linearGradient>
+    <linearGradient id="paint1_linear_7_12" x1="24" y1="16" x2="108" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="white" stop-opacity="0.04"/>
+    </linearGradient>
+  </defs>
+</svg>
