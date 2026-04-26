@@ -272,6 +272,14 @@
   border: 0.5px solid var(--border-tertiary);
 }
 
+.shopping-report-summary-cards {
+  margin: 16px 0 18px;
+}
+
+.shopping-items-card {
+  margin-top: 0;
+}
+
 .shopping-import-card {
   background: var(--bg-primary);
   border: 0.5px solid var(--border-tertiary);
