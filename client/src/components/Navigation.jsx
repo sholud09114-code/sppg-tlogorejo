@@ -132,8 +132,10 @@ export default function Navigation({ active, onChange, user, onLogout }) {
           </div>
 
           <div className="mobile-more-account" aria-label="Profil pengguna mobile">
+            <span className="mobile-more-account-icon">
+              <AppIcon name="user" size={20} weight={APP_ICON_WEIGHT.nav} />
+            </span>
             <div className="mobile-more-account-copy">
-              <span>Akun aktif</span>
               <strong>{user?.name || "Pengguna"}</strong>
               <small>{user?.role === "admin" ? "Administrator" : "Publik - lihat saja"}</small>
             </div>
