@@ -186,10 +186,10 @@
   }
 
   .food-waste-summary-card.summary-metric-card {
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
     gap: 12px;
-    min-height: 164px;
+    min-height: 112px;
     padding: 16px;
   }
 
