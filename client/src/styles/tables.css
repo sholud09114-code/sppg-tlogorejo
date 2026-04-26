@@ -1,0 +1,766 @@
+.table-wrap {
+  overflow-x: auto;
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-lg);
+}
+
+.data-table-scroll-shell {
+  position: relative;
+}
+
+.data-table-scroll-shell::after {
+  content: attr(data-scroll-hint);
+  position: absolute;
+  right: 10px;
+  top: -12px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(122, 145, 191, 0.16);
+  box-shadow: 0 10px 22px rgba(83, 109, 167, 0.08);
+  color: #6a7487;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--border-tertiary);
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+}
+
+.data-table th {
+  background: #eef3ff;
+  color: #5f6f8f;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.data-table .text-left {
+  text-align: left;
+}
+
+.data-table .text-center {
+  text-align: center;
+}
+
+.data-table .text-right {
+  text-align: right;
+}
+
+.food-waste-table th {
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.table-index-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background: #eef3ff;
+  color: #6a7ead;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.food-waste-col-no {
+  width: 52px;
+}
+
+.food-waste-col-date {
+  min-width: 190px;
+  white-space: nowrap;
+}
+
+.food-waste-col-portions {
+  min-width: 82px;
+}
+
+.food-waste-col-nutrient {
+  min-width: 110px;
+}
+
+.food-waste-col-small {
+  min-width: 72px;
+}
+
+.food-waste-col-total {
+  min-width: 112px;
+}
+
+.food-waste-col-per-portion {
+  min-width: 140px;
+}
+
+.food-waste-col-menu {
+  min-width: 420px;
+}
+
+.food-waste-col-actions {
+  min-width: 160px;
+}
+
+.food-waste-value-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 11px;
+  background: #eef3ff;
+  color: #5f73a2;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.food-waste-value-badge-total {
+  background: #eaf1ff;
+  color: #4969c7;
+  min-width: 0;
+  padding-inline: 10px;
+}
+
+.food-waste-value-badge-index {
+  justify-content: center;
+  min-width: 32px;
+  padding: 0 8px;
+  color: #6a7ead;
+}
+
+.food-waste-menu-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.food-waste-page-card {
+  padding: 26px;
+  border-radius: 28px;
+  border: 1px solid rgba(149, 169, 226, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 251, 255, 0.96)),
+    #ffffff;
+  box-shadow:
+    0 18px 42px rgba(83, 109, 167, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.74);
+}
+
+.food-waste-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.food-waste-hero-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.food-waste-hero-copy h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0;
+  color: var(--text-primary);
+}
+
+.food-waste-hero-copy p {
+  margin: 2px 0 0;
+  max-width: 720px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.food-waste-hero-icon {
+  flex: 0 0 auto;
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  color: #3e73f0;
+  background:
+    linear-gradient(180deg, rgba(73, 117, 255, 0.14), rgba(73, 117, 255, 0.08)),
+    #ffffff;
+  border: 1px solid rgba(113, 145, 255, 0.18);
+  box-shadow: 0 18px 34px rgba(91, 131, 236, 0.12);
+}
+
+.food-waste-hero-icon-svg {
+  width: 34px;
+  height: 34px;
+}
+
+.food-waste-toolbar-card {
+  min-width: min(520px, 100%);
+  padding: 12px;
+  border-radius: 22px;
+  border: 1px solid rgba(149, 169, 226, 0.16);
+  background:
+    linear-gradient(180deg, rgba(244, 248, 255, 0.96), rgba(241, 246, 255, 0.92)),
+    #ffffff;
+  box-shadow: 0 20px 44px rgba(83, 109, 167, 0.1);
+  display: flex;
+  align-items: end;
+  gap: 14px;
+}
+
+.food-waste-filter-field {
+  flex: 1 1 320px;
+  margin: 0;
+}
+
+.food-waste-filter-field label {
+  display: none;
+}
+
+.food-waste-filter-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.food-waste-filter-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 48px;
+  padding: 0 48px 0 16px;
+  border-radius: 16px;
+  border-color: rgba(116, 145, 222, 0.24);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18' fill='none'%3E%3Cpath d='M4.5 6.75L9 11.25L13.5 6.75' stroke='%23243146' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      no-repeat right 16px center,
+    rgba(255, 255, 255, 0.96);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.food-waste-add-btn {
+  min-height: 48px;
+  min-width: 192px;
+  margin-top: 0;
+  border-radius: 16px;
+  border-color: rgba(55, 113, 241, 0.24);
+  background: linear-gradient(180deg, #4d88ff 0%, #3c72ed 100%);
+  color: #ffffff;
+  box-shadow: 0 18px 30px rgba(61, 114, 237, 0.22);
+  font-size: 14px;
+}
+
+.food-waste-add-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #4a84f8 0%, #3469e0 100%);
+  filter: none;
+}
+
+.food-waste-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.food-waste-summary-card {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.food-waste-data-panel {
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(149, 169, 226, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.95)),
+    #ffffff;
+  box-shadow: 0 14px 34px rgba(83, 109, 167, 0.06);
+}
+
+.food-waste-data-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.food-waste-data-panel-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #1e293b;
+}
+
+.food-waste-data-panel-body {
+  min-width: 0;
+}
+
+.food-waste-data-panel .table-wrap {
+  border-radius: 20px;
+}
+
+.food-waste-data-panel .data-table th {
+  background: #f3f6ff;
+}
+
+@media (max-width: 1120px) {
+  .action-toolbar-card {
+    width: 100%;
+  }
+
+  .action-toolbar-secondary {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .food-waste-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .food-waste-toolbar-card {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .food-waste-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .action-toolbar-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-toolbar-secondary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-btn-primary-solid,
+  .action-btn-secondary-soft {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .food-waste-hero-copy {
+    gap: 14px;
+  }
+
+  .food-waste-hero-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+  }
+
+  .food-waste-hero-icon-svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .food-waste-toolbar-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .food-waste-filter-field {
+    flex: initial;
+    width: 100%;
+  }
+
+  .food-waste-add-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .food-waste-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .food-waste-summary-card {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .food-waste-page-card {
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  .food-waste-data-panel {
+    padding: 16px;
+    border-radius: 22px;
+  }
+}
+
+@media (max-width: 540px) {
+  .food-waste-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .food-waste-summary-card {
+    padding: 16px;
+  }
+
+  .food-waste-page-card {
+    padding: 14px;
+  }
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.action-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 12px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 0.5px solid var(--border-tertiary);
+  overflow: visible;
+}
+
+.action-icon-btn svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.action-icon-btn-label {
+  display: none;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.action-icon-btn::before,
+.action-icon-btn::after {
+  position: absolute;
+  left: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px);
+  transition: opacity 0.08s ease-out, transform 0.08s ease-out;
+  z-index: 20;
+}
+
+.action-icon-btn::before {
+  content: attr(data-tooltip);
+  bottom: calc(100% + 10px);
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: rgba(24, 24, 27, 0.94);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+}
+
+.action-icon-btn::after {
+  content: "";
+  bottom: calc(100% + 4px);
+  width: 8px;
+  height: 8px;
+  background: rgba(24, 24, 27, 0.94);
+  transform: translate(-50%, 6px) rotate(45deg);
+}
+
+.action-icon-btn:hover::before,
+.action-icon-btn:hover::after,
+.action-icon-btn:focus-visible::before,
+.action-icon-btn:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.action-icon-btn:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.28);
+  outline-offset: 2px;
+}
+
+.action-icon-btn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+}
+
+.action-icon-btn-view {
+  color: #4c7bf0;
+}
+
+.action-icon-btn-view:hover:not(:disabled) {
+  color: #3467e5;
+  background: rgba(76, 123, 240, 0.08);
+}
+
+.action-icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.action-icon-btn:disabled::before,
+.action-icon-btn:disabled::after {
+  display: none;
+}
+
+.action-icon-btn-delete {
+  color: var(--text-danger);
+  border-color: var(--border-danger);
+  background: var(--bg-danger);
+}
+
+.action-icon-btn-delete:hover:not(:disabled) {
+  background: var(--bg-danger);
+  filter: brightness(0.98);
+}
+
+.action-icon-btn-history {
+  color: var(--text-info);
+  border-color: var(--border-info);
+  background: var(--bg-info);
+}
+
+.action-icon-btn-history:hover:not(:disabled) {
+  background: var(--bg-info);
+  filter: brightness(0.98);
+}
+
+.daily-report-table .col-no,
+.menu-report-table .col-no,
+.shopping-report-table .col-no,
+.beneficiary-group-table .col-no {
+  width: 52px;
+}
+
+.daily-report-table .col-date,
+.menu-report-table .col-date,
+.shopping-report-table .col-date {
+  min-width: 190px;
+}
+
+.daily-report-table .col-total {
+  min-width: 88px;
+}
+
+.daily-report-table .col-portion {
+  min-width: 110px;
+}
+
+.daily-report-table .col-group {
+  min-width: 340px;
+}
+
+.daily-report-table .col-updated {
+  min-width: 180px;
+}
+
+.daily-report-table .daily-group-head {
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+.daily-report-table .col-actions,
+.menu-report-table .col-actions,
+.shopping-report-table .col-actions,
+.beneficiary-group-table .col-actions {
+  min-width: 168px;
+}
+
+.menu-report-table .col-menu {
+  min-width: 250px;
+}
+
+.menu-report-table .col-nutrition {
+  min-width: 220px;
+}
+
+.shopping-report-table .col-menu {
+  min-width: 520px;
+}
+
+.shopping-report-table .col-money {
+  min-width: 150px;
+}
+
+.shopping-report-table .col-count {
+  min-width: 104px;
+}
+
+.shopping-date-cell {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.shopping-menu-cell {
+  min-width: 0;
+  line-height: 1.45;
+  color: #2c3447;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.shopping-money-cell {
+  display: inline-block;
+  min-width: 120px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.shopping-count-cell {
+  display: inline-flex;
+  justify-content: flex-end;
+  min-width: 28px;
+  font-variant-numeric: tabular-nums;
+}
+
+.shopping-difference-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 34px;
+  min-width: 128px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid transparent;
+}
+
+.shopping-difference-badge-positive {
+  color: #2f63d7;
+  background: rgba(77, 130, 255, 0.12);
+  border-color: rgba(77, 130, 255, 0.16);
+}
+
+.shopping-difference-badge-negative {
+  color: #c14f46;
+  background: rgba(239, 100, 97, 0.12);
+  border-color: rgba(239, 100, 97, 0.16);
+}
+
+.shopping-difference-badge-neutral {
+  color: #63708a;
+  background: rgba(122, 145, 191, 0.1);
+  border-color: rgba(122, 145, 191, 0.12);
+}
+
+.shopping-difference-total {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 14px;
+}
+
+.shopping-difference-total-positive {
+  color: #2f63d7;
+  background: rgba(77, 130, 255, 0.12);
+}
+
+.shopping-difference-total-negative {
+  color: #c14f46;
+  background: rgba(239, 100, 97, 0.12);
+}
+
+.shopping-difference-total-neutral {
+  color: #63708a;
+  background: rgba(122, 145, 191, 0.1);
+}
+
+.shopping-summary-difference-card-positive .summary-metric-icon {
+  color: #2f63d7;
+  background: linear-gradient(180deg, rgba(77, 130, 255, 0.16), rgba(77, 130, 255, 0.08));
+  border-color: rgba(77, 130, 255, 0.16);
+}
+
+.shopping-summary-difference-card-negative .summary-metric-icon {
+  color: #c14f46;
+  background: linear-gradient(180deg, rgba(239, 100, 97, 0.16), rgba(239, 100, 97, 0.08));
+  border-color: rgba(239, 100, 97, 0.16);
+}
+
+.shopping-summary-difference-card-negative .summary-metric-content strong {
+  color: #c14f46;
+}
+
+.shopping-summary-difference-card-neutral .summary-metric-icon {
+  color: #63708a;
+  background: linear-gradient(180deg, rgba(122, 145, 191, 0.14), rgba(122, 145, 191, 0.08));
+  border-color: rgba(122, 145, 191, 0.12);
+}
+
+.beneficiary-group-table .col-type {
+  min-width: 130px;
+}
+
+.beneficiary-group-table .col-name {
+  min-width: 220px;
+}
+
+.beneficiary-group-table .col-portion {
+  min-width: 130px;
+}
+
+.empty-state {
+  background: var(--bg-primary);
+  border: 0.5px dashed var(--border-secondary);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.page-actions-stack {
+  align-items: flex-end;
+}
+

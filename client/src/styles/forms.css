@@ -1,0 +1,400 @@
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-tertiary);
+  background: transparent;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+button:hover:not(:disabled) { background: var(--bg-secondary); }
+button:active:not(:disabled) { transform: scale(0.98); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.button-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.button-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+.status-quick-btn {
+  border-color: var(--border-info);
+  color: var(--text-info);
+  background: var(--bg-info);
+  font-weight: 500;
+}
+
+.status-quick-btn.active {
+  border-color: #2f6b11;
+  color: #ffffff;
+  background: #2f6b11;
+}
+
+.status-quick-btn.active:hover:not(:disabled) {
+  background: #25550e;
+}
+
+.quick-action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  background: #fcfbf8;
+}
+
+.quick-action-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quick-action-copy strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.quick-action-copy p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.field-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.report-header-actions {
+  align-items: stretch;
+}
+
+.weekly-filter-panel {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-lg);
+}
+
+.weekly-filter-panel.has-open-suggestions {
+  padding-bottom: 170px;
+}
+
+.weekly-filter-action {
+  display: flex;
+  align-items: flex-end;
+}
+
+.weekly-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.weekly-summary-grid.compact {
+  margin-top: 0;
+}
+
+.weekly-section {
+  margin-top: 24px;
+}
+
+.weekly-section-head {
+  margin-bottom: 12px;
+}
+
+.weekly-menu-list,
+.weekly-nutrition-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weekly-menu-list span,
+.weekly-nutrition-list span {
+  line-height: 1.5;
+}
+
+.price-monitoring-search {
+  min-width: min(360px, 100%);
+}
+
+.price-monitoring-body {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.price-monitoring-embedded {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+}
+
+.price-monitoring-results {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 4px;
+}
+
+.price-monitoring-search-wrap {
+  position: relative;
+  z-index: 6;
+}
+
+.price-monitoring-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #ffffff;
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  max-height: 240px;
+  overflow-y: auto;
+  min-height: 72px;
+}
+
+.price-monitoring-suggestion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 0.5px solid var(--border-tertiary);
+  border-radius: 0;
+}
+
+.price-monitoring-suggestion:last-child {
+  border-bottom: 0;
+}
+
+.price-monitoring-suggestion strong {
+  font-size: 12px;
+}
+
+.price-monitoring-suggestion span {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.price-chart-card {
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.price-monitoring-table-wrap {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.price-chart-svg {
+  width: 100%;
+  min-width: 680px;
+  height: auto;
+  display: block;
+}
+
+.price-chart-axis {
+  stroke: rgba(0, 0, 0, 0.18);
+  stroke-width: 1;
+}
+
+.price-chart-line {
+  fill: none;
+  stroke: #378add;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.price-chart-point {
+  fill: #378add;
+}
+
+.price-chart-label,
+.price-chart-value {
+  fill: var(--text-secondary);
+  font-size: 11px;
+}
+
+.price-change-indicator {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.price-change-indicator.up {
+  color: #8a3d00;
+}
+
+.price-change-indicator.down {
+  color: #1f6c42;
+}
+
+.price-change-indicator.same {
+  color: var(--text-secondary);
+}
+
+.price-detection-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.price-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.price-status-badge.naik {
+  background: var(--bg-warning);
+  color: var(--text-warning);
+}
+
+.price-status-badge.turun {
+  background: var(--bg-success);
+  color: var(--text-success);
+}
+
+.price-status-badge.tetap {
+  background: var(--bg-info);
+  color: var(--text-info);
+}
+
+.price-status-badge.tanpa-histori {
+  background: #f1f0eb;
+  color: var(--text-secondary);
+}
+
+.menu-form-sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg-primary);
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.menu-drag-helper {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.menu-sort-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.menu-sort-card {
+  border: 1px solid var(--border-tertiary);
+  border-radius: 14px;
+  background: #fcfbf8;
+  padding: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.menu-sort-card:hover {
+  border-color: var(--border-info);
+}
+
+.menu-sort-card.dragging {
+  opacity: 0.6;
+  border-color: var(--border-info);
+  box-shadow: 0 8px 24px rgba(55, 138, 221, 0.12);
+}
+
+.menu-sort-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.menu-sort-position {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.menu-sort-grip {
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+  cursor: grab;
+  user-select: none;
+}
+
+@media (min-width: 768px) {
+  .weekly-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .menu-sort-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+input[type="date"],
+input[type="number"],
+input[type="text"],
+select {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+input:focus {
+  outline: 2px solid var(--border-info);
+  outline-offset: -1px;
+}
+
+select:focus {
+  outline: 2px solid var(--border-info);
+  outline-offset: -1px;
+}
+
