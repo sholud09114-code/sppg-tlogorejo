@@ -204,6 +204,47 @@
   flex-wrap: wrap;
 }
 
+.menu-report-mobile-card {
+  gap: 11px;
+  padding: 14px;
+}
+
+.menu-report-mobile-menu-copy {
+  color: #1f2a3d;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.menu-report-mobile-menu-list {
+  display: grid;
+  gap: 3px;
+}
+
+.menu-report-mobile-menu-list div {
+  overflow-wrap: anywhere;
+}
+
+.menu-report-mobile-metrics {
+  gap: 8px;
+}
+
+.menu-report-mobile-metrics .mobile-metric {
+  min-height: 58px;
+  padding: 10px 12px;
+}
+
+.menu-report-mobile-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.menu-report-mobile-actions .action-icon-btn {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 8px;
+}
+
 .mobile-submit-bar {
   display: none;
 }

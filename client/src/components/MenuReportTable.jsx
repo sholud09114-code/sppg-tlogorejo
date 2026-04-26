@@ -15,7 +15,7 @@ function renderMenuNames(report) {
   }
 
   return (
-    <div className="space-y-1">
+    <div className="menu-report-mobile-menu-list">
       {menuNames.map((name, index) => (
         <div key={`${report.id}-${index}`}>{name}</div>
       ))}
@@ -74,7 +74,7 @@ export default function MenuReportTable({
     <>
       <div className="mobile-data-list">
         {reports.map((report, index) => (
-          <article className="mobile-data-card" key={report.id}>
+          <article className="mobile-data-card menu-report-mobile-card" key={report.id}>
             <div className="mobile-data-card-head">
               <div>
                 <div className="mobile-data-card-title">{formatDate(report.menu_date)}</div>
@@ -84,9 +84,11 @@ export default function MenuReportTable({
             </div>
             <div className="mobile-data-section">
               <span className="mobile-data-label">Nama menu</span>
-              <div className="mobile-data-copy">{renderMenuNames(report)}</div>
+              <div className="mobile-data-copy menu-report-mobile-menu-copy">
+                {renderMenuNames(report)}
+              </div>
             </div>
-            <div className="mobile-metric-grid">
+            <div className="mobile-metric-grid menu-report-mobile-metrics">
               <div className="mobile-metric">
                 <span>Energi kecil</span>
                 <strong>{formatNumber(report.small_energy)} kkal</strong>
@@ -96,7 +98,7 @@ export default function MenuReportTable({
                 <strong>{formatNumber(report.large_energy)} kkal</strong>
               </div>
             </div>
-            <div className="table-actions mobile-table-actions">
+            <div className="table-actions mobile-table-actions menu-report-mobile-actions">
               <ActionIconButton action="view" label="Lihat" onClick={() => onView(report)} />
               {canManage ? (
                 <>

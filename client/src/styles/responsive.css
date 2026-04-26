@@ -395,4 +395,8 @@
     flex: 1 1 calc(50% - 6px);
     justify-content: center;
   }
+
+  .menu-report-mobile-actions .action-icon-btn {
+    flex: initial;
+  }
 }
