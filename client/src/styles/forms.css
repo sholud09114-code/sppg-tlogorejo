@@ -314,7 +314,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   width: min(1180px, 100%);
   max-height: calc(100vh - 2rem);
   overflow: hidden;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   padding: 22px 24px 16px;
 }
 
@@ -327,8 +327,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .menu-form-close-btn {
   min-height: 42px;
   padding-inline: 16px;
-  border-radius: 14px;
-  background: #ffffff;
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
 }
 
 .menu-report-form {
@@ -346,9 +346,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-form-section {
   padding: 18px;
-  border: 1px solid rgba(122, 145, 191, 0.14);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.98);
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
 }
 
 .menu-form-section + .menu-form-section {
@@ -368,14 +368,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-form-section-head h4 {
   margin: 0;
-  color: #2e68d8;
+  color: var(--text-info);
   font-size: 15px;
-  font-weight: 750;
+  font-weight: 600;
   line-height: 1.25;
 }
 
 .menu-form-section-head h4 span {
-  color: #5f5e5a;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -387,8 +387,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .menu-form-step {
-  color: #2e68d8;
-  font-weight: 800;
+  color: var(--text-info);
+  font-weight: 600;
   line-height: 1.25;
 }
 
@@ -406,16 +406,17 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   align-content: center;
   gap: 4px;
   padding: 20px;
-  border: 1.5px dashed rgba(76, 123, 240, 0.35);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(244, 248, 255, 0.94));
-  color: #31559b;
+  border: 1px dashed var(--border-info);
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  color: var(--text-info);
   text-align: center;
   cursor: pointer;
 }
 
 .menu-upload-dropzone strong {
   font-size: 14px;
+  font-weight: 500;
   line-height: 1.25;
 }
 
@@ -426,9 +427,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-upload-dropzone small {
   margin-top: 8px;
-  color: #6d7990;
+  color: var(--text-secondary);
   font-size: 11.5px;
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .menu-upload-icon {
@@ -437,9 +438,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   height: 30px;
   place-items: center;
   border-radius: 999px;
-  color: #386ee8;
+  color: var(--text-info);
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .menu-upload-input {
@@ -460,16 +461,16 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-import-note {
   margin: 0;
-  color: #69748a;
+  color: var(--text-secondary);
   font-size: 12px;
   line-height: 1.4;
 }
 
 .menu-process-btn {
-  color: #386ee8;
-  border-color: rgba(76, 123, 240, 0.2);
-  background: rgba(239, 245, 255, 0.94);
-  font-weight: 650;
+  color: var(--text-info);
+  border-color: var(--border-info);
+  background: var(--bg-info);
+  font-weight: 500;
 }
 
 .menu-date-field {
@@ -484,8 +485,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-sort-card {
   min-height: 114px;
-  border: 1px solid rgba(122, 145, 191, 0.16);
-  border-radius: 16px;
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-lg);
   background: #fcfbf8;
   padding: 12px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
@@ -498,7 +499,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .menu-sort-card.dragging {
   opacity: 0.6;
   border-color: var(--border-info);
-  box-shadow: 0 8px 24px rgba(55, 138, 221, 0.12);
+  box-shadow: 0 8px 24px rgba(55, 138, 221, 0.08);
 }
 
 .menu-sort-card-head {
@@ -515,11 +516,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   justify-content: center;
   min-width: 26px;
   height: 26px;
-  border-radius: 9px;
-  background: #eaf1ff;
-  color: #386ee8;
+  border-radius: var(--radius-md);
+  background: var(--bg-info);
+  color: var(--text-info);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .menu-sort-grip {
@@ -534,14 +535,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .menu-sort-card label {
   display: block;
   margin-bottom: 5px;
-  color: #2d3648;
+  color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .menu-sort-card input {
   min-height: 42px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
 .menu-nutrition-grid {
@@ -552,17 +553,17 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-nutrition-card {
   padding: 18px;
-  border: 1px solid rgba(122, 145, 191, 0.14);
-  border-radius: 18px;
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-lg);
   background: #fcfbf8;
 }
 
 .menu-nutrition-title {
   display: inline-flex;
   margin-bottom: 14px;
-  color: #4f5f7d;
+  color: var(--text-secondary);
   font-size: 14px;
-  font-weight: 750;
+  font-weight: 500;
 }
 
 .menu-nutrition-fields {
@@ -573,18 +574,18 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-nutrition-fields input {
   min-height: 42px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
 .menu-form-info {
   margin-top: 16px;
   padding: 12px 14px;
-  border: 1px solid rgba(76, 123, 240, 0.1);
-  border-radius: 12px;
-  background: #f2f6ff;
-  color: #62708d;
+  border: 0.5px solid var(--border-tertiary);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
   font-size: 12.5px;
-  font-weight: 650;
+  font-weight: 500;
 }
 
 .menu-form-actions {
@@ -597,7 +598,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .menu-form-actions button {
   min-height: 46px;
   min-width: 98px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
 }
 
 @media (min-width: 768px) {
