@@ -302,7 +302,7 @@ export default function MenuReportForm({
   return (
     <div className="modal-backdrop" role="presentation">
       <div
-        className="modal-card flex max-h-[calc(100vh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl p-4 sm:max-h-[calc(100vh-2rem)] sm:p-5"
+        className="modal-card menu-report-form-card"
         role="dialog"
         aria-modal="true"
       >
@@ -311,61 +311,76 @@ export default function MenuReportForm({
             <h3>{initialData?.id ? "Edit menu" : "Tambah menu"}</h3>
             <p>Input data menu dan kandungan gizi harian.</p>
           </div>
-          <button type="button" onClick={onClose} disabled={loading}>
+          <button type="button" className="menu-form-close-btn" onClick={onClose} disabled={loading}>
             Tutup
           </button>
         </div>
 
-        <form className="modal-form flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
-          <div className="menu-form-sticky-top">
-            <div className="space-y-4">
-              <div className="shopping-import-card rounded-2xl p-4">
-                <div className="shopping-import-head">
-                  <div>
-                    <span className="summary-card-label">Import Gambar</span>
-                    <p className="shopping-items-copy">
-                      Upload poster menu untuk mengisi draft form. Hasil import hanya draft dan tetap perlu dicek sebelum disimpan.
-                    </p>
-                  </div>
+        <form className="modal-form menu-report-form" onSubmit={handleSubmit}>
+          <div className="menu-report-form-body">
+            <section className="menu-form-section">
+              <div className="menu-form-section-head">
+                <span className="menu-form-step">1.</span>
+                <div>
+                  <h4>Unggah Gambar <span>(Opsional)</span></h4>
+                  <p>Upload poster atau gambar menu untuk memudahkan identifikasi.</p>
+                </div>
+              </div>
+
+              <div className="menu-import-layout">
+                <div>
+                  <label className="menu-upload-dropzone" htmlFor="menu_import_image">
+                    <span className="menu-upload-icon">↥</span>
+                    <strong>Drag & drop gambar di sini</strong>
+                    <span>atau klik untuk memilih file</span>
+                    <small>PNG, JPG, JPEG (maks. 5MB)</small>
+                  </label>
+                  <input
+                    id="menu_import_image"
+                    className="menu-upload-input"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                    onChange={handleImageFileChange}
+                    disabled={loading || imageProcessing}
+                  />
                 </div>
 
-                <div className="shopping-import-grid mt-3">
-                  <div className="form-field">
-                    <label htmlFor="menu_import_image">Upload file gambar</label>
-                    <input
-                      id="menu_import_image"
-                      type="file"
-                      accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                      onChange={handleImageFileChange}
-                      disabled={loading || imageProcessing}
-                    />
-                  </div>
+                <div className="menu-import-side">
                   <div className="form-field">
                     <label>File terpilih</label>
                     <div className="shopping-import-file">
                       {selectedImageFile?.name || "Belum ada file dipilih"}
                     </div>
                   </div>
-                </div>
-
-                <div className="shopping-import-actions mt-3">
+                  <div className="shopping-import-actions">
                   <button
                     type="button"
+                    className="menu-process-btn"
                     onClick={handleProcessImage}
                     disabled={loading || imageProcessing}
                   >
                     {imageProcessing ? "Memproses..." : "Proses gambar"}
                   </button>
                 </div>
+                  <p className="menu-import-note">Hasil import hanya berupa draft dan tetap perlu dicek sebelum disimpan.</p>
+                </div>
+              </div>
 
                 {imageDraftStatus && (
                   <div className={`shopping-import-status ${imageDraftStatus.kind || "info"}`}>
                     {imageDraftStatus.message}
                   </div>
                 )}
-              </div>
+            </section>
 
-              <div className="form-field">
+            <section className="menu-form-section">
+              <div className="menu-form-section-head">
+                <span className="menu-form-step">2.</span>
+                <div>
+                  <h4>Tanggal</h4>
+                </div>
+              </div>
+              <div className="form-field menu-date-field">
                 <label htmlFor="menu_date">Tanggal</label>
                 <input
                   id="menu_date"
@@ -376,14 +391,16 @@ export default function MenuReportForm({
                   disabled={loading}
                 />
               </div>
-            </div>
-          </div>
+            </section>
 
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 sm:pr-2">
-            <div className="form-grid grid-cols-1 md:grid-cols-2">
-            <div className="form-field form-field-wide md:col-span-2">
-              <label>Nama Menu</label>
-              <p className="menu-drag-helper">Geser dan lepas untuk mengubah urutan menu.</p>
+            <section className="menu-form-section">
+              <div className="menu-form-section-head">
+                <span className="menu-form-step">3.</span>
+                <div>
+                  <h4>Daftar Menu</h4>
+                  <p>Geser kartu untuk mengubah urutan menu.</p>
+                </div>
+              </div>
               <div className="menu-sort-grid">
                 {MENU_NAME_FIELDS.map((field, index) => (
                   <div
@@ -396,12 +413,14 @@ export default function MenuReportForm({
                     onDragEnd={handleMenuDragEnd}
                   >
                     <div className="menu-sort-card-head">
-                      <span className="menu-sort-position">Menu {index + 1}</span>
+                      <span className="menu-sort-index">{index + 1}</span>
                       <span className="menu-sort-grip" aria-hidden="true">
                         ⋮⋮
                       </span>
                     </div>
+                    <label htmlFor={`menu_name_${index + 1}`}>Nama menu {index + 1}</label>
                     <input
+                      id={`menu_name_${index + 1}`}
                       type="text"
                       className="w-full"
                       value={form[field]}
@@ -412,13 +431,23 @@ export default function MenuReportForm({
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </section>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="summary-card rounded-2xl p-4">
-                <span className="summary-card-label">Porsi Kecil</span>
-                <div className="mt-3 grid grid-cols-1 gap-3">
+            <section className="menu-form-section">
+              <div className="menu-form-section-head menu-form-section-head-inline">
+                <div className="menu-form-section-title">
+                  <span className="menu-form-step">4.</span>
+                  <div>
+                    <h4>Kandungan Gizi</h4>
+                    <p>Isi nilai gizi untuk porsi kecil dan porsi besar.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="menu-nutrition-grid">
+                <div className="menu-nutrition-card">
+                <span className="menu-nutrition-title">Porsi Kecil</span>
+                <div className="menu-nutrition-fields">
                   {SMALL_FIELDS.map((field) => (
                     <div className="form-field" key={field}>
                       <label htmlFor={field}>{FIELD_LABELS[field]}</label>
@@ -439,9 +468,9 @@ export default function MenuReportForm({
                 </div>
               </div>
 
-              <div className="summary-card rounded-2xl p-4">
-                <span className="summary-card-label">Porsi Besar</span>
-                <div className="mt-3 grid grid-cols-1 gap-3">
+                <div className="menu-nutrition-card">
+                <span className="menu-nutrition-title">Porsi Besar</span>
+                <div className="menu-nutrition-fields">
                   {LARGE_FIELDS.map((field) => (
                     <div className="form-field" key={field}>
                       <label htmlFor={field}>{FIELD_LABELS[field]}</label>
@@ -462,11 +491,13 @@ export default function MenuReportForm({
                 </div>
               </div>
             </div>
+              <div className="menu-form-info">Pastikan semua nilai sudah sesuai. Data yang disimpan akan digunakan untuk laporan dan analisis gizi.</div>
+            </section>
           </div>
 
           {error && <div className="error-message">{error}</div>}
 
-          <div className="modal-actions border-t border-black/8 pt-3">
+          <div className="modal-actions menu-form-actions">
             <button type="button" onClick={onClose} disabled={loading}>
               Batal
             </button>

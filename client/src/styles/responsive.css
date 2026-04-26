@@ -344,6 +344,34 @@
     grid-template-columns: 1fr;
   }
 
+  .menu-report-form-card {
+    padding: 18px 16px 0;
+    border-radius: 20px;
+  }
+
+  .menu-report-form-body {
+    padding-right: 0;
+  }
+
+  .menu-form-section {
+    padding: 14px;
+  }
+
+  .menu-import-layout,
+  .menu-nutrition-grid,
+  .menu-nutrition-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-upload-dropzone {
+    min-height: 126px;
+  }
+
+  .menu-form-actions {
+    margin: 0 -16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+
   .shopping-item-grid {
     grid-template-columns: 1fr;
   }
