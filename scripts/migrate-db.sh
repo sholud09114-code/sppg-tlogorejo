@@ -20,6 +20,15 @@ if ! command -v mysql >/dev/null 2>&1; then
   exit 1
 fi
 
+MYSQL_SSL_ARGS=()
+DB_SSL_NORMALIZED="$(printf '%s' "${DB_SSL:-}" | tr '[:upper:]' '[:lower:]')"
+if [[ "$DB_SSL_NORMALIZED" =~ ^(1|true|yes|on|required)$ ]]; then
+  MYSQL_SSL_ARGS+=(--ssl-mode=REQUIRED)
+  if [[ -n "${DB_SSL_CA_FILE:-}" ]]; then
+    MYSQL_SSL_ARGS+=(--ssl-ca="$DB_SSL_CA_FILE")
+  fi
+fi
+
 run_sql_file() {
   local file="$1"
   echo "Running $file"
@@ -29,12 +38,14 @@ run_sql_file() {
       --host="$DB_HOST" \
       --port="$DB_PORT" \
       --user="$DB_USER" \
+      "${MYSQL_SSL_ARGS[@]}" \
       < "$file"
   else
     mysql \
       --host="$DB_HOST" \
       --port="$DB_PORT" \
       --user="$DB_USER" \
+      "${MYSQL_SSL_ARGS[@]}" \
       < "$file"
   fi
 }

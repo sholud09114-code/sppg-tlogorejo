@@ -174,6 +174,8 @@ Output backup disimpan ke folder `backups/` dengan nama file bertimestamp. Folde
 
 Sebelum deploy, pastikan `client` dan `server` memakai konfigurasi production, bukan nilai local development.
 
+Untuk uji coba gratis memakai Vercel + Render + Aiven MySQL, ikuti panduan khusus di [`docs/deploy-free.md`](docs/deploy-free.md).
+
 ### Backend production
 
 Gunakan `server/.env.production.example` sebagai daftar environment variable yang perlu diisi di panel hosting atau VPS.

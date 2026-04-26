@@ -22,6 +22,15 @@ if ! command -v mysqldump >/dev/null 2>&1; then
   exit 1
 fi
 
+MYSQL_SSL_ARGS=()
+DB_SSL_NORMALIZED="$(printf '%s' "${DB_SSL:-}" | tr '[:upper:]' '[:lower:]')"
+if [[ "$DB_SSL_NORMALIZED" =~ ^(1|true|yes|on|required)$ ]]; then
+  MYSQL_SSL_ARGS+=(--ssl-mode=REQUIRED)
+  if [[ -n "${DB_SSL_CA_FILE:-}" ]]; then
+    MYSQL_SSL_ARGS+=(--ssl-ca="$DB_SSL_CA_FILE")
+  fi
+fi
+
 mkdir -p "$BACKUP_DIR"
 
 timestamp="$(date +%Y%m%d-%H%M%S)"
@@ -32,6 +41,7 @@ if [[ -n "${DB_PASSWORD:-}" ]]; then
     --host="$DB_HOST" \
     --port="$DB_PORT" \
     --user="$DB_USER" \
+    "${MYSQL_SSL_ARGS[@]}" \
     --single-transaction \
     --routines \
     --triggers \
@@ -41,6 +51,7 @@ else
     --host="$DB_HOST" \
     --port="$DB_PORT" \
     --user="$DB_USER" \
+    "${MYSQL_SSL_ARGS[@]}" \
     --single-transaction \
     --routines \
     --triggers \
