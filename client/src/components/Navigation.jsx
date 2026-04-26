@@ -54,7 +54,7 @@ function NavButton({ item, active, onPress, mobile = false }) {
   );
 }
 
-export default function Navigation({ active, onChange }) {
+export default function Navigation({ active, onChange, user, onLogout }) {
   const [moreOpen, setMoreOpen] = useState(false);
 
   const moreActive = useMemo(
@@ -65,6 +65,11 @@ export default function Navigation({ active, onChange }) {
   const changePage = (page) => {
     setMoreOpen(false);
     onChange(page);
+  };
+
+  const handleLogout = () => {
+    setMoreOpen(false);
+    onLogout();
   };
 
   return (
@@ -124,6 +129,23 @@ export default function Navigation({ active, onChange }) {
                 </span>
               </button>
             ))}
+          </div>
+
+          <div className="mobile-more-account" aria-label="Profil pengguna mobile">
+            <div className="mobile-more-account-copy">
+              <span>Akun aktif</span>
+              <strong>{user?.name || "Pengguna"}</strong>
+              <small>{user?.role === "admin" ? "Administrator" : "Publik - lihat saja"}</small>
+            </div>
+            <button
+              type="button"
+              className="mobile-more-logout"
+              onClick={handleLogout}
+              aria-label="Logout"
+            >
+              <AppIcon name="logout" size={18} weight={APP_ICON_WEIGHT.action} />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </div>

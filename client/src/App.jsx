@@ -66,7 +66,7 @@ export default function App() {
       <aside className="app-sidebar">
         <Header />
         <div className="app-topbar-divider" aria-hidden="true" />
-        <Navigation active={activePage} onChange={navigateToPage} />
+        <Navigation active={activePage} onChange={navigateToPage} user={user} onLogout={logout} />
         <div className="app-sidebar-account" aria-label="Profil pengguna">
           <div className="app-sidebar-account-icon">
             <AppIcon name="user" size={24} weight={APP_ICON_WEIGHT.summary} />
