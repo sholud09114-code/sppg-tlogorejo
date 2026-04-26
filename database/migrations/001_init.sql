@@ -1,5 +1,4 @@
--- SPPG Tlogorejo — Database Schema
--- Phase 1: Daily Beneficiary Report Module
+-- SPPG Tlogorejo - initial database schema
 
 CREATE DATABASE IF NOT EXISTS sppg_tlogorejo
   CHARACTER SET utf8mb4
@@ -7,9 +6,6 @@ CREATE DATABASE IF NOT EXISTS sppg_tlogorejo
 
 USE sppg_tlogorejo;
 
--- =========================================
--- Users and role access
--- =========================================
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
@@ -21,26 +17,6 @@ CREATE TABLE IF NOT EXISTS users (
   INDEX idx_users_role (role)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS audit_logs (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NULL,
-  action VARCHAR(50) NOT NULL,
-  entity_type VARCHAR(80) NOT NULL,
-  entity_id VARCHAR(80) NULL,
-  old_data JSON NULL,
-  new_data JSON NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_audit_logs_user
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-  INDEX idx_audit_logs_user (user_id),
-  INDEX idx_audit_logs_entity (entity_type, entity_id),
-  INDEX idx_audit_logs_action (action),
-  INDEX idx_audit_logs_created_at (created_at)
-) ENGINE=InnoDB;
-
--- =========================================
--- Master data: units / schools
--- =========================================
 CREATE TABLE IF NOT EXISTS units (
   id INT AUTO_INCREMENT PRIMARY KEY,
   beneficiary_group_id INT NULL,
@@ -51,16 +27,12 @@ CREATE TABLE IF NOT EXISTS units (
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY uq_units_name (name),
   UNIQUE KEY uq_units_beneficiary_group_id (beneficiary_group_id),
   INDEX idx_beneficiary_group_id (beneficiary_group_id),
   INDEX idx_category (category),
   INDEX idx_active (is_active)
 ) ENGINE=InnoDB;
 
--- =========================================
--- Daily report header (one row per date)
--- =========================================
 CREATE TABLE IF NOT EXISTS daily_reports (
   id INT AUTO_INCREMENT PRIMARY KEY,
   report_date DATE NOT NULL UNIQUE,
@@ -71,9 +43,6 @@ CREATE TABLE IF NOT EXISTS daily_reports (
   INDEX idx_date (report_date)
 ) ENGINE=InnoDB;
 
--- =========================================
--- Daily report detail (one row per unit per date)
--- =========================================
 CREATE TABLE IF NOT EXISTS daily_report_details (
   id INT AUTO_INCREMENT PRIMARY KEY,
   report_id INT NOT NULL,
@@ -92,9 +61,6 @@ CREATE TABLE IF NOT EXISTS daily_report_details (
   INDEX idx_unit (unit_id)
 ) ENGINE=InnoDB;
 
--- =========================================
--- Beneficiary groups
--- =========================================
 CREATE TABLE IF NOT EXISTS beneficiary_groups (
   id INT AUTO_INCREMENT PRIMARY KEY,
   group_type ENUM('Paud/KB/TK', 'SD', 'SMP/MTs', 'SMK') NOT NULL,
@@ -109,9 +75,6 @@ CREATE TABLE IF NOT EXISTS beneficiary_groups (
   INDEX idx_beneficiary_group_name (group_name)
 ) ENGINE=InnoDB;
 
--- =========================================
--- Menu reports
--- =========================================
 CREATE TABLE IF NOT EXISTS menu_reports (
   id INT AUTO_INCREMENT PRIMARY KEY,
   menu_date DATE NOT NULL,
@@ -142,9 +105,21 @@ CREATE TABLE IF NOT EXISTS menu_reports (
   INDEX idx_menu_name (menu_name)
 ) ENGINE=InnoDB;
 
--- =========================================
--- Shopping reports
--- =========================================
+CREATE TABLE IF NOT EXISTS item_masters (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  item_code VARCHAR(50) NOT NULL,
+  item_name VARCHAR(200) NOT NULL,
+  category VARCHAR(100) NOT NULL DEFAULT '',
+  default_unit VARCHAR(50) NOT NULL DEFAULT '',
+  default_price DECIMAL(12,2) NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_item_master_code (item_code),
+  INDEX idx_item_master_name (item_name),
+  INDEX idx_item_master_active (is_active)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS shopping_reports (
   id INT AUTO_INCREMENT PRIMARY KEY,
   report_date DATE NOT NULL,
@@ -160,21 +135,6 @@ CREATE TABLE IF NOT EXISTS shopping_reports (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_shopping_report_date (report_date),
   INDEX idx_shopping_menu_name (menu_name)
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS item_masters (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  item_code VARCHAR(50) NOT NULL,
-  item_name VARCHAR(200) NOT NULL,
-  category VARCHAR(100) NOT NULL DEFAULT '',
-  default_unit VARCHAR(50) NOT NULL DEFAULT '',
-  default_price DECIMAL(12,2) NOT NULL DEFAULT 0,
-  is_active TINYINT(1) NOT NULL DEFAULT 1,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY uq_item_master_code (item_code),
-  INDEX idx_item_master_name (item_name),
-  INDEX idx_item_master_active (is_active)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS shopping_report_items (
@@ -197,46 +157,3 @@ CREATE TABLE IF NOT EXISTS shopping_report_items (
   INDEX idx_shopping_report_items_report (report_id),
   INDEX idx_shopping_report_items_order (display_order)
 ) ENGINE=InnoDB;
-
--- =========================================
--- Seed data: list of schools/units
--- =========================================
-CREATE TEMPORARY TABLE seed_units (
-  name VARCHAR(150) NOT NULL PRIMARY KEY,
-  category ENUM('PAUD/TK/KB', 'SD', 'SMP', 'SMK') NOT NULL,
-  default_target INT NOT NULL DEFAULT 0,
-  display_order INT NOT NULL DEFAULT 0
-) ENGINE=Memory;
-
-INSERT INTO seed_units (name, category, default_target, display_order) VALUES
-  ('KB Mawaddah',              'PAUD/TK/KB', 50, 1),
-  ('TPA Al-Hidayah',           'PAUD/TK/KB', 50, 2),
-  ('KB Masyitoh Jurang',       'PAUD/TK/KB', 50, 3),
-  ('KB Al Kautsar',            'PAUD/TK/KB', 50, 4),
-  ('RA Masyitoh Jurang',       'PAUD/TK/KB', 50, 5),
-  ('RA Nurul Iman Joho',       'PAUD/TK/KB', 50, 6),
-  ('RA Al Iman Tlogorejo',     'PAUD/TK/KB', 50, 7),
-  ('TK Tahfidz Sain Permata',  'PAUD/TK/KB', 50, 8),
-  ('TK Al Kautsar',            'PAUD/TK/KB', 50, 9),
-  ('SD N Tlogorejo',           'SD',         50, 10),
-  ('SMP N 4 Temanggung',       'SMP',        50, 11),
-  ('SMP Al Kautsar',           'SMP',        50, 12),
-  ('MTs Integrasi Al Hudlori', 'SMP',        50, 13),
-  ('SMK HKTI Temanggung',      'SMK',        50, 14);
-
-INSERT INTO units (name, category, default_target, display_order)
-SELECT seed.name, seed.category, seed.default_target, seed.display_order
-  FROM seed_units seed
- WHERE NOT EXISTS (
-   SELECT 1
-     FROM units existing
-    WHERE existing.name = seed.name
- );
-
-UPDATE units unit
-JOIN seed_units seed ON seed.name = unit.name
-   SET unit.category = seed.category,
-       unit.default_target = seed.default_target,
-       unit.display_order = seed.display_order;
-
-DROP TEMPORARY TABLE seed_units;
