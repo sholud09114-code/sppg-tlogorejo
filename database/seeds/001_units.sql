@@ -7,7 +7,7 @@ CREATE TEMPORARY TABLE seed_units (
   category ENUM('PAUD/TK/KB', 'SD', 'SMP', 'SMK') NOT NULL,
   default_target INT NOT NULL DEFAULT 0,
   display_order INT NOT NULL DEFAULT 0
-) ENGINE=Memory;
+) ENGINE=InnoDB;
 
 INSERT INTO seed_units (name, category, default_target, display_order) VALUES
   ('KB Mawaddah',              'PAUD/TK/KB', 50, 1),
