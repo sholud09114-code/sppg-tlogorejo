@@ -170,6 +170,101 @@ Script backup membaca `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, dan `DB_NA
 
 Output backup disimpan ke folder `backups/` dengan nama file bertimestamp. Folder ini sudah masuk `.gitignore`.
 
+## Persiapan hosting
+
+Sebelum deploy, pastikan `client` dan `server` memakai konfigurasi production, bukan nilai local development.
+
+### Backend production
+
+Gunakan `server/.env.production.example` sebagai daftar environment variable yang perlu diisi di panel hosting atau VPS.
+
+Minimal yang wajib:
+
+```env
+NODE_ENV=production
+PORT=4000
+CLIENT_URL=https://domain-frontend-anda.com
+DB_HOST=host-database-anda
+DB_PORT=3306
+DB_USER=sppg_app
+DB_PASSWORD=password-kuat
+DB_NAME=sppg_tlogorejo
+JWT_SECRET=secret-random-minimal-32-karakter
+JWT_EXPIRES_IN=8h
+DEFAULT_ADMIN_PASSWORD=password-admin-kuat
+DEFAULT_PUBLIC_PASSWORD=password-publik-kuat
+```
+
+Saat `NODE_ENV=production`, backend akan menolak start jika:
+- `JWT_SECRET` kosong, terlalu pendek, atau masih nilai contoh
+- `CLIENT_URL` kosong atau masih `localhost`
+- `DB_USER` masih `root`
+- `DB_PASSWORD` kosong
+- password default user kosong, masih `admin12345`, atau masih `publik12345`
+
+Jika memakai VPS dengan PM2:
+
+```bash
+cd server
+npm install --omit=dev
+pm2 start ecosystem.config.cjs
+pm2 save
+```
+
+Health check setelah backend jalan:
+
+```bash
+curl https://domain-api-anda.com/api/health
+```
+
+### Frontend production
+
+Gunakan `client/.env.production.example` sebagai acuan.
+
+Jika frontend dan backend satu domain lewat reverse proxy, biarkan:
+
+```env
+VITE_API_BASE_URL=/api
+```
+
+Jika frontend dan backend beda domain:
+
+```env
+VITE_API_BASE_URL=https://domain-api-anda.com/api
+```
+
+Lalu build:
+
+```bash
+cd client
+npm install
+npm run build
+```
+
+Folder hasil build ada di `client/dist`.
+
+SPA fallback sudah disiapkan untuk:
+- Netlify: `client/public/_redirects`
+- Vercel: `client/vercel.json`
+
+Jika memakai Apache, Nginx, atau cPanel static hosting, tambahkan rewrite manual agar reload URL seperti `/shopping-reports` tetap diarahkan ke `index.html`.
+
+### Database production
+
+Untuk membuat/memperbarui database dari CLI, isi env database terlebih dahulu lalu jalankan:
+
+```bash
+./scripts/migrate-db.sh
+```
+
+Script ini membaca `server/.env` secara default. Untuk memakai file lain:
+
+```bash
+ENV_FILE=/path/ke/.env.production ./scripts/migrate-db.sh
+```
+
+Catatan: migration awal berisi `CREATE DATABASE IF NOT EXISTS`, jadi user database yang dipakai untuk setup awal harus punya izin membuat database. Setelah database siap, aplikasi sebaiknya memakai user MySQL khusus aplikasi, bukan `root`.
+
 ## Fitur utama
 
 **Form laporan harian:**

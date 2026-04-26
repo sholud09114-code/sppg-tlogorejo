@@ -14,12 +14,13 @@ import foodWasteRoutes from "./routes/foodWasteRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
 import { bootstrapAuth } from "./controllers/authController.js";
 import { authenticateToken, requireAdminForMutations } from "./middleware/auth.js";
+import { assertRuntimeConfig, isProductionEnv } from "./config/env.js";
 import { assertJwtSecretConfigured } from "./utils/jwt.js";
 
 dotenv.config();
 
 const app = express();
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = isProductionEnv();
 const localhostOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
 const allowedClientOrigins = String(process.env.CLIENT_URL || "")
   .split(",")
@@ -95,6 +96,7 @@ app.use((err, req, res, _next) => {
 const PORT = process.env.PORT || 4000;
 
 async function start() {
+  assertRuntimeConfig();
   assertJwtSecretConfigured();
   await bootstrapAuth();
   app.listen(PORT, () => {
