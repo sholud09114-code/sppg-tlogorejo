@@ -212,6 +212,21 @@
     margin: 0;
     width: 100%;
     min-height: auto;
+    max-height: calc(100vh - 1.5rem);
+  }
+
+  @supports (height: 100dvh) {
+    .modal-card {
+      max-height: calc(100dvh - 1.5rem);
+    }
+  }
+
+  input[type="date"],
+  input[type="number"],
+  input[type="text"],
+  select,
+  textarea {
+    font-size: 16px;
   }
 
   .modal-actions {

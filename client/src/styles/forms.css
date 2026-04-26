@@ -131,6 +131,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   line-height: 1.5;
 }
 
+.weekly-mobile-nutrition {
+  color: #243146;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
 .price-monitoring-search {
   min-width: min(360px, 100%);
 }
@@ -378,7 +384,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 input[type="date"],
 input[type="number"],
 input[type="text"],
-select {
+select,
+textarea {
   font-family: inherit;
   font-size: 13px;
   padding: 6px 10px;
@@ -397,4 +404,3 @@ select:focus {
   outline: 2px solid var(--border-info);
   outline-offset: -1px;
 }
-

@@ -18,6 +18,16 @@ function renderNutritionBlock(report, portionSize) {
   );
 }
 
+function getMenuNames(report) {
+  return [
+    report.menu_name_1,
+    report.menu_name_2,
+    report.menu_name_3,
+    report.menu_name_4,
+    report.menu_name_5,
+  ].filter(Boolean);
+}
+
 export default function WeeklyReports() {
   const [filters, setFilters] = useState({
     start_date: "",
@@ -168,7 +178,40 @@ export default function WeeklyReports() {
             </div>
 
             {reportData.daily_reports.reports.length > 0 ? (
-              <div className="data-table-scroll-shell scroll-affordance mt-3" data-scroll-hint="Geser tabel">
+              <>
+              <div className="mobile-data-list mt-3">
+                {reportData.daily_reports.reports.map((report) => (
+                  <article className="mobile-data-card" key={`daily-mobile-${report.report_id}`}>
+                    <div className="mobile-data-card-head">
+                      <div>
+                        <div className="mobile-data-card-title">{formatDateLong(report.report_date)}</div>
+                        <div className="mobile-data-card-subtitle">Ringkasan PM harian</div>
+                      </div>
+                    </div>
+                    <div className="mobile-metric-grid">
+                      <div className="mobile-metric mobile-metric-emphasis">
+                        <span>Total PM</span>
+                        <strong>{formatNumber(report.total_pm)}</strong>
+                      </div>
+                      <div className="mobile-metric">
+                        <span>Porsi kecil</span>
+                        <strong>{formatNumber(report.total_small_portion)}</strong>
+                      </div>
+                      <div className="mobile-metric">
+                        <span>Porsi besar</span>
+                        <strong>{formatNumber(report.total_large_portion)}</strong>
+                      </div>
+                      {CATEGORY_ORDER.map((category) => (
+                        <div className="mobile-metric" key={`${report.report_id}-${category}`}>
+                          <span>{category}</span>
+                          <strong>{formatNumber(report.by_category?.[category])}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="data-table-scroll-shell scroll-affordance mt-3 desktop-data-table" data-scroll-hint="Geser tabel">
                 <div className="table-wrap">
                 <table className="data-table min-w-[1080px]">
                   <thead>
@@ -200,6 +243,7 @@ export default function WeeklyReports() {
                 </table>
                 </div>
               </div>
+              </>
             ) : (
               <div className="empty-state mt-3">Belum ada laporan PM harian pada rentang ini.</div>
             )}
@@ -225,7 +269,51 @@ export default function WeeklyReports() {
             </div>
 
             {reportData.menu_reports.reports.length > 0 ? (
-              <div className="data-table-scroll-shell scroll-affordance mt-3" data-scroll-hint="Geser tabel">
+              <>
+              <div className="mobile-data-list mt-3">
+                {reportData.menu_reports.reports.map((report) => {
+                  const menuNames = getMenuNames(report);
+                  return (
+                    <article className="mobile-data-card" key={`menu-mobile-${report.id}`}>
+                      <div className="mobile-data-card-head">
+                        <div>
+                          <div className="mobile-data-card-title">{formatDateLong(report.menu_date)}</div>
+                          <div className="mobile-data-card-subtitle">Ringkasan menu</div>
+                        </div>
+                      </div>
+                      <div className="mobile-data-section">
+                        <span className="mobile-data-label">Nama menu</span>
+                        <div className="mobile-data-copy">
+                          {menuNames.length > 0 ? (
+                            <div className="weekly-menu-list">
+                              {menuNames.map((name) => (
+                                <span key={`${report.id}-mobile-${name}`}>{name}</span>
+                              ))}
+                            </div>
+                          ) : (
+                            "-"
+                          )}
+                        </div>
+                      </div>
+                      <div className="mobile-metric-grid">
+                        <div className="mobile-metric">
+                          <span>Gizi porsi kecil</span>
+                          <div className="weekly-mobile-nutrition">
+                            {renderNutritionBlock(report, "small")}
+                          </div>
+                        </div>
+                        <div className="mobile-metric">
+                          <span>Gizi porsi besar</span>
+                          <div className="weekly-mobile-nutrition">
+                            {renderNutritionBlock(report, "large")}
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+              <div className="data-table-scroll-shell scroll-affordance mt-3 desktop-data-table" data-scroll-hint="Geser tabel">
                 <div className="table-wrap">
                 <table className="data-table min-w-[1180px]">
                   <thead>
@@ -242,14 +330,7 @@ export default function WeeklyReports() {
                         <td className="text-left">{formatDateLong(report.menu_date)}</td>
                         <td className="text-left">
                           <div className="weekly-menu-list">
-                            {[
-                              report.menu_name_1,
-                              report.menu_name_2,
-                              report.menu_name_3,
-                              report.menu_name_4,
-                              report.menu_name_5,
-                            ]
-                              .filter(Boolean)
+                            {getMenuNames(report)
                               .map((name) => (
                                 <span key={`${report.id}-${name}`}>{name}</span>
                               ))}
@@ -263,6 +344,7 @@ export default function WeeklyReports() {
                 </table>
                 </div>
               </div>
+              </>
             ) : (
               <div className="empty-state mt-3">Belum ada laporan menu pada rentang ini.</div>
             )}
@@ -300,7 +382,42 @@ export default function WeeklyReports() {
             </div>
 
             {reportData.shopping_reports.reports.length > 0 ? (
-              <div className="data-table-scroll-shell scroll-affordance mt-3" data-scroll-hint="Geser tabel">
+              <>
+              <div className="mobile-data-list mt-3">
+                {reportData.shopping_reports.reports.map((report) => (
+                  <article className="mobile-data-card" key={`shopping-mobile-${report.id}`}>
+                    <div className="mobile-data-card-head">
+                      <div>
+                        <div className="mobile-data-card-title">{formatDateLong(report.report_date)}</div>
+                        <div className="mobile-data-card-subtitle">{report.menu_name || "-"}</div>
+                      </div>
+                    </div>
+                    <div className="mobile-metric-grid">
+                      <div className="mobile-metric">
+                        <span>Porsi kecil</span>
+                        <strong>{formatNumber(report.small_portion_count)}</strong>
+                      </div>
+                      <div className="mobile-metric">
+                        <span>Porsi besar</span>
+                        <strong>{formatNumber(report.large_portion_count)}</strong>
+                      </div>
+                      <div className="mobile-metric mobile-metric-emphasis">
+                        <span>Total belanja</span>
+                        <strong>{formatMoney(report.total_spending)}</strong>
+                      </div>
+                      <div className="mobile-metric">
+                        <span>Pagu</span>
+                        <strong>{formatMoney(report.daily_budget)}</strong>
+                      </div>
+                      <div className="mobile-metric">
+                        <span>Selisih</span>
+                        <strong>{formatMoney(report.difference_amount)}</strong>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="data-table-scroll-shell scroll-affordance mt-3 desktop-data-table" data-scroll-hint="Geser tabel">
                 <div className="table-wrap">
                   <table className="data-table min-w-[1080px]">
                     <thead>
@@ -330,6 +447,7 @@ export default function WeeklyReports() {
                   </table>
                 </div>
               </div>
+              </>
             ) : (
               <div className="empty-state mt-3">Belum ada laporan belanja pada rentang ini.</div>
             )}
