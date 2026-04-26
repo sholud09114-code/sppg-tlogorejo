@@ -167,6 +167,43 @@ body {
   font-size: 14px;
 }
 
+.login-password-control {
+  position: relative;
+}
+
+.login-password-control input {
+  width: 100%;
+  padding-right: 46px;
+}
+
+.login-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #5f6b7d;
+  cursor: pointer;
+}
+
+.login-password-toggle:hover:not(:disabled) {
+  background: rgba(35, 92, 179, 0.08);
+  color: #204f9f;
+}
+
+.login-password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .login-error {
   padding: 10px 12px;
   border: 1px solid rgba(226, 75, 74, 0.18);
@@ -201,4 +238,3 @@ body {
     width: min(1600px, calc(100vw - 96px));
   }
 }
-

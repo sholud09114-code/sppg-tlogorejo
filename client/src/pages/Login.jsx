@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeSlash } from "@phosphor-icons/react";
 import brandMark from "../assets/bgn-logo-color-optimized.png";
 import { useAuth } from "../auth/AuthContext.jsx";
 
@@ -7,6 +8,7 @@ export default function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -66,16 +68,32 @@ export default function Login() {
 
           <div className="login-field">
             <label htmlFor="login-password">Password</label>
-            <input
-              id="login-password"
-              type="password"
-              autoComplete="current-password"
-              value={form.password}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, password: event.target.value }))
-              }
-              disabled={loading}
-            />
+            <div className="login-password-control">
+              <input
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                value={form.password}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, password: event.target.value }))
+                }
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="login-password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                disabled={loading}
+                aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
+                title={showPassword ? "Sembunyikan password" : "Lihat password"}
+              >
+                {showPassword ? (
+                  <EyeSlash size={20} weight="bold" />
+                ) : (
+                  <Eye size={20} weight="bold" />
+                )}
+              </button>
+            </div>
           </div>
 
           {error ? <div className="login-error">{error}</div> : null}
