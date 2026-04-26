@@ -1,170 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchReportByDate } from "../api/dailyReportApi.js";
 import { extractShoppingReportImage } from "../api/shoppingReportApi.js";
-import { formatMoney } from "../shared/utils/formatters.js";
-
-const UNIT_OPTIONS = ["kg", "gram", "liter", "ml", "pack", "pcs", "ikat", "buah"];
-const SMALL_PORTION_RATE = 8000;
-const LARGE_PORTION_RATE = 10000;
-
-function createEmptyItem() {
-  return {
-    master_item_id: null,
-    item_lookup: "",
-    description: "",
-    show_suggestions: false,
-    qty: 0,
-    unit_name: "",
-    price: 0,
-    amount: 0,
-    notes: "",
-  };
-}
-
-function getInitialState(initialData) {
-  return {
-    report_date: initialData?.report_date || "",
-    menu_name: initialData?.menu_name || "",
-    small_portion_count: initialData?.small_portion_count ?? 0,
-    large_portion_count: initialData?.large_portion_count ?? 0,
-    notes: initialData?.notes || "",
-    items:
-      initialData?.items?.length > 0
-        ? initialData.items.map((item) => ({
-            master_item_id: item.master_item_id ?? null,
-            item_lookup: item.master_item_code
-              ? `${item.master_item_code} - ${item.master_item_name || item.description}`
-              : item.description || "",
-            description: item.description || "",
-            show_suggestions: false,
-            qty: Number(item.qty ?? 0),
-            unit_name: item.unit_name || "",
-            price: Number(item.price ?? 0),
-            amount: Number(item.amount ?? 0),
-            notes: item.notes || "",
-          }))
-        : [createEmptyItem()],
-  };
-}
-
-function getMenuReportName(report) {
-  const names = [
-    report?.menu_name_1,
-    report?.menu_name_2,
-    report?.menu_name_3,
-    report?.menu_name_4,
-    report?.menu_name_5,
-  ].filter(Boolean);
-
-  return names.join(", ") || report?.menu_name || "";
-}
-
-function getUnitOptions(currentValue) {
-  return Array.from(
-    new Set([String(currentValue || "").trim(), ...UNIT_OPTIONS].filter(Boolean))
-  );
-}
-
-function normalizeSuggestionText(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function buildSuggestionTokens(value) {
-  return normalizeSuggestionText(value)
-    .split(" ")
-    .map((token) => token.trim())
-    .filter((token) => token.length >= 2);
-}
-
-function scoreMasterItemSuggestion(masterItem, query) {
-  const normalizedQuery = normalizeSuggestionText(query);
-  if (!normalizedQuery) return -1;
-
-  const queryTokens = buildSuggestionTokens(normalizedQuery);
-  if (!queryTokens.length) return -1;
-
-  const itemCode = normalizeSuggestionText(masterItem?.item_code);
-  const itemName = normalizeSuggestionText(masterItem?.item_name);
-  const haystack = `${itemCode} ${itemName}`.trim();
-  if (!haystack) return -1;
-
-  let score = 0;
-
-  if (itemName.includes(normalizedQuery)) score += 120;
-  if (itemCode.includes(normalizedQuery)) score += 100;
-
-  for (const token of queryTokens) {
-    if (itemName.includes(token)) {
-      score += token.length >= 4 ? 40 : 25;
-      continue;
-    }
-
-    if (itemCode.includes(token)) {
-      score += 20;
-      continue;
-    }
-
-    const itemTokens = haystack.split(" ");
-    const nearMatch = itemTokens.some(
-      (itemToken) =>
-        itemToken.startsWith(token) ||
-        token.startsWith(itemToken) ||
-        itemToken.includes(token) ||
-        token.includes(itemToken)
-    );
-
-    if (nearMatch) {
-      score += 10;
-      continue;
-    }
-
-    return -1;
-  }
-
-  if (itemName.startsWith(queryTokens[0])) score += 20;
-  if (queryTokens.length > 1) score += queryTokens.length * 5;
-
-  return score;
-}
-
-function matchesMasterItemExactly(masterItem, value) {
-  const normalizedValue = normalizeSuggestionText(value);
-  if (!normalizedValue) return false;
-
-  const itemCode = normalizeSuggestionText(masterItem?.item_code);
-  const itemName = normalizeSuggestionText(masterItem?.item_name);
-  const lookupLabel = normalizeSuggestionText(
-    [masterItem?.item_code, masterItem?.item_name].filter(Boolean).join(" - ")
-  );
-
-  return (
-    normalizedValue === itemCode ||
-    normalizedValue === itemName ||
-    normalizedValue === lookupLabel
-  );
-}
-
-function formatImageDraftError(message) {
-  const normalizedMessage = String(message || "").trim();
-
-  if (!normalizedMessage) {
-    return "Gagal memproses gambar.";
-  }
-
-  if (
-    normalizedMessage.includes("GEMINI_API_KEY") ||
-    normalizedMessage.includes("server/.env") ||
-    normalizedMessage.includes("Fitur import gambar belum aktif")
-  ) {
-    return "Fitur import gambar belum aktif. Isi GEMINI_API_KEY di file server/.env, lalu restart backend (`cd server && npm run dev`).";
-  }
-
-  return normalizedMessage;
-}
+import ShoppingReportHeaderSection from "../features/shopping-reports/components/ShoppingReportHeaderSection.jsx";
+import ShoppingReportImageImport from "../features/shopping-reports/components/ShoppingReportImageImport.jsx";
+import ShoppingReportItemsSection from "../features/shopping-reports/components/ShoppingReportItemsSection.jsx";
+import ShoppingReportSummaryCards from "../features/shopping-reports/components/ShoppingReportSummaryCards.jsx";
+import {
+  LARGE_PORTION_RATE,
+  SMALL_PORTION_RATE,
+  createEmptyItem,
+  formatImageDraftError,
+  getInitialState,
+  getMenuReportName,
+  matchesMasterItemExactly,
+  scoreMasterItemSuggestion,
+} from "../features/shopping-reports/utils/shoppingReportFormUtils.js";
 
 export default function ShoppingReportForm({
   open,
@@ -564,289 +414,47 @@ export default function ShoppingReportForm({
 
         <form className="modal-form flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 sm:pr-2">
-            <div className="shopping-import-card rounded-2xl p-4">
-              <div className="shopping-import-head">
-                <div>
-                  <span className="summary-card-label">Import Gambar</span>
-                  <p className="shopping-items-copy">
-                    Upload foto nota atau gambar draft belanja. Hasil proses hanya mengisi draft form dan tetap perlu dicek sebelum disimpan.
-                  </p>
-                </div>
-              </div>
+            <ShoppingReportImageImport
+              imageDraftStatus={imageDraftStatus}
+              imageProcessing={imageProcessing}
+              loading={loading}
+              onFileChange={handleImageFileChange}
+              onProcessImage={handleProcessImage}
+              selectedImageFile={selectedImageFile}
+            />
 
-              <div className="shopping-import-grid mt-3">
-                <div className="form-field">
-                  <label htmlFor="shopping_import_image">Upload file gambar</label>
-                  <input
-                    id="shopping_import_image"
-                    type="file"
-                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                    onChange={handleImageFileChange}
-                    disabled={loading || imageProcessing}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>File terpilih</label>
-                  <div className="shopping-import-file">
-                    {selectedImageFile?.name || "Belum ada file dipilih"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="shopping-import-actions mt-3">
-                <button
-                  type="button"
-                  onClick={handleProcessImage}
-                  disabled={loading || imageProcessing}
-                >
-                  {imageProcessing ? "Memproses..." : "Proses gambar"}
-                </button>
-              </div>
-
-              {imageDraftStatus && (
-                <div className={`shopping-import-status ${imageDraftStatus.kind || "info"}`}>
-                  {imageDraftStatus.message}
-                </div>
-              )}
-            </div>
-
-            <div className="form-grid grid-cols-1 md:grid-cols-2">
-              <div className="form-field">
-                <label htmlFor="shopping_report_date">Tanggal laporan</label>
-                <input
-                  id="shopping_report_date"
-                  type="date"
-                  className="w-full"
-                  value={form.report_date}
-                  onChange={(e) => handleHeaderChange("report_date", e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="shopping_menu_name">Nama menu</label>
-                <input
-                  id="shopping_menu_name"
-                  type="text"
-                  className="w-full"
-                  value={form.menu_name}
-                  onChange={(e) => {
-                    setMenuNameAutoFilled(false);
-                    handleHeaderChange("menu_name", e.target.value);
-                  }}
-                  placeholder="Contoh: Nasi, ayam, sayur"
-                  disabled={loading}
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="shopping_small_portion_count">Jumlah porsi kecil</label>
-                <input
-                  id="shopping_small_portion_count"
-                  type="number"
-                  className="w-full"
-                  min="0"
-                  step="0.01"
-                  value={form.small_portion_count}
-                  onChange={(e) =>
-                    handleNumberChange("header", null, "small_portion_count", e.target.value)
-                  }
-                  disabled={loading}
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="shopping_large_portion_count">Jumlah porsi besar</label>
-                <input
-                  id="shopping_large_portion_count"
-                  type="number"
-                  className="w-full"
-                  min="0"
-                  step="0.01"
-                  value={form.large_portion_count}
-                  onChange={(e) =>
-                    handleNumberChange("header", null, "large_portion_count", e.target.value)
-                  }
-                  disabled={loading}
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="shopping_notes">Catatan</label>
-                <input
-                  id="shopping_notes"
-                  type="text"
-                  className="w-full"
-                  value={form.notes}
-                  onChange={(e) => handleHeaderChange("notes", e.target.value)}
-                  placeholder="Opsional"
-                  disabled={loading}
-                />
-              </div>
-            </div>
+            <ShoppingReportHeaderSection
+              form={form}
+              loading={loading}
+              onHeaderChange={handleHeaderChange}
+              onMenuNameChange={(value) => {
+                setMenuNameAutoFilled(false);
+                handleHeaderChange("menu_name", value);
+              }}
+              onNumberChange={handleNumberChange}
+            />
 
             <div className="rounded-2xl border border-black/8 bg-black/2 px-4 py-3 text-sm text-black/55">
               Pagu harian dihitung otomatis: porsi kecil x Rp 8.000 + porsi besar x Rp 10.000.
               Jika tanggal sudah ada di Laporan harian, jumlah porsi akan terisi otomatis.
             </div>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <div className="summary-card rounded-2xl p-4">
-                <span className="summary-card-label">Total belanja</span>
-                <strong>{formatMoney(totalSpending)}</strong>
-              </div>
-              <div className="summary-card rounded-2xl p-4">
-                <span className="summary-card-label">Pagu harian</span>
-                <strong>{formatMoney(dailyBudget)}</strong>
-              </div>
-              <div className="summary-card rounded-2xl p-4">
-                <span className="summary-card-label">Selisih</span>
-                <strong>{formatMoney(differenceAmount)}</strong>
-              </div>
-            </div>
+            <ShoppingReportSummaryCards
+              dailyBudget={dailyBudget}
+              differenceAmount={differenceAmount}
+              totalSpending={totalSpending}
+            />
 
-            <div className="shopping-items-card rounded-2xl p-4">
-              <div className="shopping-items-head">
-                <div>
-                  <span className="summary-card-label">Item belanja</span>
-                  <p className="shopping-items-copy">
-                    Tambah atau hapus baris sesuai kebutuhan. Jumlah akan ikut dihitung dari qty x harga.
-                  </p>
-                </div>
-                <button type="button" onClick={addItemRow} disabled={loading}>
-                  + Tambah baris
-                </button>
-              </div>
-
-              <div className="mt-4 space-y-3">
-                {form.items.map((item, index) => (
-                  <div key={`shopping-item-${index}`} className="shopping-item-row rounded-2xl p-3">
-                    <div className="shopping-item-grid">
-                      <div className="form-field shopping-item-wide">
-                        <label>Cari barang</label>
-                        <input
-                          type="text"
-                          className="w-full"
-                          value={item.item_lookup || ""}
-                          onChange={(e) => {
-                            handleItemChange(index, "item_lookup", e.target.value);
-                            handleItemChange(index, "master_item_id", null);
-                          }}
-                          placeholder="Cari kode / nama barang"
-                          disabled={loading}
-                        />
-                        {String(item.item_lookup || "").trim() && (
-                          <div className="shopping-item-suggestions">
-                            {itemSuggestions[index].map((masterItem) => (
-                                <button
-                                  key={masterItem.id}
-                                  type="button"
-                                  className="shopping-item-suggestion"
-                                  onClick={() => handleSelectMasterItem(index, masterItem)}
-                                >
-                                  <span>{masterItem.item_code}</span>
-                                  <strong>{masterItem.item_name}</strong>
-                                </button>
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="form-field shopping-item-wide">
-                        <label>Uraian</label>
-                        <input
-                          type="text"
-                          className="w-full"
-                          value={item.description}
-                          onChange={(e) =>
-                            handleItemChange(index, "description", e.target.value)
-                          }
-                          placeholder="Contoh: Beras"
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="form-field">
-                        <label>Qty</label>
-                        <input
-                          type="number"
-                          className="w-full"
-                          min="0"
-                          step="0.01"
-                          value={item.qty}
-                          onChange={(e) =>
-                            handleNumberChange("item", index, "qty", e.target.value)
-                          }
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="form-field">
-                        <label>Satuan</label>
-                        <select
-                          className="w-full"
-                          value={item.unit_name}
-                          onChange={(e) =>
-                            handleItemChange(index, "unit_name", e.target.value)
-                          }
-                          disabled={loading}
-                        >
-                          <option value="">Pilih satuan</option>
-                          {getUnitOptions(item.unit_name).map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="form-field">
-                        <label>Harga</label>
-                        <input
-                          type="number"
-                          className="w-full"
-                          min="0"
-                          step="0.01"
-                          value={item.price}
-                          onChange={(e) =>
-                            handleNumberChange("item", index, "price", e.target.value)
-                          }
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="form-field">
-                        <label>Jumlah</label>
-                        <input
-                          type="number"
-                          className="w-full"
-                          min="0"
-                          step="0.01"
-                          value={item.amount}
-                          onChange={(e) =>
-                            handleNumberChange("item", index, "amount", e.target.value)
-                          }
-                          disabled={loading}
-                        />
-                      </div>
-                      <div className="form-field shopping-item-wide">
-                        <label>Keterangan</label>
-                        <input
-                          type="text"
-                          className="w-full"
-                          value={item.notes}
-                          onChange={(e) => handleItemChange(index, "notes", e.target.value)}
-                          placeholder="Opsional"
-                          disabled={loading}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="shopping-item-actions">
-                      <button
-                        type="button"
-                        className="danger-btn"
-                        onClick={() => removeItemRow(index)}
-                        disabled={loading || form.items.length === 1}
-                      >
-                        Hapus baris
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ShoppingReportItemsSection
+              itemSuggestions={itemSuggestions}
+              items={form.items}
+              loading={loading}
+              onAddItem={addItemRow}
+              onItemChange={handleItemChange}
+              onNumberChange={handleNumberChange}
+              onRemoveItem={removeItemRow}
+              onSelectMasterItem={handleSelectMasterItem}
+            />
           </div>
 
           {error && <div className="error-message">{error}</div>}
