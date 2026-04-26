@@ -215,13 +215,31 @@
   line-height: 1.4;
 }
 
+.menu-report-mobile-card .mobile-data-label {
+  color: #1f2a3d;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .menu-report-mobile-menu-list {
   display: grid;
-  gap: 3px;
+  gap: 4px;
 }
 
 .menu-report-mobile-menu-list div {
+  position: relative;
+  padding-left: 14px;
   overflow-wrap: anywhere;
+}
+
+.menu-report-mobile-menu-list div::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #4c7bf0;
+  font-weight: 700;
 }
 
 .menu-report-mobile-metrics {

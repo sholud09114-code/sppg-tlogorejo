@@ -78,7 +78,6 @@ export default function MenuReportTable({
             <div className="mobile-data-card-head">
               <div>
                 <div className="mobile-data-card-title">{formatDate(report.menu_date)}</div>
-                <div className="mobile-data-card-subtitle">Laporan menu harian</div>
               </div>
               <span className="table-index-badge">{index + 1}</span>
             </div>
