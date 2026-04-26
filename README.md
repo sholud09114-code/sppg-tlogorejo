@@ -45,7 +45,9 @@ sppg-tlogorejo/
 │   └── package.json
 │
 └── database/
-    └── schema.sql                # Skema MySQL + seed data 14 unit
+    ├── migrations/               # SQL migration bertahap
+    ├── seeds/                    # Seed data idempotent
+    └── schema.sql                # Referensi gabungan schema + seed
 ```
 
 ## Prasyarat
@@ -101,10 +103,14 @@ DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=password_mysql_anda
 DB_NAME=sppg_tlogorejo
+JWT_SECRET=ganti_dengan_secret_panjang_dari_password_manager
+CLIENT_URL=http://localhost:5173
 GEMINI_API_KEY=AIza...
 GEMINI_MODEL=gemini-2.5-flash-lite
 GEMINI_FALLBACK_MODEL=gemini-2.5-flash
 ```
+
+`JWT_SECRET` wajib diisi dan tidak boleh memakai nilai contoh. `CLIENT_URL` dipakai backend untuk whitelist CORS; pisahkan dengan koma jika ada lebih dari satu origin.
 
 `GEMINI_API_KEY` wajib diisi jika ingin memakai fitur `Import Gambar` pada menu `Laporan Belanja`. Setelah mengubah `.env`, restart backend.
 
@@ -153,6 +159,16 @@ VITE v5.x.x  ready in xxx ms
 ```
 
 Buka `http://localhost:5173` di browser. Form laporan harian siap digunakan.
+
+## Backup database
+
+Script backup membaca `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, dan `DB_NAME` dari environment. Jika `server/.env` ada, script akan memuat file itu otomatis.
+
+```bash
+./scripts/backup-db.sh
+```
+
+Output backup disimpan ke folder `backups/` dengan nama file bertimestamp. Folder ini sudah masuk `.gitignore`.
 
 ## Fitur utama
 
