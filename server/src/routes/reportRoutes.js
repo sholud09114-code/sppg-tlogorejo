@@ -7,7 +7,7 @@ import {
   previewReportImport,
   getReportByDate,
   saveReport,
-} from "../controllers/reportController.js";
+} from "../modules/daily-reports/dailyReport.controller.js";
 
 const router = express.Router();
 

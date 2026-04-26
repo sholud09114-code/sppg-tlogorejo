@@ -90,7 +90,7 @@ export default function ShoppingReportForm({
           small_portion_count: nextSmall,
           large_portion_count: nextLarge,
         }));
-      } catch (err) {
+      } catch (_err) {
         if (cancelled) return;
         setForm((prev) => ({
           ...prev,

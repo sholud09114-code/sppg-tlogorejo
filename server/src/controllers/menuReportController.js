@@ -419,7 +419,9 @@ async function requestMenuDraftFromGemini({ buffer, mimeType, fileName }) {
     try {
       return sanitizeMenuImageDraft(JSON.parse(outputText));
     } catch (err) {
-      const error = new Error("Draft JSON menu dari Gemini tidak valid.");
+      const error = new Error("Draft JSON menu dari Gemini tidak valid.", {
+        cause: err,
+      });
       error.status = 502;
       throw error;
     }

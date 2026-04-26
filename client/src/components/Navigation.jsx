@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 const DESKTOP_TABS = [
@@ -57,14 +57,15 @@ function NavButton({ item, active, onPress, mobile = false }) {
 export default function Navigation({ active, onChange }) {
   const [moreOpen, setMoreOpen] = useState(false);
 
-  useEffect(() => {
-    setMoreOpen(false);
-  }, [active]);
-
   const moreActive = useMemo(
     () => MOBILE_SECONDARY_TABS.some((item) => item.id === active),
     [active]
   );
+
+  const changePage = (page) => {
+    setMoreOpen(false);
+    onChange(page);
+  };
 
   return (
     <>
@@ -75,7 +76,7 @@ export default function Navigation({ active, onChange }) {
               key={tab.id}
               item={tab}
               active={active === tab.id}
-              onPress={onChange}
+              onPress={changePage}
             />
           ))}
         </nav>
@@ -110,7 +111,7 @@ export default function Navigation({ active, onChange }) {
                 className={`mobile-more-item ${active === item.id ? "active" : ""} ${item.disabled ? "disabled" : ""}`}
                 onClick={() => {
                   if (item.disabled) return;
-                  onChange(item.id);
+                  changePage(item.id);
                 }}
                 disabled={item.disabled}
               >
@@ -141,7 +142,7 @@ export default function Navigation({ active, onChange }) {
                   setMoreOpen((prev) => !prev);
                   return;
                 }
-                onChange(id);
+                changePage(id);
               }}
             />
           );

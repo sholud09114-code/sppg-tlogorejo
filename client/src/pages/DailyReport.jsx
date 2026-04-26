@@ -233,7 +233,7 @@ export default function DailyReport() {
           message: "Gagal memuat laporan: " + err.message,
         });
       });
-  }, [date, units.length, editorOpen]);
+  }, [date, units, editorOpen]);
 
   const handleEntryChange = (unitId, newEntry) => {
     setEntries((prev) => ({ ...prev, [unitId]: newEntry }));

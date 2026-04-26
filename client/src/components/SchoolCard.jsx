@@ -72,7 +72,7 @@ export default function SchoolCard({ unit, entry, onChange }) {
   // handle partial number input with validation
   const handlePartial = (raw) => {
     let error = null;
-    let actual = 0;
+    let actual;
 
     if (raw === "") {
       actual = 0;

@@ -19,7 +19,6 @@ import {
   Printer,
   PencilSimpleLine,
   PiggyBank,
-  Recycle,
   Receipt,
   Scales,
   SignOut,
@@ -29,7 +28,6 @@ import {
   TrendDown,
   TrendUp,
   UserCircle,
-  Users,
   UsersThree,
   X,
 } from "@phosphor-icons/react";

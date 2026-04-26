@@ -85,7 +85,7 @@ export default function FoodWasteForm({
           setForm((prev) => ({ ...prev, menu_notes: "" }));
           setMenuAutoFilled(false);
         }
-      } catch (err) {
+      } catch (_err) {
         if (cancelled) return;
         setMenuReferenceState({
           kind: "warning",
@@ -151,7 +151,7 @@ export default function FoodWasteForm({
               ? totalPortions
               : prev.total_portions,
         }));
-      } catch (err) {
+      } catch (_err) {
         if (cancelled) return;
         setPortionReferenceState({
           kind: "warning",

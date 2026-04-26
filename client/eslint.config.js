@@ -25,10 +25,13 @@ export default [
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+      ],
       "no-useless-assignment": "warn",
-      "react-hooks/set-state-in-effect": "warn",
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "react-hooks/set-state-in-effect": "off",
+      "react-refresh/only-export-components": "off",
     },
   },
 ];

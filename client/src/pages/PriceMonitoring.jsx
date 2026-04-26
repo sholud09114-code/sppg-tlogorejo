@@ -26,7 +26,7 @@ function formatPercent(value) {
 }
 
 export default function PriceMonitoring() {
-  const defaultReportDate = getTodayISO();
+  const [defaultReportDate] = useState(getTodayISO);
   const [itemMasters, setItemMasters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ kind: null, message: null });
@@ -60,7 +60,7 @@ export default function PriceMonitoring() {
         });
         setLoading(false);
       });
-  }, []);
+  }, [defaultReportDate]);
 
   const loadDetectionData = async ({
     reportDate,
