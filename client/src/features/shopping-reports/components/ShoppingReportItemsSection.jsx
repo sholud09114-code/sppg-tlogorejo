@@ -11,13 +11,19 @@ export default function ShoppingReportItemsSection({
   onSelectMasterItem,
 }) {
   return (
-    <div className="shopping-items-card rounded-2xl p-4">
+    <section className="shopping-items-card data-form-section">
       <div className="shopping-items-head">
         <div>
-          <span className="summary-card-label">Item belanja</span>
-          <p className="shopping-items-copy">
-            Tambah atau hapus baris sesuai kebutuhan. Jumlah akan ikut dihitung dari qty x harga.
-          </p>
+          <div className="data-form-section-title">
+            <span className="data-form-step">3.</span>
+            <div>
+              <h4>Item Belanja</h4>
+              <p className="shopping-items-copy">
+                Tambah atau hapus baris sesuai kebutuhan. Jumlah akan ikut dihitung dari qty x
+                harga.
+              </p>
+            </div>
+          </div>
         </div>
         <button type="button" onClick={onAddItem} disabled={loading}>
           + Tambah baris
@@ -40,6 +46,6 @@ export default function ShoppingReportItemsSection({
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

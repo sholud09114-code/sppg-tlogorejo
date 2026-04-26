@@ -107,12 +107,8 @@ function buildPrintHtml(reports) {
 
 function deriveEntrySplit(unit, detail) {
   const actualPm = Number(detail.actual_pm || 0);
-  const targetSmall = Number(
-    detail.target_small_portion ?? unit.small_target ?? 0
-  );
-  const targetLarge = Number(
-    detail.target_large_portion ?? unit.large_target ?? 0
-  );
+  const targetSmall = Number(detail.target_small_portion ?? unit.small_target ?? 0);
+  const targetLarge = Number(detail.target_large_portion ?? unit.large_target ?? 0);
   const providedSmall = Number(detail.actual_small_portion || 0);
   const providedLarge = Number(detail.actual_large_portion || 0);
 
@@ -276,10 +272,7 @@ export default function DailyReport() {
   );
 
   const reportSummary = useMemo(() => {
-    const totalPm = reports.reduce(
-      (sum, report) => sum + Number(report.total_pm || 0),
-      0
-    );
+    const totalPm = reports.reduce((sum, report) => sum + Number(report.total_pm || 0), 0);
 
     return {
       totalReports: reports.length,
@@ -397,10 +390,7 @@ export default function DailyReport() {
 
     try {
       setPrinting(true);
-      const data = await fetchReportsForPrint(
-        printRange.date_from,
-        printRange.date_to
-      );
+      const data = await fetchReportsForPrint(printRange.date_from, printRange.date_to);
 
       if (!data.length) {
         setToast({
@@ -513,7 +503,12 @@ export default function DailyReport() {
                   disabled={loading || reportsLoading}
                 >
                   <span className="button-with-icon">
-                    <AppIcon name="import" size={18} weight={APP_ICON_WEIGHT.nav} className="button-icon" />
+                    <AppIcon
+                      name="import"
+                      size={18}
+                      weight={APP_ICON_WEIGHT.nav}
+                      className="button-icon"
+                    />
                     <span>Import CSV/Excel</span>
                   </span>
                 </button>
@@ -525,7 +520,12 @@ export default function DailyReport() {
                 disabled={loading || reportsLoading}
               >
                 <span className="button-with-icon">
-                  <AppIcon name="print" size={18} weight={APP_ICON_WEIGHT.nav} className="button-icon" />
+                  <AppIcon
+                    name="print"
+                    size={18}
+                    weight={APP_ICON_WEIGHT.nav}
+                    className="button-icon"
+                  />
                   <span>Cetak</span>
                 </span>
               </button>
@@ -538,7 +538,12 @@ export default function DailyReport() {
                 disabled={loading}
               >
                 <span className="button-with-icon">
-                  <AppIcon name="daily" size={18} weight={APP_ICON_WEIGHT.nav} className="button-icon" />
+                  <AppIcon
+                    name="daily"
+                    size={18}
+                    weight={APP_ICON_WEIGHT.nav}
+                    className="button-icon"
+                  />
                   <span>+ Tambah laporan</span>
                 </span>
               </button>
@@ -575,15 +580,16 @@ export default function DailyReport() {
       </section>
 
       {detailReport && (
-        <DailyReportDetailModal
-          report={detailReport}
-          onClose={() => setDetailReport(null)}
-        />
+        <DailyReportDetailModal report={detailReport} onClose={() => setDetailReport(null)} />
       )}
 
       {isAdmin && editorOpen && (
         <div className="modal-backdrop p-3 sm:p-4" role="presentation">
-          <div className="modal-card report-modal-card w-full max-w-6xl rounded-2xl p-4 sm:p-5" role="dialog" aria-modal="true">
+          <div
+            className="modal-card data-form-card data-form-card-xl"
+            role="dialog"
+            aria-modal="true"
+          >
             <div className="modal-header">
               <div className="min-w-0 flex-1">
                 <h3>Form input laporan harian</h3>
@@ -592,8 +598,8 @@ export default function DailyReport() {
                   <div className="quick-action-copy">
                     <strong>Isi cepat</strong>
                     <p>
-                      Gunakan aksi ini jika pada tanggal tersebut semua sekolah
-                      dilayani dengan porsi penuh.
+                      Gunakan aksi ini jika pada tanggal tersebut semua sekolah dilayani dengan
+                      porsi penuh.
                     </p>
                   </div>
                   <button
@@ -624,7 +630,7 @@ export default function DailyReport() {
               </div>
             </div>
 
-            <div className="report-modal-grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_260px]">
+            <div className="report-modal-grid data-form-body grid-cols-1 xl:grid-cols-[minmax(0,1fr)_260px]">
               <div className="groups space-y-4">
                 {CATEGORY_ORDER.map(
                   (cat) =>
@@ -652,7 +658,12 @@ export default function DailyReport() {
 
             <div className="mobile-submit-bar">
               <div className="mobile-submit-bar-copy">
-                <strong>{Object.values(totals).reduce((sum, value) => sum + value, 0).toLocaleString("id-ID")} PM</strong>
+                <strong>
+                  {Object.values(totals)
+                    .reduce((sum, value) => sum + value, 0)
+                    .toLocaleString("id-ID")}{" "}
+                  PM
+                </strong>
                 <span>
                   {totalFilled} dari {units.length} unit diisi
                 </span>
@@ -672,7 +683,11 @@ export default function DailyReport() {
 
       {printModalOpen && (
         <div className="modal-backdrop p-3 sm:p-4" role="presentation">
-          <div className="modal-card w-full max-w-2xl rounded-2xl p-4 sm:p-5" role="dialog" aria-modal="true">
+          <div
+            className="modal-card w-full max-w-2xl rounded-2xl p-4 sm:p-5"
+            role="dialog"
+            aria-modal="true"
+          >
             <div className="modal-header">
               <div className="min-w-0">
                 <h3>Cetak laporan harian</h3>
@@ -727,11 +742,7 @@ export default function DailyReport() {
             </div>
 
             <div className="modal-actions mt-4">
-              <button
-                type="button"
-                onClick={() => setPrintModalOpen(false)}
-                disabled={printing}
-              >
+              <button type="button" onClick={() => setPrintModalOpen(false)} disabled={printing}>
                 Batal
               </button>
               <button

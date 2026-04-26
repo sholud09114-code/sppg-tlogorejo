@@ -46,9 +46,7 @@ export default function ShoppingReportForm({
   useEffect(() => {
     if (!open || !form.report_date) return;
 
-    const matchedReport = menuReports.find(
-      (report) => report.menu_date === form.report_date
-    );
+    const matchedReport = menuReports.find((report) => report.menu_date === form.report_date);
 
     if (matchedReport) {
       const nextMenuName = getMenuReportName(matchedReport);
@@ -288,8 +286,7 @@ export default function ShoppingReportForm({
       }
 
       items.push({
-        master_item_id:
-          Number.isInteger(masterItemId) && masterItemId > 0 ? masterItemId : null,
+        master_item_id: Number.isInteger(masterItemId) && masterItemId > 0 ? masterItemId : null,
         description,
         qty,
         unit_name: unitName,
@@ -397,11 +394,7 @@ export default function ShoppingReportForm({
 
   return (
     <div className="modal-backdrop" role="presentation">
-      <div
-        className="modal-card flex max-h-[calc(100vh-1.5rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
-        role="dialog"
-        aria-modal="true"
-      >
+      <div className="modal-card data-form-card data-form-card-xl" role="dialog" aria-modal="true">
         <div className="modal-header">
           <div>
             <h3>{initialData?.id ? "Edit laporan belanja" : "Tambah laporan belanja"}</h3>
@@ -412,8 +405,8 @@ export default function ShoppingReportForm({
           </button>
         </div>
 
-        <form className="modal-form flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 sm:pr-2">
+        <form className="modal-form data-form" onSubmit={handleSubmit}>
+          <div className="data-form-body">
             <ShoppingReportImageImport
               imageDraftStatus={imageDraftStatus}
               imageProcessing={imageProcessing}
@@ -434,9 +427,9 @@ export default function ShoppingReportForm({
               onNumberChange={handleNumberChange}
             />
 
-            <div className="rounded-2xl border border-black/8 bg-black/2 px-4 py-3 text-sm text-black/55">
-              Pagu harian dihitung otomatis: porsi kecil x Rp 8.000 + porsi besar x Rp 10.000.
-              Jika tanggal sudah ada di Laporan harian, jumlah porsi akan terisi otomatis.
+            <div className="data-form-info">
+              Pagu harian dihitung otomatis: porsi kecil x Rp 8.000 + porsi besar x Rp 10.000. Jika
+              tanggal sudah ada di Laporan harian, jumlah porsi akan terisi otomatis.
             </div>
 
             <ShoppingReportSummaryCards
@@ -459,7 +452,7 @@ export default function ShoppingReportForm({
 
           {error && <div className="error-message">{error}</div>}
 
-          <div className="modal-actions border-t border-black/8 pt-3">
+          <div className="modal-actions data-form-actions">
             <button type="button" onClick={onClose} disabled={loading}>
               Batal
             </button>

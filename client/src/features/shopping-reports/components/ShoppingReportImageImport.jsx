@@ -7,12 +7,16 @@ export default function ShoppingReportImageImport({
   selectedImageFile,
 }) {
   return (
-    <div className="shopping-import-card rounded-2xl p-4">
-      <div className="shopping-import-head">
+    <section className="shopping-import-card data-form-section">
+      <div className="data-form-section-head">
+        <span className="data-form-step">1.</span>
         <div>
-          <span className="summary-card-label">Import Gambar</span>
+          <h4>
+            Import Gambar <span>(Opsional)</span>
+          </h4>
           <p className="shopping-items-copy">
-            Upload foto nota atau gambar draft belanja. Hasil proses hanya mengisi draft form dan tetap perlu dicek sebelum disimpan.
+            Upload foto nota atau gambar draft belanja. Hasil proses hanya mengisi draft form dan
+            tetap perlu dicek sebelum disimpan.
           </p>
         </div>
       </div>
@@ -37,11 +41,7 @@ export default function ShoppingReportImageImport({
       </div>
 
       <div className="shopping-import-actions mt-3">
-        <button
-          type="button"
-          onClick={onProcessImage}
-          disabled={loading || imageProcessing}
-        >
+        <button type="button" onClick={onProcessImage} disabled={loading || imageProcessing}>
           {imageProcessing ? "Memproses..." : "Proses gambar"}
         </button>
       </div>
@@ -51,6 +51,6 @@ export default function ShoppingReportImageImport({
           {imageDraftStatus.message}
         </div>
       )}
-    </div>
+    </section>
   );
 }

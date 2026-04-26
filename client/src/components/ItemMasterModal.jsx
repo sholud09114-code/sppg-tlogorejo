@@ -41,7 +41,9 @@ export default function ItemMasterModal({
   }, [open, selectedItem]);
 
   const filteredItems = useMemo(() => {
-    const keyword = String(query || "").trim().toLowerCase();
+    const keyword = String(query || "")
+      .trim()
+      .toLowerCase();
     if (!keyword) return items;
     return items.filter((item) =>
       [item.item_code, item.item_name, item.category]
@@ -89,11 +91,7 @@ export default function ItemMasterModal({
 
   return (
     <div className="modal-backdrop" role="presentation">
-      <div
-        className="modal-card report-modal-card w-full max-w-6xl rounded-2xl p-4 sm:p-5"
-        role="dialog"
-        aria-modal="true"
-      >
+      <div className="modal-card data-form-card data-form-card-xl" role="dialog" aria-modal="true">
         <div className="modal-header">
           <div>
             <h3>Master Barang</h3>
@@ -104,9 +102,16 @@ export default function ItemMasterModal({
           </button>
         </div>
 
-        <div className="report-modal-grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="report-modal-grid data-form-body grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-3">
-            <div className="summary-card rounded-2xl p-4">
+            <section className="data-form-section">
+              <div className="data-form-section-head">
+                <span className="data-form-step">1.</span>
+                <div>
+                  <h4>Daftar Barang</h4>
+                  <p>Cari dan kelola master barang yang dipakai di laporan belanja.</p>
+                </div>
+              </div>
               <div className="form-field">
                 <label htmlFor="item_master_search">Cari barang</label>
                 <input
@@ -119,7 +124,7 @@ export default function ItemMasterModal({
                   disabled={saving}
                 />
               </div>
-            </div>
+            </section>
 
             <div className="table-wrap overflow-x-auto rounded-2xl">
               <table className="data-table min-w-[760px]">
@@ -152,8 +157,16 @@ export default function ItemMasterModal({
                         <td className="text-center">{item.is_active ? "Aktif" : "Nonaktif"}</td>
                         <td className="text-center">
                           <div className="table-actions">
-                            <ActionIconButton action="edit" label="Edit" onClick={() => onEdit(item)} />
-                            <ActionIconButton action="delete" label="Hapus" onClick={() => onDelete(item)} />
+                            <ActionIconButton
+                              action="edit"
+                              label="Edit"
+                              onClick={() => onEdit(item)}
+                            />
+                            <ActionIconButton
+                              action="delete"
+                              label="Hapus"
+                              onClick={() => onDelete(item)}
+                            />
                           </div>
                         </td>
                       </tr>
@@ -170,7 +183,14 @@ export default function ItemMasterModal({
             </div>
           </div>
 
-          <form className="summary-card rounded-2xl p-4 sm:p-5" onSubmit={handleSubmit}>
+          <form className="data-form-section" onSubmit={handleSubmit}>
+            <div className="data-form-section-head">
+              <span className="data-form-step">2.</span>
+              <div>
+                <h4>{selectedItem?.id ? "Edit Barang" : "Tambah Barang"}</h4>
+                <p>Isi detail barang untuk autofill item belanja.</p>
+              </div>
+            </div>
             <div className="space-y-3">
               <div className="form-field">
                 <label htmlFor="item_code">Kode barang</label>
@@ -233,7 +253,9 @@ export default function ItemMasterModal({
                 <input
                   type="checkbox"
                   checked={Boolean(form.is_active)}
-                  onChange={(e) => setForm((prev) => ({ ...prev, is_active: e.target.checked ? 1 : 0 }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, is_active: e.target.checked ? 1 : 0 }))
+                  }
                   disabled={saving}
                 />
                 Aktif
@@ -242,7 +264,7 @@ export default function ItemMasterModal({
 
             {error && <div className="error-message mt-3">{error}</div>}
 
-            <div className="modal-actions mt-4 border-t border-black/8 pt-3">
+            <div className="modal-actions data-form-actions">
               <button
                 type="button"
                 onClick={() => {

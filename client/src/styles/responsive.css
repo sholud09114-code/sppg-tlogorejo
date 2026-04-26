@@ -349,11 +349,24 @@
     border-radius: 20px;
   }
 
+  .data-form-card {
+    padding: 18px 16px 0;
+    border-radius: 20px;
+  }
+
   .menu-report-form-body {
     padding-right: 0;
   }
 
+  .data-form-body {
+    padding-right: 0;
+  }
+
   .menu-form-section {
+    padding: 14px;
+  }
+
+  .data-form-section {
     padding: 14px;
   }
 
@@ -368,6 +381,11 @@
   }
 
   .menu-form-actions {
+    margin: 0 -16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .data-form-actions {
     margin: 0 -16px;
     padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
   }

@@ -19,13 +19,7 @@ function getInitialState(initialData) {
   };
 }
 
-export default function BeneficiaryGroupForm({
-  open,
-  initialData,
-  loading,
-  onClose,
-  onSubmit,
-}) {
+export default function BeneficiaryGroupForm({ open, initialData, loading, onClose, onSubmit }) {
   const [form, setForm] = useState(getInitialState(initialData));
   const [error, setError] = useState(null);
 
@@ -37,8 +31,7 @@ export default function BeneficiaryGroupForm({
   }, [open, initialData]);
 
   const totalPortion = useMemo(
-    () =>
-      NUMBER_FIELDS.reduce((sum, field) => sum + Number(form[field] || 0), 0),
+    () => NUMBER_FIELDS.reduce((sum, field) => sum + Number(form[field] || 0), 0),
     [form]
   );
 
@@ -95,7 +88,7 @@ export default function BeneficiaryGroupForm({
 
   return (
     <div className="modal-backdrop" role="presentation">
-      <div className="modal-card w-full max-w-3xl rounded-2xl p-4 sm:p-5" role="dialog" aria-modal="true">
+      <div className="modal-card data-form-card data-form-card-md" role="dialog" aria-modal="true">
         <div className="modal-header">
           <div>
             <h3>{initialData?.id ? "Edit kelompok" : "Tambah kelompok"}</h3>
@@ -106,107 +99,121 @@ export default function BeneficiaryGroupForm({
           </button>
         </div>
 
-        <form className="modal-form" onSubmit={handleSubmit}>
-          <div className="form-grid grid-cols-1 md:grid-cols-2">
-            <div className="form-field">
-              <label htmlFor="group_type">Jenis Kelompok</label>
-              <select
-                id="group_type"
-                className="w-full"
-                value={form.group_type}
-                onChange={(e) => handleChange("group_type", e.target.value)}
-                disabled={loading}
-              >
-                {GROUP_TYPE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <form className="modal-form data-form" onSubmit={handleSubmit}>
+          <div className="data-form-body">
+            <section className="data-form-section">
+              <div className="data-form-section-head">
+                <span className="data-form-step">1.</span>
+                <div>
+                  <h4>Data Kelompok</h4>
+                  <p>Pilih jenis kelompok dan isi nama penerima manfaat.</p>
+                </div>
+              </div>
+              <div className="form-grid grid-cols-1 md:grid-cols-2">
+                <div className="form-field">
+                  <label htmlFor="group_type">Jenis Kelompok</label>
+                  <select
+                    id="group_type"
+                    className="w-full"
+                    value={form.group_type}
+                    onChange={(e) => handleChange("group_type", e.target.value)}
+                    disabled={loading}
+                  >
+                    {GROUP_TYPE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div className="form-field form-field-wide">
-              <label htmlFor="group_name">Nama Kelompok</label>
-              <input
-                id="group_name"
-                type="text"
-                className="w-full"
-                value={form.group_name}
-                onChange={(e) => handleChange("group_name", e.target.value)}
-                placeholder="Contoh: SDN 1 Tlogorejo"
-                disabled={loading}
-              />
-            </div>
+                <div className="form-field form-field-wide">
+                  <label htmlFor="group_name">Nama Kelompok</label>
+                  <input
+                    id="group_name"
+                    type="text"
+                    className="w-full"
+                    value={form.group_name}
+                    onChange={(e) => handleChange("group_name", e.target.value)}
+                    placeholder="Contoh: SDN 1 Tlogorejo"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            </section>
 
-            <div className="form-field">
-              <label htmlFor="student_small_portion">Porsi Siswa Kecil</label>
-              <input
-                id="student_small_portion"
-                type="number"
-                className="w-full"
-                min="0"
-                value={form.student_small_portion}
-                onChange={(e) =>
-                  handleNumberChange("student_small_portion", e.target.value)
-                }
-                disabled={loading}
-              />
-            </div>
+            <section className="data-form-section">
+              <div className="data-form-section-head">
+                <span className="data-form-step">2.</span>
+                <div>
+                  <h4>Rincian Porsi</h4>
+                  <p>Isi jumlah porsi siswa dan guru/tendik untuk kelompok ini.</p>
+                </div>
+              </div>
+              <div className="form-grid grid-cols-1 md:grid-cols-2">
+                <div className="form-field">
+                  <label htmlFor="student_small_portion">Porsi Siswa Kecil</label>
+                  <input
+                    id="student_small_portion"
+                    type="number"
+                    className="w-full"
+                    min="0"
+                    value={form.student_small_portion}
+                    onChange={(e) => handleNumberChange("student_small_portion", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
 
-            <div className="form-field">
-              <label htmlFor="student_large_portion">Porsi Siswa Besar</label>
-              <input
-                id="student_large_portion"
-                type="number"
-                className="w-full"
-                min="0"
-                value={form.student_large_portion}
-                onChange={(e) =>
-                  handleNumberChange("student_large_portion", e.target.value)
-                }
-                disabled={loading}
-              />
-            </div>
+                <div className="form-field">
+                  <label htmlFor="student_large_portion">Porsi Siswa Besar</label>
+                  <input
+                    id="student_large_portion"
+                    type="number"
+                    className="w-full"
+                    min="0"
+                    value={form.student_large_portion}
+                    onChange={(e) => handleNumberChange("student_large_portion", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
 
-            <div className="form-field">
-              <label htmlFor="staff_small_portion">Porsi Guru/Tendik Kecil</label>
-              <input
-                id="staff_small_portion"
-                type="number"
-                className="w-full"
-                min="0"
-                value={form.staff_small_portion}
-                onChange={(e) =>
-                  handleNumberChange("staff_small_portion", e.target.value)
-                }
-                disabled={loading}
-              />
-            </div>
+                <div className="form-field">
+                  <label htmlFor="staff_small_portion">Porsi Guru/Tendik Kecil</label>
+                  <input
+                    id="staff_small_portion"
+                    type="number"
+                    className="w-full"
+                    min="0"
+                    value={form.staff_small_portion}
+                    onChange={(e) => handleNumberChange("staff_small_portion", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
 
-            <div className="form-field">
-              <label htmlFor="staff_large_portion">Porsi Guru/Tendik Besar</label>
-              <input
-                id="staff_large_portion"
-                type="number"
-                className="w-full"
-                min="0"
-                value={form.staff_large_portion}
-                onChange={(e) =>
-                  handleNumberChange("staff_large_portion", e.target.value)
-                }
-                disabled={loading}
-              />
-            </div>
-          </div>
+                <div className="form-field">
+                  <label htmlFor="staff_large_portion">Porsi Guru/Tendik Besar</label>
+                  <input
+                    id="staff_large_portion"
+                    type="number"
+                    className="w-full"
+                    min="0"
+                    value={form.staff_large_portion}
+                    onChange={(e) => handleNumberChange("staff_large_portion", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            </section>
 
-          <div className="modal-total">
-            <span>Total Porsi</span>
-            <strong>{totalPortion.toLocaleString("id-ID")}</strong>
+            <div className="modal-total">
+              <span>Total Porsi</span>
+              <strong>{totalPortion.toLocaleString("id-ID")}</strong>
+            </div>
           </div>
 
           {error && <div className="error-message">{error}</div>}
 
-          <div className="modal-actions">
+          <div className="modal-actions data-form-actions">
             <button type="button" onClick={onClose} disabled={loading}>
               Batal
             </button>
