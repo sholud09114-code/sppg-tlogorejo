@@ -8,7 +8,7 @@ import schoolRoutes from "./routes/schoolRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import beneficiaryGroupRoutes from "./routes/beneficiaryGroupRoutes.js";
 import menuReportRoutes from "./routes/menuReportRoutes.js";
-import shoppingReportRoutes from "./routes/shoppingReportRoutes.js";
+import shoppingReportRoutes from "./modules/shopping-reports/shoppingReport.routes.js";
 import itemMasterRoutes from "./routes/itemMasterRoutes.js";
 import foodWasteRoutes from "./routes/foodWasteRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
