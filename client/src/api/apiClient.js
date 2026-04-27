@@ -1,7 +1,7 @@
 import { clearAuthToken, getAuthToken } from "../auth/tokenStorage.js";
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
-const DEFAULT_TIMEOUT_MS = 15000;
+const DEFAULT_TIMEOUT_MS = 60000;
 const DEFAULT_RETRY_ATTEMPTS = 1;
 
 function buildApiUrl(path) {
