@@ -1,4 +1,5 @@
 import { apiFetch, handleResponse } from "./apiClient.js";
+import { invalidateUnitsCache } from "./dailyReportApi.js";
 
 export async function fetchBeneficiaryGroups() {
   const res = await apiFetch("/beneficiary-groups");
@@ -16,7 +17,9 @@ export async function createBeneficiaryGroup(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateUnitsCache();
+  return data;
 }
 
 export async function updateBeneficiaryGroup(id, payload) {
@@ -25,14 +28,18 @@ export async function updateBeneficiaryGroup(id, payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateUnitsCache();
+  return data;
 }
 
 export async function deleteBeneficiaryGroup(id) {
   const res = await apiFetch(`/beneficiary-groups/${id}`, {
     method: "DELETE",
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateUnitsCache();
+  return data;
 }
 
 export async function previewBeneficiaryGroupImport(payload) {
@@ -50,5 +57,7 @@ export async function importBeneficiaryGroups(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateUnitsCache();
+  return data;
 }

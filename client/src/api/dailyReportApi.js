@@ -1,8 +1,33 @@
 import { apiFetch, handleResponse } from "./apiClient.js";
 
+let unitsCache = null;
+let unitsRequest = null;
+
+export function invalidateUnitsCache() {
+  unitsCache = null;
+  unitsRequest = null;
+}
+
 export async function fetchUnits() {
-  const res = await apiFetch("/units");
-  return handleResponse(res);
+  if (unitsCache) {
+    return unitsCache;
+  }
+
+  if (!unitsRequest) {
+    unitsRequest = apiFetch("/units")
+      .then((res) => handleResponse(res))
+      .then((data) => {
+        unitsCache = data;
+        unitsRequest = null;
+        return data;
+      })
+      .catch((error) => {
+        unitsRequest = null;
+        throw error;
+      });
+  }
+
+  return unitsRequest;
 }
 
 export async function fetchHomeSummary() {
