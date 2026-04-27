@@ -18,6 +18,11 @@ export function getCachedShoppingReports() {
   return shoppingReportsCache;
 }
 
+export function getCachedItemMasters(activeOnly = false) {
+  const cacheKey = getItemMastersCacheKey(activeOnly);
+  return itemMastersCache.get(cacheKey) || null;
+}
+
 export function invalidateShoppingReportsCache() {
   shoppingReportsCache = null;
   shoppingReportsRequest = null;
@@ -93,18 +98,22 @@ export async function deleteShoppingReport(id) {
   return data;
 }
 
-export async function fetchItemMasters(activeOnly = false) {
-  const cacheKey = getItemMastersCacheKey(activeOnly);
-  if (itemMastersCache.has(cacheKey)) {
+export async function fetchItemMasters(activeOnly = false, options = {}) {
+  const normalizedActiveOnly =
+    typeof activeOnly === "object" ? Boolean(activeOnly.activeOnly) : Boolean(activeOnly);
+  const force = typeof activeOnly === "object" ? Boolean(activeOnly.force) : Boolean(options.force);
+  const cacheKey = getItemMastersCacheKey(normalizedActiveOnly);
+
+  if (!force && itemMastersCache.has(cacheKey)) {
     return itemMastersCache.get(cacheKey);
   }
 
-  if (itemMastersRequests.has(cacheKey)) {
+  if (!force && itemMastersRequests.has(cacheKey)) {
     return itemMastersRequests.get(cacheKey);
   }
 
   const params = new URLSearchParams();
-  if (activeOnly) {
+  if (normalizedActiveOnly) {
     params.set("active_only", "1");
   }
   const path = `/item-masters${params.toString() ? `?${params.toString()}` : ""}`;

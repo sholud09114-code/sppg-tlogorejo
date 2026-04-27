@@ -8,6 +8,8 @@ import {
   fetchItemMasters,
   fetchPriceIncreaseDetection,
   fetchShoppingReports,
+  getCachedItemMasters,
+  getCachedShoppingReports,
 } from "../api/shoppingReportApi.js";
 import { formatDateLong, formatMoney } from "../shared/utils/formatters.js";
 
@@ -42,7 +44,30 @@ export default function PriceMonitoring() {
   const [detectionData, setDetectionData] = useState(null);
 
   useEffect(() => {
-    Promise.all([fetchItemMasters(), fetchShoppingReports()])
+    const cachedMasterItems = getCachedItemMasters();
+    const cachedShoppingReports = getCachedShoppingReports();
+
+    if (cachedMasterItems) {
+      setItemMasters(cachedMasterItems);
+    }
+
+    if (cachedShoppingReports) {
+      const latestShoppingDate =
+        cachedShoppingReports?.[0]?.report_date || defaultReportDate;
+      setDetectionFilters((prev) => ({
+        ...prev,
+        report_date: latestShoppingDate,
+      }));
+    }
+
+    if (cachedMasterItems && cachedShoppingReports) {
+      setLoading(false);
+    }
+
+    Promise.all([
+      fetchItemMasters({ force: Boolean(cachedMasterItems) }),
+      fetchShoppingReports({ force: Boolean(cachedShoppingReports) }),
+    ])
       .then(([masterItems, shoppingReports]) => {
         const latestShoppingDate =
           shoppingReports?.[0]?.report_date || defaultReportDate;
@@ -172,87 +197,86 @@ export default function PriceMonitoring() {
           </div>
         </div>
 
-        {loading ? (
-          <LoadingMessage>Memuat master barang...</LoadingMessage>
-        ) : (
-          <div className="space-y-6">
-            <div id="price-monitoring-trend-section">
-              <PriceMonitoringModal
-                embedded
-                itemMasters={itemMasters}
-                externalRequest={monitoringRequest}
-              />
+        <div className="space-y-6">
+          {loading ? <LoadingMessage>Memuat master barang...</LoadingMessage> : null}
+
+          <div id="price-monitoring-trend-section">
+            <PriceMonitoringModal
+              embedded
+              itemMasters={itemMasters}
+              externalRequest={monitoringRequest}
+            />
+          </div>
+
+          <section className="weekly-section">
+            <div className="page-title weekly-section-head">
+              <div>
+                <h2>Deteksi Kenaikan Harga</h2>
+                <p>Periksa semua item belanja pada satu tanggal dan bandingkan dengan harga sebelumnya.</p>
+              </div>
             </div>
 
-            <section className="weekly-section">
-              <div className="page-title weekly-section-head">
-                <div>
-                  <h2>Deteksi Kenaikan Harga</h2>
-                  <p>Periksa semua item belanja pada satu tanggal dan bandingkan dengan harga sebelumnya.</p>
-                </div>
+            <form className="weekly-filter-panel" onSubmit={handleDetectionSubmit}>
+              <div className="filter-field">
+                <label htmlFor="price_detection_date">Tanggal laporan</label>
+                <input
+                  id="price_detection_date"
+                  type="date"
+                  value={detectionFilters.report_date}
+                  onChange={(event) =>
+                    setDetectionFilters((prev) => ({
+                      ...prev,
+                      report_date: event.target.value,
+                    }))
+                  }
+                  disabled={detectionLoading}
+                />
               </div>
 
-              <form className="weekly-filter-panel" onSubmit={handleDetectionSubmit}>
-                <div className="filter-field">
-                  <label htmlFor="price_detection_date">Tanggal laporan</label>
-                  <input
-                    id="price_detection_date"
-                    type="date"
-                    value={detectionFilters.report_date}
-                    onChange={(event) =>
-                      setDetectionFilters((prev) => ({
-                        ...prev,
-                        report_date: event.target.value,
-                      }))
-                    }
-                    disabled={detectionLoading}
-                  />
-                </div>
+              <div className="filter-field">
+                <label htmlFor="price_detection_min_percent">Minimum persen kenaikan</label>
+                <input
+                  id="price_detection_min_percent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={detectionFilters.min_percent_increase}
+                  onChange={(event) =>
+                    setDetectionFilters((prev) => ({
+                      ...prev,
+                      min_percent_increase: event.target.value,
+                    }))
+                  }
+                  placeholder="Opsional"
+                  disabled={detectionLoading}
+                />
+              </div>
 
-                <div className="filter-field">
-                  <label htmlFor="price_detection_min_percent">Minimum persen kenaikan</label>
-                  <input
-                    id="price_detection_min_percent"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={detectionFilters.min_percent_increase}
-                    onChange={(event) =>
-                      setDetectionFilters((prev) => ({
-                        ...prev,
-                        min_percent_increase: event.target.value,
-                      }))
-                    }
-                    placeholder="Opsional"
-                    disabled={detectionLoading}
-                  />
-                </div>
+              <label className="price-detection-checkbox">
+                <input
+                  type="checkbox"
+                  checked={detectionFilters.only_increased}
+                  onChange={(event) =>
+                    setDetectionFilters((prev) => ({
+                      ...prev,
+                      only_increased: event.target.checked,
+                    }))
+                  }
+                  disabled={detectionLoading}
+                />
+                Hanya tampilkan yang naik
+              </label>
 
-                <label className="price-detection-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={detectionFilters.only_increased}
-                    onChange={(event) =>
-                      setDetectionFilters((prev) => ({
-                        ...prev,
-                        only_increased: event.target.checked,
-                      }))
-                    }
-                    disabled={detectionLoading}
-                  />
-                  Hanya tampilkan yang naik
-                </label>
-
-                <div className="weekly-filter-action">
-                  <button
-                    type="submit"
-                    className="submit-btn w-full sm:w-auto"
-                    disabled={detectionLoading}
-                  >
-                    {detectionLoading ? "Memeriksa..." : "Periksa"}
-                  </button>
-                </div>
-              </form>
+              <div className="weekly-filter-action">
+                <button
+                  type="submit"
+                  className="submit-btn w-full sm:w-auto"
+                  disabled={detectionLoading}
+                >
+                  {detectionLoading ? "Memeriksa..." : "Periksa"}
+                </button>
+              </div>
+            </form>
 
             {detectionData && (
               <div className="price-monitoring-results">
@@ -348,9 +372,8 @@ export default function PriceMonitoring() {
                 )}
               </div>
             )}
-            </section>
-          </div>
-        )}
+          </section>
+        </div>
       </section>
 
       <Toast kind={toast.kind} message={toast.message} />
