@@ -355,103 +355,132 @@ export async function getPriceIncreaseDetection(req, res, next) {
       no_history_count: 0,
     };
 
-    const analyzedRows = await Promise.all(
-      currentRows.map(async (row) => {
-        let previousRow = null;
-        let previousHistoryRows = [];
+    const masterItemIds = [
+      ...new Set(
+        currentRows
+          .map((row) => Number(row.master_item_id || 0))
+          .filter((id) => Number.isInteger(id) && id > 0)
+      ),
+    ];
+    const currentRowsWithoutMaster = currentRows.filter((row) => !row.master_item_id);
+    const previousRowsByMasterId = new Map();
+    const previousRowsByDescription = new Map();
 
-        if (row.master_item_id) {
-          const [previousRows] = await pool.query(
-            `SELECT r.report_date,
-                    i.price,
-                    i.qty,
-                    i.unit_name,
-                    i.amount
-               FROM shopping_report_items i
-               JOIN shopping_reports r ON r.id = i.report_id
-              WHERE i.master_item_id = ?
-                AND r.report_date < ?
-              ORDER BY r.report_date DESC, i.id DESC
-              LIMIT 7`,
-            [row.master_item_id, reportDate]
-          );
-          previousHistoryRows = previousRows;
-          previousRow = previousRows[0] || null;
-        } else {
-          const normalizedDescription = normalizeLookupText(row.description);
-          if (normalizedDescription) {
-            const [previousRows] = await pool.query(
-              `SELECT r.report_date,
-                      i.price,
-                      i.qty,
-                      i.unit_name,
-                      i.amount,
-                      i.description
-                 FROM shopping_report_items i
-                 JOIN shopping_reports r ON r.id = i.report_id
-                WHERE r.report_date < ?
-                ORDER BY r.report_date DESC, i.id DESC`,
-              [reportDate]
-            );
+    if (masterItemIds.length > 0) {
+      const [previousMasterRows] = await pool.query(
+        `SELECT r.report_date,
+                i.master_item_id,
+                i.price,
+                i.qty,
+                i.unit_name,
+                i.amount
+           FROM shopping_report_items i
+           JOIN shopping_reports r ON r.id = i.report_id
+          WHERE i.master_item_id IN (?)
+            AND r.report_date < ?
+          ORDER BY i.master_item_id ASC, r.report_date DESC, i.id DESC`,
+        [masterItemIds, reportDate]
+      );
 
-            previousHistoryRows = previousRows.filter(
-              (candidate) =>
-                normalizeLookupText(candidate.description) === normalizedDescription
-            );
-            previousHistoryRows = previousHistoryRows.slice(0, 7);
-            previousRow = previousHistoryRows[0] || null;
+      previousMasterRows.forEach((row) => {
+        const key = Number(row.master_item_id);
+        const previousRows = previousRowsByMasterId.get(key) || [];
+        if (previousRows.length < 7) {
+          previousRows.push(row);
+          previousRowsByMasterId.set(key, previousRows);
+        }
+      });
+    }
+
+    if (currentRowsWithoutMaster.length > 0) {
+      const normalizedDescriptions = new Set(
+        currentRowsWithoutMaster
+          .map((row) => normalizeLookupText(row.description))
+          .filter(Boolean)
+      );
+
+      if (normalizedDescriptions.size > 0) {
+        const [previousDescriptionRows] = await pool.query(
+          `SELECT r.report_date,
+                  i.price,
+                  i.qty,
+                  i.unit_name,
+                  i.amount,
+                  i.description
+             FROM shopping_report_items i
+             JOIN shopping_reports r ON r.id = i.report_id
+            WHERE r.report_date < ?
+            ORDER BY r.report_date DESC, i.id DESC`,
+          [reportDate]
+        );
+
+        previousDescriptionRows.forEach((row) => {
+          const key = normalizeLookupText(row.description);
+          if (!normalizedDescriptions.has(key)) return;
+
+          const previousRows = previousRowsByDescription.get(key) || [];
+          if (previousRows.length < 7) {
+            previousRows.push(row);
+            previousRowsByDescription.set(key, previousRows);
           }
-        }
+        });
+      }
+    }
 
-        const currentPrice = Number(row.price || 0);
-        const previousPrice = previousRow ? Number(previousRow.price || 0) : null;
-        const nominalChange =
-          previousPrice == null ? null : currentPrice - previousPrice;
-        const percentChange =
-          previousPrice == null || previousPrice === 0
-            ? null
-            : (nominalChange / previousPrice) * 100;
+    const analyzedRows = currentRows.map((row) => {
+      const previousHistoryRows = row.master_item_id
+        ? previousRowsByMasterId.get(Number(row.master_item_id)) || []
+        : previousRowsByDescription.get(normalizeLookupText(row.description)) || [];
 
-        let status = "tanpa histori";
-        if (previousPrice != null) {
-          if (currentPrice > previousPrice) status = "naik";
-          else if (currentPrice < previousPrice) status = "turun";
-          else status = "tetap";
-        }
+      const previousRow = previousHistoryRows[0] || null;
 
-        if (status === "naik") summary.increased_count += 1;
-        else if (status === "turun") summary.decreased_count += 1;
-        else if (status === "tetap") summary.unchanged_count += 1;
-        else summary.no_history_count += 1;
+      const currentPrice = Number(row.price || 0);
+      const previousPrice = previousRow ? Number(previousRow.price || 0) : null;
+      const nominalChange = previousPrice == null ? null : currentPrice - previousPrice;
+      const percentChange =
+        previousPrice == null || previousPrice === 0
+          ? null
+          : (nominalChange / previousPrice) * 100;
 
-        const monitoringStartDate =
-          previousHistoryRows.length > 0
-            ? previousHistoryRows[previousHistoryRows.length - 1].report_date
-            : reportDate;
+      let status = "tanpa histori";
+      if (previousPrice != null) {
+        if (currentPrice > previousPrice) status = "naik";
+        else if (currentPrice < previousPrice) status = "turun";
+        else status = "tetap";
+      }
 
-        return {
-          master_item_id: row.master_item_id ?? null,
-          kode_barang: row.item_code || "-",
-          nama_barang: row.item_name || row.description || "-",
-          nama_barang_query: row.description || row.item_name || "",
-          tanggal_sebelumnya: previousRow?.report_date || null,
-          harga_sebelumnya: previousPrice,
-          harga_sekarang: currentPrice,
-          selisih_nominal: nominalChange,
-          selisih_persen: percentChange,
-          status,
-          qty: Number(row.qty || 0),
-          satuan: row.unit_name || "-",
-          jumlah: Number(row.amount || 0),
-          laporan_menu: row.menu_name || "-",
-          report_item_id: row.report_item_id,
-          monitoring_range: {
-            start_date: monitoringStartDate,
-            end_date: reportDate,
-          },
-        };
-      })
-    );
+      if (status === "naik") summary.increased_count += 1;
+      else if (status === "turun") summary.decreased_count += 1;
+      else if (status === "tetap") summary.unchanged_count += 1;
+      else summary.no_history_count += 1;
+
+      const monitoringStartDate =
+        previousHistoryRows.length > 0
+          ? previousHistoryRows[previousHistoryRows.length - 1].report_date
+          : reportDate;
+
+      return {
+        master_item_id: row.master_item_id ?? null,
+        kode_barang: row.item_code || "-",
+        nama_barang: row.item_name || row.description || "-",
+        nama_barang_query: row.description || row.item_name || "",
+        tanggal_sebelumnya: previousRow?.report_date || null,
+        harga_sebelumnya: previousPrice,
+        harga_sekarang: currentPrice,
+        selisih_nominal: nominalChange,
+        selisih_persen: percentChange,
+        status,
+        qty: Number(row.qty || 0),
+        satuan: row.unit_name || "-",
+        jumlah: Number(row.amount || 0),
+        laporan_menu: row.menu_name || "-",
+        report_item_id: row.report_item_id,
+        monitoring_range: {
+          start_date: monitoringStartDate,
+          end_date: reportDate,
+        },
+      };
+    });
 
     const rows = analyzedRows.filter((row) => {
       if (!onlyIncreased) return true;
