@@ -1,4 +1,5 @@
 import ActionIconButton from "./ActionIconButton.jsx";
+import LoadingMessage from "./LoadingMessage.jsx";
 import { formatDate, formatDateTime } from "../shared/utils/formatters.js";
 
 export default function DailyReportTable({
@@ -10,7 +11,7 @@ export default function DailyReportTable({
   canManage = true,
 }) {
   if (loading) {
-    return <div className="loading">Memuat riwayat laporan...</div>;
+    return <LoadingMessage>Memuat riwayat laporan...</LoadingMessage>;
   }
 
   if (!reports.length) {

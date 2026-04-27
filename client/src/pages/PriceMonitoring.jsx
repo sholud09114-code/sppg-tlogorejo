@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import PriceMonitoringModal from "../components/PriceMonitoringModal.jsx";
 import ActionIconButton from "../components/ActionIconButton.jsx";
+import LoadingMessage from "../components/LoadingMessage.jsx";
 import Toast from "../components/Toast.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
 import {
@@ -172,7 +173,7 @@ export default function PriceMonitoring() {
         </div>
 
         {loading ? (
-          <div className="loading">Memuat master barang...</div>
+          <LoadingMessage>Memuat master barang...</LoadingMessage>
         ) : (
           <div className="space-y-6">
             <div id="price-monitoring-trend-section">

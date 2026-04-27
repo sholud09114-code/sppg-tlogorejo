@@ -5,6 +5,7 @@ import CategoryGroup from "../components/CategoryGroup.jsx";
 import DailyReportDetailModal from "../components/DailyReportDetailModal.jsx";
 import DailyReportImportModal from "../components/DailyReportImportModal.jsx";
 import DailyReportTable from "../components/DailyReportTable.jsx";
+import LoadingMessage from "../components/LoadingMessage.jsx";
 import SummaryPanel from "../components/SummaryPanel.jsx";
 import Toast from "../components/Toast.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
@@ -480,7 +481,7 @@ export default function DailyReport() {
   if (fetching) {
     return (
       <section className="feature-page-card">
-        <div className="loading">Memuat data kelompok...</div>
+        <LoadingMessage>Memuat data kelompok...</LoadingMessage>
       </section>
     );
   }

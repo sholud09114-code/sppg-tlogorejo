@@ -1,4 +1,5 @@
 import ActionIconButton from "./ActionIconButton.jsx";
+import LoadingMessage from "./LoadingMessage.jsx";
 import { formatDate, formatMoney, formatNumber } from "../shared/utils/formatters.js";
 
 function getDifferenceTone(value) {
@@ -17,7 +18,7 @@ export default function ShoppingReportTable({
   canManage = true,
 }) {
   if (loading) {
-    return <div className="loading">Memuat laporan belanja...</div>;
+    return <LoadingMessage>Memuat laporan belanja...</LoadingMessage>;
   }
 
   if (!reports.length) {

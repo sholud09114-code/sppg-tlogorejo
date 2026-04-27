@@ -1,4 +1,5 @@
 import ActionIconButton from "./ActionIconButton.jsx";
+import LoadingMessage from "./LoadingMessage.jsx";
 import { formatDate, formatNumber } from "../shared/utils/formatters.js";
 
 function renderMenuNames(report) {
@@ -59,7 +60,7 @@ export default function MenuReportTable({
   canManage = true,
 }) {
   if (loading) {
-    return <div className="loading">Memuat data menu...</div>;
+    return <LoadingMessage>Memuat data menu...</LoadingMessage>;
   }
 
   if (!reports.length) {

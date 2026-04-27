@@ -967,6 +967,13 @@
   font-size: 13px;
 }
 
+.loading-detail {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* ============ Beneficiary groups ============ */
 .page-actions {
   display: flex;

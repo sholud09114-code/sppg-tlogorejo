@@ -71,16 +71,18 @@ export async function apiFetch(path, options = {}) {
     } catch (error) {
       timeout.clear();
       if (error?.name === "AbortError" || error?.name === "TimeoutError") {
-        throw new Error("Request timeout. Periksa koneksi lalu coba lagi.", {
-          cause: error,
-        });
+        throw new Error(
+          "Server sedang disiapkan, mohon tunggu beberapa detik lalu coba lagi.",
+          { cause: error }
+        );
       }
       if (shouldRetryRequest({ method, attempt, retryAttempts, error })) {
         continue;
       }
-      throw new Error("Tidak dapat terhubung ke server. Periksa koneksi lalu coba lagi.", {
-        cause: error,
-      });
+      throw new Error(
+        "Tidak dapat terhubung ke server. Jika baru dibuka, server mungkin sedang disiapkan. Mohon tunggu beberapa detik lalu coba lagi.",
+        { cause: error }
+      );
     }
   }
 

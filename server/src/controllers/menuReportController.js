@@ -365,7 +365,7 @@ async function requestMenuDraftFromGemini({ buffer, mimeType, fileName }) {
   const apiKey = String(process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
     const error = new Error(
-      "Fitur import gambar belum aktif. Isi GEMINI_API_KEY di file server/.env lalu restart backend."
+      "Fitur import gambar belum aktif. Hubungi admin sistem untuk mengaktifkan integrasi Gemini."
     );
     error.status = 500;
     throw error;

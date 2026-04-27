@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import FoodWasteDetail from "../components/FoodWasteDetail.jsx";
 import FoodWasteForm from "../components/FoodWasteForm.jsx";
 import ActionIconButton from "../components/ActionIconButton.jsx";
+import LoadingMessage from "../components/LoadingMessage.jsx";
 import Toast from "../components/Toast.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
@@ -239,7 +240,7 @@ export default function FoodWaste() {
 
           <div className="food-waste-data-panel-body">
             {loading ? (
-              <div className="loading">Memuat data sisa pangan...</div>
+              <LoadingMessage>Memuat data sisa pangan...</LoadingMessage>
             ) : reports.length === 0 ? (
               <div className="empty-state rounded-2xl px-4 py-8">
                 Belum ada data sisa pangan yang tersimpan.

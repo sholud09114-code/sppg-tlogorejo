@@ -1,4 +1,5 @@
 import ActionIconButton from "./ActionIconButton.jsx";
+import LoadingMessage from "./LoadingMessage.jsx";
 
 export default function BeneficiaryGroupTable({
   groups,
@@ -8,7 +9,7 @@ export default function BeneficiaryGroupTable({
   canManage = true,
 }) {
   if (loading) {
-    return <div className="loading">Memuat data kelompok...</div>;
+    return <LoadingMessage>Memuat data kelompok...</LoadingMessage>;
   }
 
   if (!groups.length) {

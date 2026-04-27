@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext.jsx";
 import HomeEmptyCard from "../components/HomeEmptyCard.jsx";
+import LoadingMessage from "../components/LoadingMessage.jsx";
 import Toast from "../components/Toast.jsx";
 import { fetchHomeSummary } from "../api/dailyReportApi.js";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
@@ -66,7 +67,7 @@ export default function Home({ onNavigate }) {
   }, []);
 
   if (loading) {
-    return <div className="loading">Memuat ringkasan dashboard...</div>;
+    return <LoadingMessage>Memuat ringkasan dashboard...</LoadingMessage>;
   }
 
   const primaryDate = summary?.today_date;

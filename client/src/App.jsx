@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "./auth/AuthContext.jsx";
 import Header from "./components/Header.jsx";
+import LoadingMessage from "./components/LoadingMessage.jsx";
 import Navigation from "./components/Navigation.jsx";
 import Toast from "./components/Toast.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "./components/ui/appIcons.jsx";
@@ -54,7 +55,7 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return <div className="auth-loading">Memuat sesi...</div>;
+    return <LoadingMessage className="auth-loading">Memuat sesi...</LoadingMessage>;
   }
 
   if (!user) {

@@ -155,7 +155,7 @@ export function formatImageDraftError(message) {
     normalizedMessage.includes("server/.env") ||
     normalizedMessage.includes("Fitur import gambar belum aktif")
   ) {
-    return "Fitur import gambar belum aktif. Isi GEMINI_API_KEY di file server/.env, lalu restart backend (`cd server && npm run dev`).";
+    return "Fitur import gambar belum aktif. Hubungi admin sistem untuk mengaktifkan integrasi Gemini.";
   }
 
   return normalizedMessage;
