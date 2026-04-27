@@ -30,6 +30,10 @@ SELECT seed.name, seed.category, seed.default_target, seed.display_order
   FROM seed_units seed
  WHERE NOT EXISTS (
    SELECT 1
+     FROM beneficiary_groups
+ )
+   AND NOT EXISTS (
+   SELECT 1
      FROM units existing
     WHERE existing.name = seed.name
  );
@@ -38,6 +42,10 @@ UPDATE units unit
 JOIN seed_units seed ON seed.name = unit.name
    SET unit.category = seed.category,
        unit.default_target = seed.default_target,
-       unit.display_order = seed.display_order;
+       unit.display_order = seed.display_order
+ WHERE NOT EXISTS (
+   SELECT 1
+     FROM beneficiary_groups
+ );
 
 DROP TEMPORARY TABLE seed_units;

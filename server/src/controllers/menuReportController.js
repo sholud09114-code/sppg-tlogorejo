@@ -527,7 +527,6 @@ async function findMenuReportById(id) {
 
 export async function listMenuReports(req, res, next) {
   try {
-    await ensureMenuReportsTable();
     const [rows] = await pool.query(
       `SELECT id, menu_date,
               COALESCE(NULLIF(menu_name, ''), TRIM(CONCAT_WS(', ',

@@ -10,6 +10,7 @@ import {
   deleteBeneficiaryGroup,
   fetchBeneficiaryGroupById,
   fetchBeneficiaryGroups,
+  getCachedBeneficiaryGroups,
   updateBeneficiaryGroup,
 } from "../api/beneficiaryGroupApi.js";
 
@@ -28,15 +29,24 @@ export default function BeneficiaryGroups() {
   const isAdmin = user?.role === "admin";
 
   const loadGroups = async () => {
-    try {
+    const cachedGroups = getCachedBeneficiaryGroups();
+    if (cachedGroups) {
+      setGroups(cachedGroups);
+      setLoading(false);
+    } else {
       setLoading(true);
-      const data = await fetchBeneficiaryGroups();
+    }
+
+    try {
+      const data = await fetchBeneficiaryGroups({ force: Boolean(cachedGroups) });
       setGroups(data);
     } catch (err) {
-      setToast({
-        kind: "danger",
-        message: "Gagal memuat data kelompok: " + err.message,
-      });
+      if (!cachedGroups) {
+        setToast({
+          kind: "danger",
+          message: "Gagal memuat data kelompok: " + err.message,
+        });
+      }
     } finally {
       setLoading(false);
     }

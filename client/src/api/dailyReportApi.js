@@ -2,10 +2,21 @@ import { apiFetch, handleResponse } from "./apiClient.js";
 
 let unitsCache = null;
 let unitsRequest = null;
+const reportListCache = new Map();
+const reportListRequests = new Map();
 
 export function invalidateUnitsCache() {
   unitsCache = null;
   unitsRequest = null;
+}
+
+export function getCachedReportList(limit = 30) {
+  return reportListCache.get(String(limit)) || null;
+}
+
+export function invalidateReportListCache() {
+  reportListCache.clear();
+  reportListRequests.clear();
 }
 
 export async function fetchUnits() {
@@ -55,7 +66,9 @@ export async function importReportsBatch(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateReportListCache();
+  return data;
 }
 
 export async function saveReport(payload) {
@@ -64,19 +77,44 @@ export async function saveReport(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateReportListCache();
+  return data;
 }
 
 export async function deleteReport(id) {
   const res = await apiFetch(`/reports/${id}`, {
     method: "DELETE",
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateReportListCache();
+  return data;
 }
 
-export async function listReports(limit = 30) {
-  const res = await apiFetch(`/reports?limit=${limit}`);
-  return handleResponse(res);
+export async function listReports(limit = 30, { force = false } = {}) {
+  const cacheKey = String(limit);
+  if (!force && reportListCache.has(cacheKey)) {
+    return reportListCache.get(cacheKey);
+  }
+
+  if (!force && reportListRequests.has(cacheKey)) {
+    return reportListRequests.get(cacheKey);
+  }
+
+  const request = apiFetch(`/reports?limit=${limit}`)
+    .then((res) => handleResponse(res))
+    .then((data) => {
+      reportListCache.set(cacheKey, data);
+      reportListRequests.delete(cacheKey);
+      return data;
+    })
+    .catch((error) => {
+      reportListRequests.delete(cacheKey);
+      throw error;
+    });
+
+  reportListRequests.set(cacheKey, request);
+  return request;
 }
 
 export async function fetchReportsForPrint(dateFrom, dateTo) {

@@ -15,6 +15,7 @@ import {
   fetchUnits,
   fetchReportByDate,
   fetchReportsForPrint,
+  getCachedReportList,
   listReports,
   saveReport,
 } from "../api/dailyReportApi.js";
@@ -166,15 +167,24 @@ export default function DailyReport() {
   const isAdmin = user?.role === "admin";
 
   const loadReportList = async () => {
-    try {
+    const cachedReports = getCachedReportList(100);
+    if (cachedReports) {
+      setReports(cachedReports);
+      setReportsLoading(false);
+    } else {
       setReportsLoading(true);
-      const data = await listReports(100);
+    }
+
+    try {
+      const data = await listReports(100, { force: Boolean(cachedReports) });
       setReports(data);
     } catch (err) {
-      setToast({
-        kind: "danger",
-        message: "Gagal memuat daftar laporan: " + err.message,
-      });
+      if (!cachedReports) {
+        setToast({
+          kind: "danger",
+          message: "Gagal memuat daftar laporan: " + err.message,
+        });
+      }
     } finally {
       setReportsLoading(false);
     }

@@ -91,7 +91,6 @@ async function findItemMasterById(id) {
 
 export async function listItemMasters(req, res, next) {
   try {
-    await ensureItemMastersTable();
     const activeOnly = String(req.query.active_only || "") === "1";
     const [rows] = await pool.query(
       `SELECT id, item_code, item_name, category, default_unit, default_price, is_active, created_at, updated_at

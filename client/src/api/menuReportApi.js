@@ -1,8 +1,39 @@
 import { apiFetch, handleResponse } from "./apiClient.js";
 
-export async function fetchMenuReports() {
-  const res = await apiFetch("/menu-reports");
-  return handleResponse(res);
+let menuReportsCache = null;
+let menuReportsRequest = null;
+
+export function getCachedMenuReports() {
+  return menuReportsCache;
+}
+
+export function invalidateMenuReportsCache() {
+  menuReportsCache = null;
+  menuReportsRequest = null;
+}
+
+export async function fetchMenuReports({ force = false } = {}) {
+  if (!force && menuReportsCache) {
+    return menuReportsCache;
+  }
+
+  if (!force && menuReportsRequest) {
+    return menuReportsRequest;
+  }
+
+  menuReportsRequest = apiFetch("/menu-reports")
+    .then((res) => handleResponse(res))
+    .then((data) => {
+      menuReportsCache = data;
+      menuReportsRequest = null;
+      return data;
+    })
+    .catch((error) => {
+      menuReportsRequest = null;
+      throw error;
+    });
+
+  return menuReportsRequest;
 }
 
 export async function fetchMenuReportById(id) {
@@ -16,7 +47,9 @@ export async function createMenuReport(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateMenuReportsCache();
+  return data;
 }
 
 export async function updateMenuReport(id, payload) {
@@ -25,14 +58,18 @@ export async function updateMenuReport(id, payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateMenuReportsCache();
+  return data;
 }
 
 export async function deleteMenuReport(id) {
   const res = await apiFetch(`/menu-reports/${id}`, {
     method: "DELETE",
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateMenuReportsCache();
+  return data;
 }
 
 export async function extractMenuReportImage(payload) {

@@ -1,8 +1,39 @@
 import { apiFetch, handleResponse } from "./apiClient.js";
 
-export async function fetchFoodWasteReports() {
-  const res = await apiFetch("/food-waste");
-  return handleResponse(res);
+let foodWasteReportsCache = null;
+let foodWasteReportsRequest = null;
+
+export function getCachedFoodWasteReports() {
+  return foodWasteReportsCache;
+}
+
+export function invalidateFoodWasteReportsCache() {
+  foodWasteReportsCache = null;
+  foodWasteReportsRequest = null;
+}
+
+export async function fetchFoodWasteReports({ force = false } = {}) {
+  if (!force && foodWasteReportsCache) {
+    return foodWasteReportsCache;
+  }
+
+  if (!force && foodWasteReportsRequest) {
+    return foodWasteReportsRequest;
+  }
+
+  foodWasteReportsRequest = apiFetch("/food-waste")
+    .then((res) => handleResponse(res))
+    .then((data) => {
+      foodWasteReportsCache = data;
+      foodWasteReportsRequest = null;
+      return data;
+    })
+    .catch((error) => {
+      foodWasteReportsRequest = null;
+      throw error;
+    });
+
+  return foodWasteReportsRequest;
 }
 
 export async function fetchFoodWasteById(id) {
@@ -16,7 +47,9 @@ export async function createFoodWaste(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateFoodWasteReportsCache();
+  return data;
 }
 
 export async function updateFoodWaste(id, payload) {
@@ -25,14 +58,18 @@ export async function updateFoodWaste(id, payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateFoodWasteReportsCache();
+  return data;
 }
 
 export async function deleteFoodWaste(id) {
   const res = await apiFetch(`/food-waste/${id}`, {
     method: "DELETE",
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateFoodWasteReportsCache();
+  return data;
 }
 
 export async function fetchFoodWasteMenuReference(date) {

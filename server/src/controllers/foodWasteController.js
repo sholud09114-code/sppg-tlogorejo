@@ -204,7 +204,6 @@ function normalizePayload(body) {
 
 export async function listFoodWasteReports(req, res, next) {
   try {
-    await ensureFoodWasteTable();
     const [rows] = await pool.query(
       `SELECT id, report_date, total_portions, carb_source, protein_source, vegetable, fruit, total_kg, menu_notes,
               created_at, updated_at

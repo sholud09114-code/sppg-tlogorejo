@@ -1,9 +1,40 @@
 import { apiFetch, handleResponse } from "./apiClient.js";
 import { invalidateUnitsCache } from "./dailyReportApi.js";
 
-export async function fetchBeneficiaryGroups() {
-  const res = await apiFetch("/beneficiary-groups");
-  return handleResponse(res);
+let beneficiaryGroupsCache = null;
+let beneficiaryGroupsRequest = null;
+
+export function getCachedBeneficiaryGroups() {
+  return beneficiaryGroupsCache;
+}
+
+export function invalidateBeneficiaryGroupsCache() {
+  beneficiaryGroupsCache = null;
+  beneficiaryGroupsRequest = null;
+}
+
+export async function fetchBeneficiaryGroups({ force = false } = {}) {
+  if (!force && beneficiaryGroupsCache) {
+    return beneficiaryGroupsCache;
+  }
+
+  if (!force && beneficiaryGroupsRequest) {
+    return beneficiaryGroupsRequest;
+  }
+
+  beneficiaryGroupsRequest = apiFetch("/beneficiary-groups")
+    .then((res) => handleResponse(res))
+    .then((data) => {
+      beneficiaryGroupsCache = data;
+      beneficiaryGroupsRequest = null;
+      return data;
+    })
+    .catch((error) => {
+      beneficiaryGroupsRequest = null;
+      throw error;
+    });
+
+  return beneficiaryGroupsRequest;
 }
 
 export async function fetchBeneficiaryGroupById(id) {
@@ -18,6 +49,7 @@ export async function createBeneficiaryGroup(payload) {
     body: JSON.stringify(payload),
   });
   const data = await handleResponse(res);
+  invalidateBeneficiaryGroupsCache();
   invalidateUnitsCache();
   return data;
 }
@@ -29,6 +61,7 @@ export async function updateBeneficiaryGroup(id, payload) {
     body: JSON.stringify(payload),
   });
   const data = await handleResponse(res);
+  invalidateBeneficiaryGroupsCache();
   invalidateUnitsCache();
   return data;
 }
@@ -38,6 +71,7 @@ export async function deleteBeneficiaryGroup(id) {
     method: "DELETE",
   });
   const data = await handleResponse(res);
+  invalidateBeneficiaryGroupsCache();
   invalidateUnitsCache();
   return data;
 }
@@ -58,6 +92,7 @@ export async function importBeneficiaryGroups(payload) {
     body: JSON.stringify(payload),
   });
   const data = await handleResponse(res);
+  invalidateBeneficiaryGroupsCache();
   invalidateUnitsCache();
   return data;
 }

@@ -14,10 +14,11 @@ import {
   fetchItemMasters,
   fetchShoppingReportById,
   fetchShoppingReports,
+  getCachedShoppingReports,
   updateItemMaster,
   updateShoppingReport,
 } from "../api/shoppingReportApi.js";
-import { fetchMenuReports } from "../api/menuReportApi.js";
+import { fetchMenuReports, getCachedMenuReports } from "../api/menuReportApi.js";
 import { formatMoney, formatNumber } from "../shared/utils/formatters.js";
 
 function getDifferenceTone(value) {
@@ -45,15 +46,24 @@ export default function ShoppingReports() {
   const isAdmin = user?.role === "admin";
 
   const loadReports = async () => {
-    try {
+    const cachedReports = getCachedShoppingReports();
+    if (cachedReports) {
+      setReports(cachedReports);
+      setLoading(false);
+    } else {
       setLoading(true);
-      const data = await fetchShoppingReports();
+    }
+
+    try {
+      const data = await fetchShoppingReports({ force: Boolean(cachedReports) });
       setReports(data);
     } catch (err) {
-      setToast({
-        kind: "danger",
-        message: "Gagal memuat laporan belanja: " + err.message,
-      });
+      if (!cachedReports) {
+        setToast({
+          kind: "danger",
+          message: "Gagal memuat laporan belanja: " + err.message,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -75,14 +85,21 @@ export default function ShoppingReports() {
   };
 
   const loadMenuReports = async () => {
+    const cachedReports = getCachedMenuReports();
+    if (cachedReports) {
+      setMenuReports(cachedReports);
+    }
+
     try {
-      const data = await fetchMenuReports();
+      const data = await fetchMenuReports({ force: Boolean(cachedReports) });
       setMenuReports(data);
     } catch (err) {
-      setToast({
-        kind: "danger",
-        message: "Gagal memuat referensi laporan menu: " + err.message,
-      });
+      if (!cachedReports) {
+        setToast({
+          kind: "danger",
+          message: "Gagal memuat referensi laporan menu: " + err.message,
+        });
+      }
     }
   };
 

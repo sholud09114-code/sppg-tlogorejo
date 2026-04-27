@@ -1,7 +1,5 @@
 import pool from "../../config/db.js";
 import { syncBeneficiaryGroupsToUnits } from "../../utils/beneficiaryGroupSync.js";
-import { ensureMenuReportsTable } from "../../controllers/menuReportController.js";
-import { ensureShoppingReportsTables } from "../../controllers/shoppingReportController.js";
 import XLSX from "xlsx";
 
 const VALID_STATUS = ["penuh", "libur", "sebagian"];
@@ -591,9 +589,6 @@ export async function importReportsBatch(req, res, next) {
 // GET /api/reports — list recent reports
 export async function listReports(req, res, next) {
   try {
-    await syncBeneficiaryGroupsToUnits();
-    await ensureDailyReportDetailColumns();
-
     const limit = Math.min(Number(req.query.limit) || 30, 100);
     const { date_from, date_to, include_details } = req.query;
     const includeDetails = String(include_details || "") === "1";
@@ -677,11 +672,6 @@ export async function listReports(req, res, next) {
 
 export async function getWeeklySummary(req, res, next) {
   try {
-    await syncBeneficiaryGroupsToUnits();
-    await ensureDailyReportDetailColumns();
-    await ensureMenuReportsTable();
-    await ensureShoppingReportsTables();
-
     const startDate = String(req.query.start_date || "").trim();
     const endDate = String(req.query.end_date || "").trim();
 
@@ -860,8 +850,6 @@ export async function getWeeklySummary(req, res, next) {
 // GET /api/reports/:date — fetch a report for one date
 export async function getReportByDate(req, res, next) {
   try {
-    await syncBeneficiaryGroupsToUnits();
-    await ensureDailyReportDetailColumns();
     const { date } = req.params;
     if (!DATE_REGEX.test(date)) {
       return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD." });

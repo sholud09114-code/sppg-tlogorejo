@@ -11,6 +11,7 @@ import {
   deleteMenuReport,
   fetchMenuReportById,
   fetchMenuReports,
+  getCachedMenuReports,
   updateMenuReport,
 } from "../api/menuReportApi.js";
 
@@ -26,15 +27,24 @@ export default function MenuReports() {
   const isAdmin = user?.role === "admin";
 
   const loadReports = async () => {
-    try {
+    const cachedReports = getCachedMenuReports();
+    if (cachedReports) {
+      setReports(cachedReports);
+      setLoading(false);
+    } else {
       setLoading(true);
-      const data = await fetchMenuReports();
+    }
+
+    try {
+      const data = await fetchMenuReports({ force: Boolean(cachedReports) });
       setReports(data);
     } catch (err) {
-      setToast({
-        kind: "danger",
-        message: "Gagal memuat data menu: " + err.message,
-      });
+      if (!cachedReports) {
+        setToast({
+          kind: "danger",
+          message: "Gagal memuat data menu: " + err.message,
+        });
+      }
     } finally {
       setLoading(false);
     }

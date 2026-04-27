@@ -13,9 +13,18 @@ import itemMasterRoutes from "./routes/itemMasterRoutes.js";
 import foodWasteRoutes from "./routes/foodWasteRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
 import { bootstrapAuth } from "./controllers/authController.js";
+import { ensureFoodWasteTable } from "./controllers/foodWasteController.js";
+import { ensureItemMastersTable } from "./controllers/itemMasterController.js";
+import { ensureMenuReportsTable } from "./controllers/menuReportController.js";
 import { authenticateToken, requireAdminForMutations } from "./middleware/auth.js";
+import { ensureDailyReportDetailColumns } from "./modules/daily-reports/dailyReport.controller.js";
+import { ensureShoppingReportsTables } from "./modules/shopping-reports/shoppingReport.repository.js";
 import { assertRuntimeConfig, isProductionEnv } from "./config/env.js";
 import { assertJwtSecretConfigured } from "./utils/jwt.js";
+import {
+  ensureBeneficiaryGroupsTable,
+  syncBeneficiaryGroupsToUnits,
+} from "./utils/beneficiaryGroupSync.js";
 
 dotenv.config();
 
@@ -95,9 +104,20 @@ app.use((err, req, res, _next) => {
 
 const PORT = process.env.PORT || 4000;
 
+async function initializeRuntimeTables() {
+  await ensureBeneficiaryGroupsTable();
+  await syncBeneficiaryGroupsToUnits();
+  await ensureDailyReportDetailColumns();
+  await ensureMenuReportsTable();
+  await ensureItemMastersTable();
+  await ensureShoppingReportsTables();
+  await ensureFoodWasteTable();
+}
+
 async function start() {
   assertRuntimeConfig();
   assertJwtSecretConfigured();
+  await initializeRuntimeTables();
   await bootstrapAuth();
   app.listen(PORT, () => {
     console.log(`SPPG API running on http://localhost:${PORT}`);

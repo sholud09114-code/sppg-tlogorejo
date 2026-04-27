@@ -1,7 +1,4 @@
 import pool from "../config/db.js";
-import { ensureMenuReportsTable } from "./menuReportController.js";
-import { ensureFoodWasteTable } from "./foodWasteController.js";
-import { ensureDailyReportDetailColumns } from "../modules/daily-reports/dailyReport.controller.js";
 
 function getJakartaDateString(date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
@@ -27,10 +24,6 @@ function buildMenuText(row) {
 
 export async function getHomeSummary(req, res, next) {
   try {
-    await ensureDailyReportDetailColumns();
-    await ensureMenuReportsTable();
-    await ensureFoodWasteTable();
-
     const todayDate = getJakartaDateString();
     const yesterday = new Date();
     yesterday.setUTCDate(yesterday.getUTCDate() - 1);

@@ -1,10 +1,8 @@
 import pool from "../config/db.js";
-import { ensureBeneficiaryGroupsTable } from "../utils/beneficiaryGroupSync.js";
 
 // GET /api/units — list active units ordered by display_order
 export async function getAllUnits(req, res, next) {
   try {
-    await ensureBeneficiaryGroupsTable();
     const [[groupCount]] = await pool.query(
       `SELECT COUNT(*) AS total FROM beneficiary_groups`
     );

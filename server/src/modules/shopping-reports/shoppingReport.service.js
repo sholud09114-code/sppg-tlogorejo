@@ -326,7 +326,6 @@ async function requestShoppingDraftFromGemini({ buffer, mimeType, fileName }) {
 }
 
 export async function listShoppingReports() {
-  await ensureShoppingReportsTables();
   return listShoppingReportRows();
 }
 

@@ -185,7 +185,6 @@ async function findBeneficiaryGroupById(id) {
 
 export async function listBeneficiaryGroups(req, res, next) {
   try {
-    await ensureBeneficiaryGroupsTable();
     const [rows] = await pool.query(
       `SELECT id, group_type, group_name,
               student_small_portion, student_large_portion,

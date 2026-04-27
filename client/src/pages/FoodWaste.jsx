@@ -11,6 +11,7 @@ import {
   createFoodWaste,
   deleteFoodWaste,
   fetchFoodWasteReports,
+  getCachedFoodWasteReports,
   updateFoodWaste,
 } from "../api/foodWasteApi.js";
 import { formatDate, formatPortions, formatWeight } from "../shared/utils/formatters.js";
@@ -44,15 +45,24 @@ export default function FoodWaste() {
   const isAdmin = user?.role === "admin";
 
   const loadReports = async () => {
-    try {
+    const cachedReports = getCachedFoodWasteReports();
+    if (cachedReports) {
+      setReports(cachedReports);
+      setLoading(false);
+    } else {
       setLoading(true);
-      const data = await fetchFoodWasteReports();
+    }
+
+    try {
+      const data = await fetchFoodWasteReports({ force: Boolean(cachedReports) });
       setReports(data);
     } catch (err) {
-      setToast({
-        kind: "danger",
-        message: "Gagal memuat data sisa pangan: " + err.message,
-      });
+      if (!cachedReports) {
+        setToast({
+          kind: "danger",
+          message: "Gagal memuat data sisa pangan: " + err.message,
+        });
+      }
     } finally {
       setLoading(false);
     }

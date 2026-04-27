@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS daily_reports (
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_date (report_date)
+  INDEX idx_date (report_date),
+  INDEX idx_daily_reports_updated_at (updated_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS daily_report_details (
@@ -58,7 +59,8 @@ CREATE TABLE IF NOT EXISTS daily_report_details (
   CONSTRAINT fk_unit FOREIGN KEY (unit_id) REFERENCES units(id),
   UNIQUE KEY uq_report_unit (report_id, unit_id),
   INDEX idx_report (report_id),
-  INDEX idx_unit (unit_id)
+  INDEX idx_unit (unit_id),
+  INDEX idx_daily_report_details_updated_at (updated_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS beneficiary_groups (
@@ -72,7 +74,8 @@ CREATE TABLE IF NOT EXISTS beneficiary_groups (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_beneficiary_group_type (group_type),
-  INDEX idx_beneficiary_group_name (group_name)
+  INDEX idx_beneficiary_group_name (group_name),
+  INDEX idx_beneficiary_groups_updated_at (updated_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS menu_reports (
@@ -102,7 +105,8 @@ CREATE TABLE IF NOT EXISTS menu_reports (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_menu_date (menu_date),
-  INDEX idx_menu_name (menu_name)
+  INDEX idx_menu_name (menu_name),
+  INDEX idx_menu_reports_updated_at (updated_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS item_masters (
@@ -117,7 +121,8 @@ CREATE TABLE IF NOT EXISTS item_masters (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_item_master_code (item_code),
   INDEX idx_item_master_name (item_name),
-  INDEX idx_item_master_active (is_active)
+  INDEX idx_item_master_active (is_active),
+  INDEX idx_item_masters_updated_at (updated_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS shopping_reports (
@@ -134,7 +139,8 @@ CREATE TABLE IF NOT EXISTS shopping_reports (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_shopping_report_date (report_date),
-  INDEX idx_shopping_menu_name (menu_name)
+  INDEX idx_shopping_menu_name (menu_name),
+  INDEX idx_shopping_reports_updated_at (updated_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS shopping_report_items (
@@ -155,5 +161,7 @@ CREATE TABLE IF NOT EXISTS shopping_report_items (
   CONSTRAINT fk_shopping_report_items_master
     FOREIGN KEY (master_item_id) REFERENCES item_masters(id) ON DELETE SET NULL,
   INDEX idx_shopping_report_items_report (report_id),
-  INDEX idx_shopping_report_items_order (display_order)
+  INDEX idx_shopping_report_items_order (display_order),
+  INDEX idx_shopping_report_items_master_item_id (master_item_id),
+  INDEX idx_shopping_report_items_updated_at (updated_at)
 ) ENGINE=InnoDB;

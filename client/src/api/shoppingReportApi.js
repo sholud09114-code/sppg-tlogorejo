@@ -2,6 +2,8 @@ import { apiFetch, handleResponse } from "./apiClient.js";
 
 const itemMastersCache = new Map();
 const itemMastersRequests = new Map();
+let shoppingReportsCache = null;
+let shoppingReportsRequest = null;
 
 function getItemMastersCacheKey(activeOnly) {
   return activeOnly ? "active" : "all";
@@ -12,9 +14,37 @@ export function invalidateItemMastersCache() {
   itemMastersRequests.clear();
 }
 
-export async function fetchShoppingReports() {
-  const res = await apiFetch("/shopping-reports");
-  return handleResponse(res);
+export function getCachedShoppingReports() {
+  return shoppingReportsCache;
+}
+
+export function invalidateShoppingReportsCache() {
+  shoppingReportsCache = null;
+  shoppingReportsRequest = null;
+}
+
+export async function fetchShoppingReports({ force = false } = {}) {
+  if (!force && shoppingReportsCache) {
+    return shoppingReportsCache;
+  }
+
+  if (!force && shoppingReportsRequest) {
+    return shoppingReportsRequest;
+  }
+
+  shoppingReportsRequest = apiFetch("/shopping-reports")
+    .then((res) => handleResponse(res))
+    .then((data) => {
+      shoppingReportsCache = data;
+      shoppingReportsRequest = null;
+      return data;
+    })
+    .catch((error) => {
+      shoppingReportsRequest = null;
+      throw error;
+    });
+
+  return shoppingReportsRequest;
 }
 
 export async function fetchShoppingReportById(id) {
@@ -28,7 +58,9 @@ export async function createShoppingReport(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateShoppingReportsCache();
+  return data;
 }
 
 export async function extractShoppingReportImage(payload) {
@@ -47,14 +79,18 @@ export async function updateShoppingReport(id, payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateShoppingReportsCache();
+  return data;
 }
 
 export async function deleteShoppingReport(id) {
   const res = await apiFetch(`/shopping-reports/${id}`, {
     method: "DELETE",
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  invalidateShoppingReportsCache();
+  return data;
 }
 
 export async function fetchItemMasters(activeOnly = false) {
