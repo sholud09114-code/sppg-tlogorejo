@@ -17,6 +17,10 @@ import { recordAuditLog } from "../../services/auditLogService.js";
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash";
+const AI_PROVIDER = String(process.env.AI_PROVIDER || "gemini").trim().toLowerCase();
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
+const OPENROUTER_MAX_TOKENS = Number(process.env.OPENROUTER_MAX_TOKENS) || 2500;
 
 function createHttpError(message, status) {
   const error = new Error(message);
@@ -220,6 +224,103 @@ function extractGeminiTextResponse(data) {
   return null;
 }
 
+function extractOpenRouterTextResponse(data) {
+  const content = data?.choices?.[0]?.message?.content;
+
+  if (typeof content === "string" && content.trim()) {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === "string") return part;
+        if (typeof part?.text === "string") return part.text;
+        return "";
+      })
+      .join("")
+      .trim();
+  }
+
+  return null;
+}
+
+function parseJsonDraftFromText(text, invalidMessage) {
+  const rawText = String(text || "").trim();
+  const fencedMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const jsonText = fencedMatch ? fencedMatch[1].trim() : rawText;
+
+  try {
+    return JSON.parse(jsonText);
+  } catch {
+    throw createHttpError(invalidMessage, 502);
+  }
+}
+
+async function requestShoppingDraftFromOpenRouter({ buffer, mimeType, fileName }) {
+  const apiKey = String(process.env.OPENROUTER_API_KEY || "").trim();
+  if (!apiKey) {
+    throw createHttpError(
+      "Fitur import gambar belum aktif. OPENROUTER_API_KEY belum dikonfigurasi.",
+      500
+    );
+  }
+
+  const prompt = [
+    buildExtractionPrompt(fileName),
+    "",
+    "Kembalikan hanya JSON valid dengan struktur:",
+    JSON.stringify(buildExtractionSchema()),
+  ].join("\n");
+
+  const response = await fetch(OPENROUTER_API_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: OPENROUTER_MODEL,
+      max_tokens: OPENROUTER_MAX_TOKENS,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${buffer.toString("base64")}`,
+              },
+            },
+          ],
+        },
+      ],
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message =
+      data?.error?.message ||
+      data?.message ||
+      "OpenRouter API gagal memproses gambar laporan belanja.";
+    throw createHttpError(message, response.status);
+  }
+
+  const outputText = extractOpenRouterTextResponse(data);
+  if (!outputText) {
+    throw createHttpError("OpenRouter tidak mengembalikan draft JSON yang dapat dibaca.", 502);
+  }
+
+  const draft = sanitizeExtractedDraft(
+    parseJsonDraftFromText(outputText, "Draft JSON dari OpenRouter tidak valid.")
+  );
+  draft.warnings = [...draft.warnings, `Ekstraksi gambar memakai OpenRouter (${OPENROUTER_MODEL}).`];
+  return draft;
+}
+
 async function requestShoppingDraftFromGemini({ buffer, mimeType, fileName }) {
   const apiKey = String(process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
@@ -325,6 +426,14 @@ async function requestShoppingDraftFromGemini({ buffer, mimeType, fileName }) {
   }
 }
 
+async function requestShoppingDraftFromAiProvider({ buffer, mimeType, fileName }) {
+  if (AI_PROVIDER === "openrouter") {
+    return requestShoppingDraftFromOpenRouter({ buffer, mimeType, fileName });
+  }
+
+  return requestShoppingDraftFromGemini({ buffer, mimeType, fileName });
+}
+
 export async function listShoppingReports() {
   return listShoppingReportRows();
 }
@@ -413,7 +522,7 @@ export async function extractShoppingReportDraftFromImage(file) {
     throw createHttpError("Format file tidak didukung. Gunakan jpg, jpeg, atau png.", 400);
   }
 
-  return requestShoppingDraftFromGemini({
+  return requestShoppingDraftFromAiProvider({
     buffer: file.buffer,
     mimeType,
     fileName,

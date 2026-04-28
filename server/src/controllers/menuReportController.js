@@ -5,6 +5,10 @@ const IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/jpg", "image/png"]);
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash";
+const AI_PROVIDER = String(process.env.AI_PROVIDER || "gemini").trim().toLowerCase();
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
+const OPENROUTER_MAX_TOKENS = Number(process.env.OPENROUTER_MAX_TOKENS) || 2500;
 const MENU_NAME_FIELDS = [
   "menu_name_1",
   "menu_name_2",
@@ -361,6 +365,110 @@ function extractGeminiTextResponse(data) {
   return null;
 }
 
+function extractOpenRouterTextResponse(data) {
+  const content = data?.choices?.[0]?.message?.content;
+
+  if (typeof content === "string" && content.trim()) {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === "string") return part;
+        if (typeof part?.text === "string") return part.text;
+        return "";
+      })
+      .join("")
+      .trim();
+  }
+
+  return null;
+}
+
+function parseJsonDraftFromText(text, invalidMessage) {
+  const rawText = String(text || "").trim();
+  const fencedMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const jsonText = fencedMatch ? fencedMatch[1].trim() : rawText;
+
+  try {
+    return JSON.parse(jsonText);
+  } catch (err) {
+    const error = new Error(invalidMessage, { cause: err });
+    error.status = 502;
+    throw error;
+  }
+}
+
+async function requestMenuDraftFromOpenRouter({ buffer, mimeType, fileName }) {
+  const apiKey = String(process.env.OPENROUTER_API_KEY || "").trim();
+  if (!apiKey) {
+    const error = new Error(
+      "Fitur import gambar belum aktif. OPENROUTER_API_KEY belum dikonfigurasi."
+    );
+    error.status = 500;
+    throw error;
+  }
+
+  const prompt = [
+    buildMenuExtractionPrompt(fileName),
+    "",
+    "Kembalikan hanya JSON valid dengan struktur:",
+    JSON.stringify(buildMenuExtractionSchema()),
+  ].join("\n");
+
+  const response = await fetch(OPENROUTER_API_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: OPENROUTER_MODEL,
+      max_tokens: OPENROUTER_MAX_TOKENS,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${buffer.toString("base64")}`,
+              },
+            },
+          ],
+        },
+      ],
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message =
+      data?.error?.message ||
+      data?.message ||
+      "OpenRouter API gagal memproses gambar poster menu.";
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+
+  const outputText = extractOpenRouterTextResponse(data);
+  if (!outputText) {
+    const error = new Error("OpenRouter tidak mengembalikan draft JSON menu yang dapat dibaca.");
+    error.status = 502;
+    throw error;
+  }
+
+  const draft = sanitizeMenuImageDraft(
+    parseJsonDraftFromText(outputText, "Draft JSON menu dari OpenRouter tidak valid.")
+  );
+  draft.warnings = [...draft.warnings, `Ekstraksi gambar memakai OpenRouter (${OPENROUTER_MODEL}).`];
+  return draft;
+}
+
 async function requestMenuDraftFromGemini({ buffer, mimeType, fileName }) {
   const apiKey = String(process.env.GEMINI_API_KEY || "").trim();
   if (!apiKey) {
@@ -492,6 +600,14 @@ async function requestMenuDraftFromGemini({ buffer, mimeType, fileName }) {
     ];
     return draft;
   }
+}
+
+async function requestMenuDraftFromAiProvider({ buffer, mimeType, fileName }) {
+  if (AI_PROVIDER === "openrouter") {
+    return requestMenuDraftFromOpenRouter({ buffer, mimeType, fileName });
+  }
+
+  return requestMenuDraftFromGemini({ buffer, mimeType, fileName });
 }
 
 async function findMenuReportById(id) {
@@ -751,7 +867,7 @@ export async function extractMenuReportImage(req, res, next) {
       });
     }
 
-    const draft = await requestMenuDraftFromGemini({
+    const draft = await requestMenuDraftFromAiProvider({
       buffer: file.buffer,
       mimeType,
       fileName,
