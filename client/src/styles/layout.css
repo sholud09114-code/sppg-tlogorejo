@@ -380,11 +380,13 @@
   .app-layout {
     display: block;
     width: min(1520px, calc(100vw - 28px));
-    padding: 0.9rem 0 0;
+    min-height: 100dvh;
+    padding: max(0.9rem, env(safe-area-inset-top)) 0 0;
   }
 
   .app-content.container {
-    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    padding-bottom: calc(126px + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(126px + env(safe-area-inset-bottom));
   }
 
   .app-sidebar {
@@ -434,12 +436,12 @@
     position: fixed;
     left: 12px;
     right: 12px;
-    bottom: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
     z-index: 12;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
-    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    padding: 10px;
     border-radius: 26px;
     border: 1px solid rgba(149, 169, 226, 0.16);
     background: rgba(255, 255, 255, 0.94);
@@ -452,6 +454,7 @@
     justify-content: center;
     min-width: 0;
     min-height: 56px;
+    max-width: 100%;
     padding: 8px 4px 6px;
     border-radius: 18px;
     gap: 4px;
@@ -462,6 +465,8 @@
     max-width: none;
     font-size: 10.5px;
     line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
@@ -502,7 +507,7 @@
     position: fixed;
     left: 12px;
     right: 12px;
-    bottom: calc(86px + env(safe-area-inset-bottom));
+    bottom: calc(86px + max(12px, env(safe-area-inset-bottom)));
     z-index: 12;
     padding: 14px;
     border-radius: 24px;
@@ -686,7 +691,7 @@
 
 @media (max-width: 720px) {
   .app-layout {
-    width: min(1520px, calc(100vw - 20px));
+    width: min(1520px, calc(100vw - 16px));
   }
 
   .app-sidebar {
@@ -694,11 +699,12 @@
   }
 
   .bottom-nav {
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    left: 8px;
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
     gap: 4px;
-    padding-inline: 8px;
+    padding: 8px;
+    border-radius: 24px;
   }
 
   .bottom-nav-tab {
@@ -711,8 +717,57 @@
   }
 
   .mobile-more-panel {
-    left: 10px;
-    right: 10px;
+    left: 8px;
+    right: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-layout {
+    width: min(1520px, calc(100vw - 12px));
+  }
+
+  .app-sidebar {
+    padding: 0.7rem;
+    border-radius: 20px;
+  }
+
+  .app-header {
+    gap: 0.65rem;
+  }
+
+  .brand-icon-shell {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .app-header h1 {
+    font-size: 16px;
+  }
+
+  .app-header p {
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+
+  .bottom-nav {
+    gap: 2px;
+    padding: 7px;
+  }
+
+  .bottom-nav-tab {
+    min-height: 50px;
+    border-radius: 16px;
+  }
+
+  .bottom-nav-label {
+    font-size: 9.5px;
   }
 }
 
