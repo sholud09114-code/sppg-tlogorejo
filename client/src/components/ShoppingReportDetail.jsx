@@ -96,7 +96,41 @@ export default function ShoppingReportDetail({ open, data, onClose }) {
               </div>
               <span className="rich-detail-group-count">{(data.items || []).length} item</span>
             </div>
-            <div className="table-wrap overflow-x-auto rounded-2xl">
+            <div className="shopping-detail-mobile-list">
+              {(data.items || []).map((item, index) => (
+                <article className="shopping-detail-mobile-item" key={item.id || `${item.description}-${index}-mobile`}>
+                  <div className="shopping-detail-mobile-item-head">
+                    <span className="table-index-badge">{index + 1}</span>
+                    <strong>{item.description}</strong>
+                  </div>
+                  <div className="shopping-detail-mobile-metrics">
+                    <div>
+                      <span>Qty</span>
+                      <strong>{formatNumber(item.qty)}</strong>
+                    </div>
+                    <div>
+                      <span>Satuan</span>
+                      <strong>{item.unit_name || "-"}</strong>
+                    </div>
+                    <div>
+                      <span>Harga</span>
+                      <strong>{formatMoney(item.price)}</strong>
+                    </div>
+                    <div>
+                      <span>Jumlah</span>
+                      <strong>{formatMoney(item.amount)}</strong>
+                    </div>
+                  </div>
+                  {item.notes ? (
+                    <div className="shopping-detail-mobile-note">
+                      <span>Keterangan</span>
+                      <strong>{item.notes}</strong>
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+            <div className="table-wrap shopping-detail-table-wrap overflow-x-auto rounded-2xl">
               <table className="data-table rich-detail-table min-w-[920px]">
                 <thead>
                   <tr>

@@ -435,7 +435,7 @@ button:disabled {
   padding: 26px 28px 18px;
 }
 
-.data-form-card .modal-header {
+.data-form-card .daily-report-editor-header {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -445,13 +445,13 @@ button:disabled {
   border-bottom: 1px solid rgba(149, 169, 226, 0.14);
 }
 
-.data-form-card .report-header-actions {
+.data-form-card .daily-report-editor-header .report-header-actions {
   align-items: center;
   flex-wrap: nowrap;
   gap: 10px;
 }
 
-.data-form-card .report-header-actions input {
+.data-form-card .daily-report-editor-header .report-header-actions input {
   min-width: 168px;
 }
 
@@ -868,6 +868,30 @@ button:disabled {
   color: var(--text-tertiary);
   cursor: grab;
   user-select: none;
+}
+
+.menu-sort-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-sort-move-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 10px;
+  color: #4d70b8;
+  background: #eef3ff;
+  border-color: rgba(77, 130, 255, 0.14);
+}
+
+.menu-sort-move-btn:hover:not(:disabled) {
+  color: #315eb9;
+  background: #e2ecff;
 }
 
 .menu-sort-card label {

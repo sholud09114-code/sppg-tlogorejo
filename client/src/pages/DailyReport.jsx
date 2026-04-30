@@ -766,7 +766,7 @@ export default function DailyReport() {
             role="dialog"
             aria-modal="true"
           >
-            <div className="modal-header">
+            <div className="modal-header daily-report-editor-header">
               <button
                 type="button"
                 className="daily-form-close-icon daily-form-close-leading"

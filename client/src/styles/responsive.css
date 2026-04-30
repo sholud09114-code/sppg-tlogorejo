@@ -235,6 +235,18 @@
     flex-direction: column;
   }
 
+  .modal-header:not(.daily-report-editor-header) {
+    align-items: stretch;
+  }
+
+  .modal-header:not(.daily-report-editor-header) .unified-modal-title {
+    width: 100%;
+  }
+
+  .modal-header:not(.daily-report-editor-header) > button {
+    width: 100%;
+  }
+
   .daily-detail-hero {
     align-items: stretch;
     flex-direction: column;
@@ -421,10 +433,15 @@
     max-height: calc(100dvh - 16px);
     padding: 14px 12px;
     border-radius: 18px;
+    overflow: hidden;
   }
 
   .rich-detail-shell {
     gap: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 2px calc(8px + env(safe-area-inset-bottom)) 0;
+    -webkit-overflow-scrolling: touch;
   }
 
   .rich-detail-hero {
@@ -488,7 +505,17 @@
     font-size: 16px;
   }
 
+  .shopping-detail-table-wrap {
+    display: none;
+  }
+
+  .shopping-detail-mobile-list {
+    display: grid;
+    gap: 10px;
+  }
+
   .rich-detail-section {
+    flex: 0 0 auto;
     gap: 8px;
     padding: 12px;
     border-radius: 16px;
@@ -507,6 +534,42 @@
   .food-waste-detail-item {
     min-height: 44px;
     border-radius: 14px;
+  }
+
+  .menu-detail-chip {
+    align-items: center;
+    line-height: 1.35;
+  }
+
+  .rich-detail-section .table-wrap {
+    overflow-x: hidden;
+  }
+
+  .rich-detail-table {
+    width: 100%;
+    min-width: 0 !important;
+    table-layout: fixed;
+  }
+
+  .rich-detail-table th,
+  .rich-detail-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    white-space: normal !important;
+  }
+
+  .rich-detail-table th:first-child,
+  .rich-detail-table td:first-child {
+    width: 34%;
+  }
+
+  .rich-detail-table th:nth-child(2),
+  .rich-detail-table td:nth-child(2),
+  .rich-detail-table th:nth-child(3),
+  .rich-detail-table td:nth-child(3) {
+    width: 33%;
   }
 
   .quick-action-panel {
@@ -734,20 +797,20 @@
     padding: 14px 12px 0;
   }
 
-  .data-form-card .modal-header {
+  .data-form-card .daily-report-editor-header {
     grid-template-columns: 44px minmax(0, 1fr);
     align-items: start;
     gap: 10px 12px;
     padding-bottom: 14px;
   }
 
-  .data-form-card .report-header-actions {
+  .data-form-card .daily-report-editor-header .report-header-actions {
     grid-column: 1 / -1;
     align-items: stretch;
     flex-wrap: wrap;
   }
 
-  .data-form-card .report-header-actions input {
+  .data-form-card .daily-report-editor-header .report-header-actions input {
     min-width: 0;
   }
 
@@ -1056,6 +1119,26 @@
     min-height: 0;
     padding: 10px;
     border-radius: 14px;
+    cursor: default;
+  }
+
+  .menu-sort-card-head {
+    margin-bottom: 10px;
+  }
+
+  .menu-sort-controls {
+    gap: 8px;
+  }
+
+  .menu-sort-move-btn {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 12px;
+  }
+
+  .menu-sort-grip {
+    display: none;
   }
 
   .menu-sort-card input,
@@ -1247,5 +1330,321 @@
 
   .menu-report-mobile-actions .action-icon-btn {
     flex: initial;
+  }
+}
+
+/* Mobile overflow and readability guardrails */
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .app-shell,
+  .content-shell,
+  .container,
+  .feature-page-card,
+  .modal-card,
+  .data-form-card,
+  .menu-report-form-card,
+  .report-modal-card,
+  .rich-detail-card,
+  .mobile-data-card,
+  .summary-card,
+  .summary-metric-card,
+  .rich-detail-summary-card,
+  .daily-detail-summary-card,
+  .data-form-section,
+  .menu-form-section,
+  .table-wrap {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .modal-backdrop {
+    align-items: stretch;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  .modal-card,
+  .data-form-card,
+  .menu-report-form-card,
+  .report-modal-card,
+  .rich-detail-card {
+    width: min(100%, calc(100vw - 16px));
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: hidden;
+  }
+
+  .modal-header,
+  .unified-modal-title,
+  .rich-detail-hero-main,
+  .daily-detail-hero-main,
+  .mobile-data-card-head,
+  .summary-metric-card,
+  .summary-card,
+  .rich-detail-summary-card,
+  .daily-detail-summary-card,
+  .data-form-section-head,
+  .menu-form-section-head {
+    min-width: 0;
+  }
+
+  .modal-header h3,
+  .modal-header p,
+  .unified-modal-title-copy,
+  .rich-detail-hero-copy,
+  .daily-detail-hero-copy,
+  .mobile-data-card-title,
+  .mobile-data-card-subtitle,
+  .mobile-data-copy,
+  .summary-card strong,
+  .summary-metric-content,
+  .rich-detail-summary-copy,
+  .daily-detail-summary-copy,
+  .rich-detail-note,
+  .food-waste-detail-item strong,
+  .menu-detail-chip,
+  .school-card-head .name,
+  .school-card-head .target {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .button-with-icon,
+  .status-btn,
+  .status-quick-btn,
+  .holiday-quick-btn,
+  .submit-btn,
+  .action-btn-secondary,
+  .action-btn-secondary-soft,
+  .completeness-action-btn {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table th,
+  .data-table td {
+    white-space: normal;
+  }
+
+  .data-table .text-right,
+  .data-table .text-center {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 390px) {
+  .modal-backdrop {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .modal-card,
+  .data-form-card,
+  .menu-report-form-card,
+  .report-modal-card,
+  .rich-detail-card {
+    width: min(100%, calc(100vw - 12px));
+  }
+
+  .unified-modal-icon,
+  .rich-detail-hero-icon,
+  .daily-detail-hero-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  .modal-header h3,
+  .rich-detail-hero-copy h3,
+  .daily-detail-hero-copy h3 {
+    font-size: 18px;
+  }
+}
+
+/* Mobile typography tuning for long-use operational screens */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .page-title h2,
+  .home-welcome-copy h1 {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  .page-title p,
+  .home-welcome-copy p,
+  .modal-header p,
+  .rich-detail-hero-copy p,
+  .daily-detail-hero-copy p,
+  .data-form-section-head p,
+  .menu-form-section-head p {
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: #667085;
+  }
+
+  .modal-header h3,
+  .rich-detail-hero-copy h3,
+  .daily-detail-hero-copy h3,
+  .daily-form-header-copy h3 {
+    font-size: 20px;
+    font-weight: 650;
+    line-height: 1.22;
+    letter-spacing: 0;
+  }
+
+  .rich-detail-eyebrow,
+  .daily-detail-eyebrow,
+  .rich-detail-group-kicker,
+  .missing-report-kicker {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .data-form-section-head h4,
+  .data-form-section-title h4,
+  .menu-form-section-head h4,
+  .menu-form-section-title h4,
+  .rich-detail-section-head h4,
+  .category-header .cat-title {
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .summary-card-label,
+  .rich-detail-summary-copy span,
+  .daily-detail-summary-copy span,
+  .mobile-metric span,
+  .shopping-detail-mobile-metrics span,
+  .shopping-detail-mobile-note span,
+  .form-field label,
+  .filter-field label,
+  .mobile-data-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #69748a;
+  }
+
+  .summary-card strong,
+  .summary-metric-content strong,
+  .rich-detail-summary-copy strong,
+  .daily-detail-summary-copy strong {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.22;
+    letter-spacing: 0;
+  }
+
+  .mobile-data-card-title,
+  .school-card-head .name,
+  .menu-sort-card input,
+  .mobile-data-copy,
+  .shopping-detail-mobile-item-head strong {
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .mobile-data-card-subtitle,
+  .school-card-head .target,
+  .field-hint,
+  .menu-form-info,
+  .data-form-info,
+  .rich-detail-note {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.45;
+  }
+
+  .mobile-metric strong,
+  .shopping-detail-mobile-metrics strong,
+  .shopping-detail-mobile-note strong,
+  .daily-detail-mobile-metrics strong {
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .table-index-badge,
+  .menu-sort-index,
+  .data-form-step,
+  .menu-form-step {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  button,
+  .submit-btn,
+  .action-btn-secondary,
+  .action-btn-secondary-soft,
+  .status-btn,
+  .status-quick-btn,
+  .holiday-quick-btn,
+  .completeness-action-btn,
+  .rich-detail-close-btn,
+  .daily-detail-close-btn,
+  .menu-form-close-btn {
+    font-size: 13.5px;
+    font-weight: 650;
+    line-height: 1.25;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .data-table th {
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+
+  .data-table td {
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 390px) {
+  .page-title h2,
+  .home-welcome-copy h1 {
+    font-size: 20px;
+  }
+
+  .modal-header h3,
+  .rich-detail-hero-copy h3,
+  .daily-detail-hero-copy h3,
+  .daily-form-header-copy h3 {
+    font-size: 18px;
+  }
+
+  .summary-card strong,
+  .summary-metric-content strong,
+  .rich-detail-summary-copy strong,
+  .daily-detail-summary-copy strong {
+    font-size: 16px;
   }
 }

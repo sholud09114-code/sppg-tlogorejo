@@ -169,6 +169,12 @@ export default function MenuReportForm({
     setDraggedMenuIndex(null);
   };
 
+  const handleMoveMenu = (index, direction) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= MENU_NAME_FIELDS.length) return;
+    setForm((prev) => reorderMenuFields(prev, index, targetIndex));
+  };
+
   const handleProcessImage = async () => {
     if (!selectedImageFile) {
       setImageDraftStatus({
@@ -404,7 +410,7 @@ export default function MenuReportForm({
                 <span className="menu-form-step">3.</span>
                 <div>
                   <h4>Daftar Menu</h4>
-                  <p>Geser kartu untuk mengubah urutan menu.</p>
+                  <p>Ubah urutan menu dengan tombol naik/turun. Drag tetap tersedia di desktop.</p>
                 </div>
               </div>
               <div className="menu-sort-grid">
@@ -420,9 +426,29 @@ export default function MenuReportForm({
                   >
                     <div className="menu-sort-card-head">
                       <span className="menu-sort-index">{index + 1}</span>
-                      <span className="menu-sort-grip" aria-hidden="true">
-                        ⋮⋮
-                      </span>
+                      <div className="menu-sort-controls">
+                        <button
+                          type="button"
+                          className="menu-sort-move-btn"
+                          onClick={() => handleMoveMenu(index, -1)}
+                          disabled={loading || index === 0}
+                          aria-label={`Pindahkan menu ${index + 1} ke atas`}
+                        >
+                          <AppIcon name="chevronUp" size={16} weight={APP_ICON_WEIGHT.action} />
+                        </button>
+                        <button
+                          type="button"
+                          className="menu-sort-move-btn"
+                          onClick={() => handleMoveMenu(index, 1)}
+                          disabled={loading || index === MENU_NAME_FIELDS.length - 1}
+                          aria-label={`Pindahkan menu ${index + 1} ke bawah`}
+                        >
+                          <AppIcon name="chevronDown" size={16} weight={APP_ICON_WEIGHT.action} />
+                        </button>
+                        <span className="menu-sort-grip" aria-hidden="true">
+                          ⋮⋮
+                        </span>
+                      </div>
                     </div>
                     <label htmlFor={`menu_name_${index + 1}`}>Nama menu {index + 1}</label>
                     <input
