@@ -1,4 +1,5 @@
 import { formatDate, formatNumber } from "../shared/utils/formatters.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 function getMenuNames(data) {
   const menuNames = [
@@ -20,94 +21,108 @@ export default function MenuReportDetail({ open, data, onClose }) {
   if (!open || !data) return null;
 
   const menuNames = getMenuNames(data);
+  const nutritionRows = [
+    ["Energi", "energy", "kkal"],
+    ["Protein", "protein", "g"],
+    ["Lemak", "fat", "g"],
+    ["Karbohidrat", "carbohydrate", "g"],
+    ["Serat", "fiber", "g"],
+  ];
 
   return (
     <div className="modal-backdrop" role="presentation">
       <div
-        className="modal-card w-full max-w-2xl rounded-2xl p-4 sm:p-5"
+        className="modal-card report-modal-card rich-detail-card w-full max-w-5xl rounded-2xl p-4 sm:p-5"
         role="dialog"
         aria-modal="true"
       >
-        <div className="modal-header">
-          <div>
-            <h3>Detail menu</h3>
-            <p>Ringkasan kandungan gizi menu yang tersimpan.</p>
+        <div className="rich-detail-shell">
+          <div className="rich-detail-hero">
+            <div className="rich-detail-hero-main">
+              <div className="rich-detail-hero-icon">
+                <AppIcon name="menuReports" size={24} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-hero-copy">
+                <span className="rich-detail-eyebrow">Detail menu</span>
+                <h3>{formatDate(data.menu_date)}</h3>
+                <p>Ringkasan menu harian dan kandungan gizi porsi kecil serta porsi besar.</p>
+              </div>
+            </div>
+            <button type="button" onClick={onClose} className="rich-detail-close-btn">
+              Tutup
+            </button>
           </div>
-          <button type="button" onClick={onClose}>
-            Tutup
-          </button>
-        </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Tanggal</span>
-            <strong className="text-xl leading-snug">{formatDate(data.menu_date)}</strong>
+          <div className="rich-detail-summary-grid menu-detail-summary-grid">
+            <div className="rich-detail-summary-card">
+              <div className="rich-detail-summary-icon tone-blue">
+                <AppIcon name="date" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-summary-copy">
+                <span>Tanggal</span>
+                <strong>{formatDate(data.menu_date)}</strong>
+              </div>
+            </div>
+            <div className="rich-detail-summary-card">
+              <div className="rich-detail-summary-icon tone-emerald">
+                <AppIcon name="calculator" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-summary-copy">
+                <span>Total item menu</span>
+                <strong>{menuNames.length.toLocaleString("id-ID")}</strong>
+              </div>
+            </div>
           </div>
-          <div className="summary-card rounded-2xl p-4 md:col-span-2">
-            <span className="summary-card-label">Nama Menu</span>
-            <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-5">
+
+          <section className="rich-detail-section">
+            <div className="rich-detail-section-head">
+              <div>
+                <span className="rich-detail-group-kicker">Daftar</span>
+                <h4>Nama menu</h4>
+              </div>
+              <span className="rich-detail-group-count">{menuNames.length} item</span>
+            </div>
+            <div className="menu-detail-chip-grid">
               {menuNames.map((name, index) => (
                 <div
                   key={`${name}-${index}`}
-                  className="rounded-xl bg-[#fcfbf8] px-3 py-2 text-sm font-medium text-[#2f2d27]"
+                  className="menu-detail-chip"
                 >
+                  <span className="table-index-badge">{index + 1}</span>
                   {name}
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Porsi Kecil</span>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Energi: </span>
-                <strong className="text-sm">{formatNumber(data.small_energy)} kkal</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Protein: </span>
-                <strong className="text-sm">{formatNumber(data.small_protein)} g</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Lemak: </span>
-                <strong className="text-sm">{formatNumber(data.small_fat)} g</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Karbohidrat: </span>
-                <strong className="text-sm">{formatNumber(data.small_carbohydrate)} g</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Serat: </span>
-                <strong className="text-sm">{formatNumber(data.small_fiber)} g</strong>
+          <section className="rich-detail-section">
+            <div className="rich-detail-section-head">
+              <div>
+                <span className="rich-detail-group-kicker">Gizi</span>
+                <h4>Kandungan per porsi</h4>
               </div>
             </div>
-          </div>
-
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Porsi Besar</span>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Energi: </span>
-                <strong className="text-sm">{formatNumber(data.large_energy)} kkal</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Protein: </span>
-                <strong className="text-sm">{formatNumber(data.large_protein)} g</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Lemak: </span>
-                <strong className="text-sm">{formatNumber(data.large_fat)} g</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Karbohidrat: </span>
-                <strong className="text-sm">{formatNumber(data.large_carbohydrate)} g</strong>
-              </div>
-              <div className="text-sm">
-                <span className="text-[#5f5e5a]">Serat: </span>
-                <strong className="text-sm">{formatNumber(data.large_fiber)} g</strong>
-              </div>
+            <div className="table-wrap overflow-x-auto rounded-2xl">
+              <table className="data-table rich-detail-table min-w-[720px]">
+                <thead>
+                  <tr>
+                    <th className="text-left">Komponen</th>
+                    <th className="text-right">Porsi kecil</th>
+                    <th className="text-right">Porsi besar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nutritionRows.map(([label, key, unit]) => (
+                    <tr key={key}>
+                      <td className="text-left">{label}</td>
+                      <td className="text-right">{formatNumber(data[`small_${key}`])} {unit}</td>
+                      <td className="text-right">{formatNumber(data[`large_${key}`])} {unit}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>

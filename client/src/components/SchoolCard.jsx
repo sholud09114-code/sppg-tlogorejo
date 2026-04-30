@@ -1,7 +1,9 @@
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
+
 const STATUS_OPTIONS = [
-  { value: "penuh", label: "Dilayani penuh" },
-  { value: "libur", label: "Libur" },
-  { value: "sebagian", label: "Dilayani sebagian" },
+  { value: "penuh", label: "Dilayani penuh", icon: "statusFull" },
+  { value: "libur", label: "Libur", icon: "statusHoliday" },
+  { value: "sebagian", label: "Dilayani sebagian", icon: "statusPartial" },
 ];
 
 function getDefaultSplit(unit, actualPm) {
@@ -31,7 +33,7 @@ function getDefaultSplit(unit, actualPm) {
   return { actualSmall, actualLarge };
 }
 
-export default function SchoolCard({ unit, entry, onChange }) {
+export default function SchoolCard({ unit, index, entry, onChange }) {
   const smallTarget = Number(unit.small_target || 0);
   const largeTarget = Number(unit.large_target || 0);
   const hasSplitPortion = smallTarget > 0 && largeTarget > 0;
@@ -140,6 +142,7 @@ export default function SchoolCard({ unit, entry, onChange }) {
 
   return (
     <div className="school-card rounded-2xl p-3 sm:p-4">
+      <span className="school-card-index">{index}</span>
       <div className="school-card-head">
         <span className="name">{unit.name}</span>
         <span className="target">
@@ -157,6 +160,7 @@ export default function SchoolCard({ unit, entry, onChange }) {
               className={`status-btn min-h-10 ${isActive ? "active " + opt.value : ""}`}
               onClick={() => handleStatus(opt.value)}
             >
+              <AppIcon name={opt.icon} size={17} weight={APP_ICON_WEIGHT.action} />
               {opt.label}
             </button>
           );

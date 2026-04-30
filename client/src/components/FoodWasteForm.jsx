@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchReportByDate } from "../api/dailyReportApi.js";
 import { fetchFoodWasteMenuReference } from "../api/foodWasteApi.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 function getInitialState(initialData) {
   return {
@@ -241,9 +242,14 @@ export default function FoodWasteForm({ open, initialData, loading, onClose, onS
     <div className="modal-backdrop" role="presentation">
       <form className="modal-card data-form-card data-form-card-lg" onSubmit={handleSubmit}>
         <div className="modal-header">
-          <div>
-            <h3>{initialData?.id ? "Edit sisa pangan" : "Tambah sisa pangan"}</h3>
-            <p>Input data sisa pangan harian dan hubungkan menu otomatis berdasarkan tanggal.</p>
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="foodWaste" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>{initialData?.id ? "Edit sisa pangan" : "Tambah sisa pangan"}</h3>
+              <p>Input data sisa pangan harian dan hubungkan menu otomatis berdasarkan tanggal.</p>
+            </div>
           </div>
           <button type="button" onClick={onClose} disabled={loading}>
             Tutup

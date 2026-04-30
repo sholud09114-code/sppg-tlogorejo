@@ -5,6 +5,7 @@ import ShoppingReportHeaderSection from "../features/shopping-reports/components
 import ShoppingReportImageImport from "../features/shopping-reports/components/ShoppingReportImageImport.jsx";
 import ShoppingReportItemsSection from "../features/shopping-reports/components/ShoppingReportItemsSection.jsx";
 import ShoppingReportSummaryCards from "../features/shopping-reports/components/ShoppingReportSummaryCards.jsx";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 import {
   LARGE_PORTION_RATE,
   SMALL_PORTION_RATE,
@@ -396,9 +397,14 @@ export default function ShoppingReportForm({
     <div className="modal-backdrop" role="presentation">
       <div className="modal-card data-form-card data-form-card-xl" role="dialog" aria-modal="true">
         <div className="modal-header">
-          <div>
-            <h3>{initialData?.id ? "Edit laporan belanja" : "Tambah laporan belanja"}</h3>
-            <p>Input header laporan dan daftar item belanja harian.</p>
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="shoppingReports" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>{initialData?.id ? "Edit laporan belanja" : "Tambah laporan belanja"}</h3>
+              <p>Input header laporan dan daftar item belanja harian.</p>
+            </div>
           </div>
           <button type="button" onClick={onClose} disabled={loading}>
             Tutup

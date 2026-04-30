@@ -4,6 +4,7 @@ import {
   previewReportImport,
 } from "../api/dailyReportApi.js";
 import { formatDateLong } from "../shared/utils/formatters.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 function arrayBufferToBase64(buffer) {
   let binary = "";
@@ -136,12 +137,17 @@ export default function DailyReportImportModal({
         aria-modal="true"
       >
         <div className="modal-header">
-          <div className="min-w-0">
-            <h3>Import CSV/Excel laporan harian</h3>
-            <p>
-              Upload file matriks harian untuk memuat beberapa tanggal laporan
-              sekaligus.
-            </p>
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="import" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>Import CSV/Excel laporan harian</h3>
+              <p>
+                Upload file matriks harian untuk memuat beberapa tanggal laporan
+                sekaligus.
+              </p>
+            </div>
           </div>
           <button
             type="button"

@@ -26,6 +26,12 @@
 
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-control: 12px;
+  --radius-card: 18px;
+  --radius-panel: 22px;
+  --shadow-card: 0 14px 34px rgba(83, 109, 167, 0.06);
+  --shadow-panel: 0 18px 42px rgba(83, 109, 167, 0.08);
+  --surface-panel: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.95)), #ffffff;
 }
 
 * { box-sizing: border-box; }

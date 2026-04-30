@@ -12,6 +12,7 @@ function getInitialForm(initialData) {
 }
 
 import ActionIconButton from "./ActionIconButton.jsx";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 function formatMoney(value) {
   return Number(value || 0).toLocaleString("id-ID");
@@ -93,9 +94,14 @@ export default function ItemMasterModal({
     <div className="modal-backdrop" role="presentation">
       <div className="modal-card data-form-card data-form-card-xl" role="dialog" aria-modal="true">
         <div className="modal-header">
-          <div>
-            <h3>Master Barang</h3>
-            <p>Kelola daftar barang untuk autofill item di laporan belanja.</p>
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="database" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>Master Barang</h3>
+              <p>Kelola daftar barang untuk autofill item di laporan belanja.</p>
+            </div>
           </div>
           <button type="button" onClick={onClose} disabled={saving}>
             Tutup

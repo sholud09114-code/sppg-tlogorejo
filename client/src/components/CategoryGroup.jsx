@@ -9,10 +9,11 @@ export default function CategoryGroup({ category, units, entries, onEntryChange 
         <span className="cat-title">{category}</span>
         <span className="cat-count">{units.length} unit</span>
       </div>
-      {units.map((u) => (
+      {units.map((u, index) => (
         <SchoolCard
           key={u.id}
           unit={u}
+          index={index + 1}
           entry={entries[u.id] || EMPTY_ENTRY}
           onChange={(newEntry) => onEntryChange(u.id, newEntry)}
         />

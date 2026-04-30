@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 const GROUP_TYPE_OPTIONS = ["Paud/KB/TK", "SD", "SMP/MTs", "SMK"];
 const NUMBER_FIELDS = [
@@ -90,9 +91,14 @@ export default function BeneficiaryGroupForm({ open, initialData, loading, onClo
     <div className="modal-backdrop" role="presentation">
       <div className="modal-card data-form-card data-form-card-md" role="dialog" aria-modal="true">
         <div className="modal-header">
-          <div>
-            <h3>{initialData?.id ? "Edit kelompok" : "Tambah kelompok"}</h3>
-            <p>Kelola jumlah porsi berdasarkan kelompok penerima manfaat.</p>
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="beneficiaries" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>{initialData?.id ? "Edit kelompok" : "Tambah kelompok"}</h3>
+              <p>Kelola jumlah porsi berdasarkan kelompok penerima manfaat.</p>
+            </div>
           </div>
           <button type="button" onClick={onClose} disabled={loading}>
             Tutup

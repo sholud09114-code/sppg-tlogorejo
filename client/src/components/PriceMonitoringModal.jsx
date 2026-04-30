@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchItemPriceMonitoring } from "../api/shoppingReportApi.js";
 import { formatMoney } from "../shared/utils/formatters.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 function formatDateLong(value) {
   if (!value) return "-";
@@ -232,9 +233,14 @@ export default function PriceMonitoringModal({
       aria-modal={embedded ? undefined : "true"}
     >
         <div className="modal-header">
-          <div>
-            <h3>Monitoring Harga</h3>
-            <p>Pantau perubahan harga barang dari data laporan belanja yang sudah tersimpan.</p>
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="trendingUp" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>Monitoring Harga</h3>
+              <p>Pantau perubahan harga barang dari data laporan belanja yang sudah tersimpan.</p>
+            </div>
           </div>
           {!embedded && (
             <button type="button" onClick={onClose} disabled={loading}>

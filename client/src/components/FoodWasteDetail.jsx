@@ -1,4 +1,5 @@
 import { formatDate, formatPortions, formatWeight } from "../shared/utils/formatters.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 function formatWastePerPortion(totalKg, totalPortions) {
   const numericTotalKg = Number(totalKg || 0);
@@ -16,60 +17,102 @@ function formatWastePerPortion(totalKg, totalPortions) {
 export default function FoodWasteDetail({ open, data, onClose }) {
   if (!open || !data) return null;
 
+  const wasteRows = [
+    ["Sumber karbohidrat", data.carb_source],
+    ["Sumber protein", data.protein_source],
+    ["Sayur", data.vegetable],
+    ["Buah", data.fruit],
+  ];
+
   return (
     <div className="modal-backdrop" role="presentation">
       <div
-        className="modal-card w-full max-w-3xl rounded-2xl p-4 sm:p-5"
+        className="modal-card report-modal-card rich-detail-card w-full max-w-5xl rounded-2xl p-4 sm:p-5"
         role="dialog"
         aria-modal="true"
       >
-        <div className="modal-header">
-          <div>
-            <h3>Detail sisa pangan</h3>
-            <p>Ringkasan data sisa pangan yang tersimpan.</p>
+        <div className="rich-detail-shell">
+          <div className="rich-detail-hero">
+            <div className="rich-detail-hero-main">
+              <div className="rich-detail-hero-icon">
+                <AppIcon name="foodWaste" size={24} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-hero-copy">
+                <span className="rich-detail-eyebrow">Detail sisa pangan</span>
+                <h3>{formatDate(data.report_date)}</h3>
+                <p>Ringkasan total porsi, total sisa pangan, dan komposisi bahan sisa.</p>
+              </div>
+            </div>
+            <button type="button" onClick={onClose} className="rich-detail-close-btn">
+              Tutup
+            </button>
           </div>
-          <button type="button" onClick={onClose}>
-            Tutup
-          </button>
-        </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Tanggal</span>
-            <strong>{formatDate(data.report_date)}</strong>
+          <div className="rich-detail-summary-grid food-waste-detail-summary-grid">
+            <div className="rich-detail-summary-card">
+              <div className="rich-detail-summary-icon tone-blue">
+                <AppIcon name="date" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-summary-copy">
+                <span>Tanggal</span>
+                <strong>{formatDate(data.report_date)}</strong>
+              </div>
+            </div>
+            <div className="rich-detail-summary-card">
+              <div className="rich-detail-summary-icon tone-violet">
+                <AppIcon name="beneficiaries" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-summary-copy">
+                <span>Total porsi</span>
+                <strong>{formatPortions(data.total_portions)}</strong>
+              </div>
+            </div>
+            <div className="rich-detail-summary-card">
+              <div className="rich-detail-summary-icon tone-amber">
+                <AppIcon name="foodWaste" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-summary-copy">
+                <span>Total sisa pangan</span>
+                <strong>{formatWeight(data.total_kg)}</strong>
+              </div>
+            </div>
+            <div className="rich-detail-summary-card">
+              <div className="rich-detail-summary-icon tone-emerald">
+                <AppIcon name="calculator" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="rich-detail-summary-copy">
+                <span>Sisa per porsi</span>
+                <strong>{formatWastePerPortion(data.total_kg, data.total_portions)}</strong>
+              </div>
+            </div>
           </div>
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Total porsi</span>
-            <strong>{formatPortions(data.total_portions)}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Total sisa pangan</span>
-            <strong>{formatWeight(data.total_kg)}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Sisa pangan per porsi</span>
-            <strong>{formatWastePerPortion(data.total_kg, data.total_portions)}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Sumber Karbohidrat</span>
-            <strong>{formatWeight(data.carb_source)}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Sumber Protein</span>
-            <strong>{formatWeight(data.protein_source)}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4">
-            <span className="summary-card-label">Sayur</span>
-            <strong>{formatWeight(data.vegetable)}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4 md:col-span-2 xl:col-span-1">
-            <span className="summary-card-label">Buah</span>
-            <strong>{formatWeight(data.fruit)}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4 md:col-span-2 xl:col-span-2">
-            <span className="summary-card-label">Menu / Keterangan bahan sisa</span>
-            <strong className="text-base leading-relaxed">{data.menu_notes || "-"}</strong>
-          </div>
+
+          <section className="rich-detail-section">
+            <div className="rich-detail-section-head">
+              <div>
+                <span className="rich-detail-group-kicker">Komposisi</span>
+                <h4>Rincian bahan sisa</h4>
+              </div>
+            </div>
+            <div className="food-waste-detail-grid">
+              {wasteRows.map(([label, value]) => (
+                <div className="food-waste-detail-item" key={label}>
+                  <span>{label}</span>
+                  <strong>{formatWeight(value)}</strong>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="rich-detail-section">
+            <div className="rich-detail-section-head">
+              <div>
+                <span className="rich-detail-group-kicker">Catatan</span>
+                <h4>Menu / keterangan bahan sisa</h4>
+              </div>
+            </div>
+            <div className="rich-detail-note">{data.menu_notes || "-"}</div>
+          </section>
         </div>
       </div>
     </div>

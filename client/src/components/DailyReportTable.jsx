@@ -25,8 +25,13 @@ export default function DailyReportTable({
   return (
     <>
       <div className="mobile-data-list">
-        {reports.map((report, index) => (
-          <article className="mobile-data-card" key={report.id}>
+        {reports.map((report, index) => {
+          const isHolidayReport = Number(report.total_pm || 0) === 0;
+          return (
+          <article
+            className={`mobile-data-card ${isHolidayReport ? "daily-report-holiday-card" : ""}`}
+            key={report.id}
+          >
             <div className="mobile-data-card-head">
               <div>
                 <div className="mobile-data-card-title">{formatDate(report.report_date)}</div>
@@ -36,6 +41,7 @@ export default function DailyReportTable({
               </div>
               <span className="table-index-badge">{index + 1}</span>
             </div>
+            {isHolidayReport ? <div className="daily-report-holiday-note">Tidak ada pelayanan</div> : null}
             <div className="mobile-metric-grid">
               <div className="mobile-metric">
                 <span>Porsi kecil</span>
@@ -60,7 +66,8 @@ export default function DailyReportTable({
               ) : null}
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
 
       <div className="data-table-scroll-shell scroll-affordance desktop-data-table" data-scroll-hint="Geser tabel">
@@ -87,8 +94,10 @@ export default function DailyReportTable({
               </tr>
             </thead>
             <tbody>
-              {reports.map((report, index) => (
-                <tr key={report.id}>
+              {reports.map((report, index) => {
+                const isHolidayReport = Number(report.total_pm || 0) === 0;
+                return (
+                <tr key={report.id} className={isHolidayReport ? "daily-report-holiday-row" : ""}>
                   <td className="col-no text-center">
                     <span className="table-index-badge">{index + 1}</span>
                   </td>
@@ -115,7 +124,8 @@ export default function DailyReportTable({
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

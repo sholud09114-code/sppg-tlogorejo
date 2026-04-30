@@ -1,3 +1,4 @@
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
 import { formatDateLong } from "../shared/utils/formatters.js";
 
@@ -6,6 +7,20 @@ function formatStatus(value) {
   if (value === "libur") return "Libur";
   if (value === "sebagian") return "Dilayani sebagian";
   return value || "-";
+}
+
+function getStatusTone(value) {
+  if (value === "penuh") return "full";
+  if (value === "sebagian") return "partial";
+  if (value === "libur") return "holiday";
+  return "neutral";
+}
+
+function getStatusIcon(value) {
+  if (value === "penuh") return "statusFull";
+  if (value === "sebagian") return "statusPartial";
+  if (value === "libur") return "statusHoliday";
+  return "history";
 }
 
 function scaleActualPortions(detail) {
@@ -189,90 +204,171 @@ export default function DailyReportDetailModal({ report, onClose }) {
         role="dialog"
         aria-modal="true"
       >
-        <div className="modal-header">
-          <div className="min-w-0 flex-1">
-            <h3>Detail laporan harian</h3>
-            <p>Lihat rincian pelayanan untuk tanggal laporan yang dipilih.</p>
-          </div>
-          <div className="page-actions page-actions-stack w-full sm:w-auto">
-            <div className="summary-card rounded-2xl p-4 sm:p-5">
-              <span className="summary-card-label">Tanggal laporan</span>
-              <strong>{formatDateLong(report.report_date)}</strong>
+        <div className="daily-detail-shell">
+          <div className="daily-detail-hero">
+            <div className="daily-detail-hero-main">
+              <div className="daily-detail-hero-icon">
+                <AppIcon name="daily" size={24} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="daily-detail-hero-copy">
+                <span className="daily-detail-eyebrow">Detail laporan harian</span>
+                <h3>{formatDateLong(report.report_date)}</h3>
+                <p>Lihat rincian pelayanan, status unit, dan distribusi porsi untuk tanggal ini.</p>
+              </div>
             </div>
-            <button type="button" onClick={onClose}>
+            <button type="button" onClick={onClose} className="daily-detail-close-btn">
               Tutup
             </button>
           </div>
-        </div>
 
-        <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="summary-card rounded-2xl p-4 sm:p-5">
-            <span className="summary-card-label">Total PM</span>
-            <strong>{Number(report.total_pm || 0).toLocaleString("id-ID")}</strong>
-          </div>
-          <div className="summary-card rounded-2xl p-4 sm:p-5">
-            <span className="summary-card-label">Jumlah kelompok</span>
-            <strong>{Number(report.details?.length || 0).toLocaleString("id-ID")}</strong>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-3 grid w-full max-w-3xl grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="summary-card rounded-2xl p-4 sm:p-5">
-            <span className="summary-card-label">Porsi Kecil</span>
-            <strong>
-              {(portionSummary.studentSmall + portionSummary.staffSmall).toLocaleString("id-ID")}
-            </strong>
-            <div className="mt-2 text-sm text-[#5f5e5a]">
-              Siswa: {portionSummary.studentSmall.toLocaleString("id-ID")} | Guru/Tendik:{" "}
-              {portionSummary.staffSmall.toLocaleString("id-ID")}
-            </div>
-          </div>
-          <div className="summary-card rounded-2xl p-4 sm:p-5">
-            <span className="summary-card-label">Porsi Besar</span>
-            <strong>
-              {(portionSummary.studentLarge + portionSummary.staffLarge).toLocaleString("id-ID")}
-            </strong>
-            <div className="mt-2 text-sm text-[#5f5e5a]">
-              Siswa: {portionSummary.studentLarge.toLocaleString("id-ID")} | Guru/Tendik:{" "}
-              {portionSummary.staffLarge.toLocaleString("id-ID")}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 space-y-4 overflow-auto pr-1">
-          {groupedDetails.map((group) => (
-            <section key={group.category} className="space-y-2">
-              <div className="category-header">
-                <span className="cat-title">{group.category}</span>
-                <span className="cat-count">{group.items.length} unit</span>
+          <div className="daily-detail-summary-grid">
+            <div className="daily-detail-summary-card">
+              <div className="daily-detail-summary-icon tone-blue">
+                <AppIcon name="beneficiaries" size={22} weight={APP_ICON_WEIGHT.summary} />
               </div>
+              <div className="daily-detail-summary-copy">
+                <span>Total PM</span>
+                <strong>{Number(report.total_pm || 0).toLocaleString("id-ID")}</strong>
+              </div>
+            </div>
+            <div className="daily-detail-summary-card">
+              <div className="daily-detail-summary-icon tone-violet">
+                <AppIcon name="database" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="daily-detail-summary-copy">
+                <span>Jumlah kelompok</span>
+                <strong>{Number(report.details?.length || 0).toLocaleString("id-ID")}</strong>
+              </div>
+            </div>
+            <div className="daily-detail-summary-card">
+              <div className="daily-detail-summary-icon tone-amber">
+                <AppIcon name="menu" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="daily-detail-summary-copy">
+                <span>Porsi kecil</span>
+                <strong>
+                  {(portionSummary.studentSmall + portionSummary.staffSmall).toLocaleString("id-ID")}
+                </strong>
+                <small>
+                  Siswa {portionSummary.studentSmall.toLocaleString("id-ID")} • Guru/Tendik{" "}
+                  {portionSummary.staffSmall.toLocaleString("id-ID")}
+                </small>
+              </div>
+            </div>
+            <div className="daily-detail-summary-card">
+              <div className="daily-detail-summary-icon tone-emerald">
+                <AppIcon name="package" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </div>
+              <div className="daily-detail-summary-copy">
+                <span>Porsi besar</span>
+                <strong>
+                  {(portionSummary.studentLarge + portionSummary.staffLarge).toLocaleString("id-ID")}
+                </strong>
+                <small>
+                  Siswa {portionSummary.studentLarge.toLocaleString("id-ID")} • Guru/Tendik{" "}
+                  {portionSummary.staffLarge.toLocaleString("id-ID")}
+                </small>
+              </div>
+            </div>
+          </div>
 
-              <div className="table-wrap overflow-x-auto rounded-2xl">
-                <table className="data-table min-w-[720px]">
-                  <thead>
-                    <tr>
-                      <th className="text-center">No</th>
-                      <th className="text-left">Nama Kelompok</th>
-                      <th className="text-right">Target</th>
-                      <th className="text-center">Status</th>
-                      <th className="text-right">Aktual</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {group.items.map((detail, index) => (
-                      <tr key={detail.id || `${group.category}-${detail.unit_id}`}>
-                        <td className="text-center">{index + 1}</td>
-                        <td className="text-left">{detail.unit_name}</td>
-                        <td className="text-right">{Number(detail.target_pm || 0).toLocaleString("id-ID")}</td>
-                        <td className="text-center">{formatStatus(detail.service_status)}</td>
-                        <td className="text-right">{Number(detail.actual_pm || 0).toLocaleString("id-ID")}</td>
+          <div className="daily-detail-content">
+            {groupedDetails.map((group) => (
+              <section key={group.category} className="daily-detail-group">
+                <div className="daily-detail-group-head">
+                  <div>
+                    <span className="daily-detail-group-kicker">Kategori</span>
+                    <h4>{group.category}</h4>
+                  </div>
+                  <span className="daily-detail-group-count">{group.items.length} unit</span>
+                </div>
+
+                <div className="daily-detail-mobile-list">
+                  {group.items.map((detail, index) => (
+                    <article
+                      key={detail.id || `${group.category}-${detail.unit_id}-mobile`}
+                      className="daily-detail-mobile-card"
+                    >
+                      <div className="daily-detail-mobile-top">
+                        <span className="table-index-badge">{index + 1}</span>
+                        <span
+                          className={`daily-detail-status-badge tone-${getStatusTone(detail.service_status)}`}
+                        >
+                          <AppIcon
+                            name={getStatusIcon(detail.service_status)}
+                            size={14}
+                            weight={APP_ICON_WEIGHT.action}
+                          />
+                          {formatStatus(detail.service_status)}
+                        </span>
+                      </div>
+                      <strong className="daily-detail-mobile-title">{detail.unit_name}</strong>
+                      <div className="daily-detail-mobile-metrics">
+                        <div>
+                          <span>Target</span>
+                          <strong>{Number(detail.target_pm || 0).toLocaleString("id-ID")}</strong>
+                        </div>
+                        <div>
+                          <span>Aktual</span>
+                          <strong>{Number(detail.actual_pm || 0).toLocaleString("id-ID")}</strong>
+                        </div>
+                        <div>
+                          <span>Selisih</span>
+                          <strong>
+                            {(
+                              Number(detail.actual_pm || 0) - Number(detail.target_pm || 0)
+                            ).toLocaleString("id-ID")}
+                          </strong>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="table-wrap overflow-x-auto rounded-2xl daily-detail-table-shell">
+                  <table className="data-table min-w-[720px] daily-detail-table">
+                    <thead>
+                      <tr>
+                        <th className="text-center">No</th>
+                        <th className="text-left">Nama Kelompok</th>
+                        <th className="text-right">Target</th>
+                        <th className="text-center">Status</th>
+                        <th className="text-right">Aktual</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          ))}
+                    </thead>
+                    <tbody>
+                      {group.items.map((detail, index) => (
+                        <tr key={detail.id || `${group.category}-${detail.unit_id}`}>
+                          <td className="text-center">
+                            <span className="table-index-badge">{index + 1}</span>
+                          </td>
+                          <td className="text-left">{detail.unit_name}</td>
+                          <td className="text-right">
+                            {Number(detail.target_pm || 0).toLocaleString("id-ID")}
+                          </td>
+                          <td className="text-center">
+                            <span
+                              className={`daily-detail-status-badge tone-${getStatusTone(detail.service_status)}`}
+                            >
+                              <AppIcon
+                                name={getStatusIcon(detail.service_status)}
+                                size={14}
+                                weight={APP_ICON_WEIGHT.action}
+                              />
+                              {formatStatus(detail.service_status)}
+                            </span>
+                          </td>
+                          <td className="text-right">
+                            {Number(detail.actual_pm || 0).toLocaleString("id-ID")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     </div>

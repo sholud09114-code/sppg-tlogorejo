@@ -1,4 +1,5 @@
 import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 export default function SummaryPanel({
   totals,
@@ -12,7 +13,14 @@ export default function SummaryPanel({
 
   return (
     <aside className={`summary-panel w-full rounded-2xl p-4 sm:p-5 xl:sticky xl:top-2 ${className}`.trim()}>
-      <div className="summary-title">Akumulasi jumlah PM</div>
+      <div className="summary-panel-head">
+        <span className="summary-panel-icon">
+          <AppIcon name="activity" size={22} weight={APP_ICON_WEIGHT.summary} />
+        </span>
+        <div>
+          <div className="summary-title">Akumulasi jumlah PM</div>
+        </div>
+      </div>
 
       <div className="summary-rows">
         {CATEGORY_ORDER.map((cat) => (
@@ -40,8 +48,14 @@ export default function SummaryPanel({
         onClick={onSubmit}
         disabled={loading}
       >
-        {loading ? "Menyimpan..." : "Submit laporan"}
+        <span className="button-with-icon">
+          <AppIcon name="send" size={18} weight={APP_ICON_WEIGHT.action} />
+          <span>{loading ? "Menyimpan..." : "Submit laporan"}</span>
+        </span>
       </button>
+      <div className="summary-panel-safe-note">
+        Pastikan semua data sudah sesuai sebelum submit.
+      </div>
     </aside>
   );
 }

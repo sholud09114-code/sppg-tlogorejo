@@ -23,11 +23,6 @@ import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/rep
 import { formatDateLong } from "../shared/utils/formatters.js";
 
 const REPORT_TRACKING_START_DATE = "2026-03-30";
-const MISSING_FILTERS = [
-  { id: "service-days", label: "Hari kerja" },
-  { id: "weekends", label: "Sabtu/Minggu" },
-  { id: "all", label: "Semua" },
-];
 
 // get today's date as YYYY-MM-DD in local time zone
 function getTodayISO() {
@@ -214,11 +209,11 @@ export default function DailyReport() {
   const [detailReport, setDetailReport] = useState(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [missingReportOpen, setMissingReportOpen] = useState(false);
   const [printRange, setPrintRange] = useState({
     date_from: getTodayISO(),
     date_to: getTodayISO(),
   });
-  const [missingFilter, setMissingFilter] = useState("service-days");
   const [printing, setPrinting] = useState(false);
   const isAdmin = user?.role === "admin";
 
@@ -356,20 +351,16 @@ export default function DailyReport() {
     for (let cursor = start; cursor <= end; cursor = addDays(cursor, 1)) {
       const isoDate = toISODate(cursor);
       if (filledDates.has(isoDate)) continue;
-      const weekend = isWeekendDate(isoDate);
-
-      if (missingFilter === "service-days" && weekend) continue;
-      if (missingFilter === "weekends" && !weekend) continue;
 
       dates.push({
         date: isoDate,
         dayLabel: getDayLabel(isoDate),
-        weekend,
+        weekend: isWeekendDate(isoDate),
       });
     }
 
     return dates;
-  }, [reports, missingFilter]);
+  }, [reports]);
 
   const openNewReport = () => {
     if (!isAdmin) return;
@@ -630,6 +621,22 @@ export default function DailyReport() {
               ) : null}
               <button
                 type="button"
+                className="completeness-action-btn w-full sm:w-auto"
+                onClick={() => setMissingReportOpen(true)}
+                disabled={loading || reportsLoading}
+              >
+                <span className="button-with-icon">
+                  <AppIcon
+                    name="completeness"
+                    size={18}
+                    weight={APP_ICON_WEIGHT.nav}
+                    className="button-icon"
+                  />
+                  <span>Kontrol kelengkapan</span>
+                </span>
+              </button>
+              <button
+                type="button"
                 className="action-btn-secondary action-btn-secondary-soft w-full sm:w-auto"
                 onClick={() => setPrintModalOpen(true)}
                 disabled={loading || reportsLoading}
@@ -682,57 +689,6 @@ export default function DailyReport() {
           />
         </div>
 
-        <div className="missing-report-panel">
-          <div className="missing-report-head">
-            <div>
-              <span className="missing-report-kicker">Kontrol kelengkapan</span>
-              <h3>Tanggal belum diisi</h3>
-              <p>
-                Dipantau sejak {formatDateLong(REPORT_TRACKING_START_DATE)} sampai hari ini.
-              </p>
-            </div>
-            <div className="missing-report-filter" aria-label="Filter tanggal belum diisi">
-              {MISSING_FILTERS.map((filter) => (
-                <button
-                  key={filter.id}
-                  type="button"
-                  className={missingFilter === filter.id ? "active" : ""}
-                  onClick={() => setMissingFilter(filter.id)}
-                  disabled={reportsLoading}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {reportsLoading ? (
-            <LoadingMessage className="missing-report-loading">Memeriksa tanggal...</LoadingMessage>
-          ) : missingReportDates.length ? (
-            <div className="missing-report-list" aria-label="Daftar tanggal belum diisi">
-              {missingReportDates.slice(0, 18).map((item) => (
-                <button
-                  key={item.date}
-                  type="button"
-                  className={`missing-report-chip ${item.weekend ? "weekend" : ""}`}
-                  onClick={() => openEditReport(item.date)}
-                  disabled={!isAdmin}
-                >
-                  <strong>{formatDateLong(item.date)}</strong>
-                  <span>{item.dayLabel}</span>
-                </button>
-              ))}
-              {missingReportDates.length > 18 ? (
-                <span className="missing-report-more">
-                  +{missingReportDates.length - 18} tanggal lain
-                </span>
-              ) : null}
-            </div>
-          ) : (
-            <div className="missing-report-empty">Tidak ada tanggal kosong pada filter ini.</div>
-          )}
-        </div>
-
         <div className="feature-data-panel mt-4">
           <DailyReportTable
             reports={reports}
@@ -749,6 +705,60 @@ export default function DailyReport() {
         <DailyReportDetailModal report={detailReport} onClose={() => setDetailReport(null)} />
       )}
 
+      {missingReportOpen && (
+        <div className="modal-backdrop p-3 sm:p-4" role="presentation">
+          <div
+            className="modal-card missing-report-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Kontrol kelengkapan laporan harian"
+          >
+            <div className="modal-header">
+              <div className="min-w-0">
+                <span className="missing-report-kicker">Kontrol kelengkapan</span>
+                <h3>Tanggal belum diisi</h3>
+                <p>
+                  Dipantau sejak {formatDateLong(REPORT_TRACKING_START_DATE)} sampai hari ini.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="w-full sm:w-auto"
+                onClick={() => setMissingReportOpen(false)}
+              >
+                Tutup
+              </button>
+            </div>
+
+            <div className="missing-report-panel missing-report-panel-modal">
+              {reportsLoading ? (
+                <LoadingMessage className="missing-report-loading">Memeriksa tanggal...</LoadingMessage>
+              ) : missingReportDates.length ? (
+                <div className="missing-report-list" aria-label="Daftar tanggal belum diisi">
+                  {missingReportDates.map((item) => (
+                    <button
+                      key={item.date}
+                      type="button"
+                      className={`missing-report-chip ${item.weekend ? "weekend" : ""}`}
+                      onClick={() => {
+                        setMissingReportOpen(false);
+                        openEditReport(item.date);
+                      }}
+                      disabled={!isAdmin}
+                    >
+                      <strong>{formatDateLong(item.date)}</strong>
+                      <span>{item.dayLabel}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="missing-report-empty">Semua tanggal sudah terisi.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {isAdmin && editorOpen && (
         <div className="modal-backdrop p-3 sm:p-4" role="presentation">
           <div
@@ -757,56 +767,110 @@ export default function DailyReport() {
             aria-modal="true"
           >
             <div className="modal-header">
-              <div className="min-w-0 flex-1">
-                <h3>Form input laporan harian</h3>
-                <p>Isi seluruh kelompok untuk tanggal laporan yang dipilih.</p>
-                <div className="quick-action-panel mt-4">
-                  <div className="quick-action-copy">
-                    <strong>Isi cepat</strong>
-                    <p>
-                      Gunakan aksi ini untuk layanan penuh, atau tandai seluruh unit libur jika
-                      tidak ada pelayanan.
-                    </p>
-                  </div>
-                  <div className="quick-action-buttons">
-                    <button
-                      type="button"
-                      className={`w-full sm:w-auto ${
-                        isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"
-                      }`}
-                      onClick={handleFillAllFull}
-                      disabled={loading}
-                    >
-                      Semua sekolah dilayani penuh
-                    </button>
-                    <button
-                      type="button"
-                      className="holiday-quick-btn w-full sm:w-auto"
-                      onClick={handleFillAllHoliday}
-                      disabled={loading}
-                    >
-                      Tidak ada pelayanan karena hari libur
-                    </button>
-                  </div>
+              <button
+                type="button"
+                className="daily-form-close-icon daily-form-close-leading"
+                aria-label="Tutup form input laporan harian"
+                onClick={() => {
+                  if (loading) return;
+                  setEditorOpen(false);
+                }}
+                disabled={loading}
+              >
+                <AppIcon name="close" size={20} weight={APP_ICON_WEIGHT.action} />
+              </button>
+              <div className="daily-form-header-main min-w-0 flex-1">
+                <div className="daily-form-header-icon">
+                  <AppIcon name="daily" size={24} weight={APP_ICON_WEIGHT.summary} />
+                </div>
+                <div className="daily-form-header-copy">
+                  <h3>Form input laporan harian</h3>
+                  <p>Isi seluruh kelompok untuk tanggal laporan yang dipilih.</p>
                 </div>
               </div>
               <div className="page-actions page-actions-stack report-header-actions w-full sm:w-auto">
                 <DateInput value={date} onChange={setDate} />
+              </div>
+            </div>
+
+            <div className="quick-action-panel daily-input-quick-action daily-input-quick-action-desktop">
+              <span className="quick-action-icon">
+                <AppIcon name="history" size={22} weight={APP_ICON_WEIGHT.summary} />
+              </span>
+              <div className="quick-action-copy">
+                <strong>Isi cepat</strong>
+                <p>
+                  Gunakan aksi ini untuk layanan penuh, atau tandai seluruh unit libur jika tidak ada
+                  pelayanan.
+                </p>
+              </div>
+              <div className="quick-action-buttons">
                 <button
                   type="button"
-                  className="w-full sm:w-auto"
-                  onClick={() => {
-                    if (loading) return;
-                    setEditorOpen(false);
-                  }}
+                  className={`w-full sm:w-auto ${
+                    isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"
+                  }`}
+                  onClick={handleFillAllFull}
                   disabled={loading}
                 >
-                  Tutup
+                  <span className="button-with-icon">
+                    <AppIcon name="statusFull" size={18} weight={APP_ICON_WEIGHT.action} />
+                    <span>Semua sekolah dilayani penuh</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="holiday-quick-btn w-full sm:w-auto"
+                  onClick={handleFillAllHoliday}
+                  disabled={loading}
+                >
+                  <span className="button-with-icon">
+                    <AppIcon name="date" size={18} weight={APP_ICON_WEIGHT.action} />
+                    <span>Tidak ada pelayanan karena hari libur</span>
+                  </span>
                 </button>
               </div>
             </div>
 
-            <div className="report-modal-grid data-form-body grid-cols-1 xl:grid-cols-[minmax(0,1fr)_260px]">
+            <div className="report-modal-grid data-form-body daily-input-grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px]">
+              <div className="quick-action-panel daily-input-quick-action daily-input-quick-action-mobile">
+                <span className="quick-action-icon">
+                  <AppIcon name="history" size={22} weight={APP_ICON_WEIGHT.summary} />
+                </span>
+                <div className="quick-action-copy">
+                  <strong>Isi cepat</strong>
+                  <p>
+                    Gunakan aksi ini untuk layanan penuh, atau tandai seluruh unit libur jika tidak ada
+                    pelayanan.
+                  </p>
+                </div>
+                <div className="quick-action-buttons">
+                  <button
+                    type="button"
+                    className={`w-full sm:w-auto ${
+                      isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"
+                    }`}
+                    onClick={handleFillAllFull}
+                    disabled={loading}
+                  >
+                    <span className="button-with-icon">
+                      <AppIcon name="statusFull" size={18} weight={APP_ICON_WEIGHT.action} />
+                      <span>Semua sekolah dilayani penuh</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="holiday-quick-btn w-full sm:w-auto"
+                    onClick={handleFillAllHoliday}
+                    disabled={loading}
+                  >
+                    <span className="button-with-icon">
+                      <AppIcon name="date" size={18} weight={APP_ICON_WEIGHT.action} />
+                      <span>Tidak ada pelayanan karena hari libur</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
               <div className="groups space-y-4">
                 {CATEGORY_ORDER.map(
                   (cat) =>

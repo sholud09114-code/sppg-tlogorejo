@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { extractMenuReportImage } from "../api/menuReportApi.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 const MENU_NAME_FIELDS = [
   "menu_name_1",
@@ -307,9 +308,14 @@ export default function MenuReportForm({
         aria-modal="true"
       >
         <div className="modal-header">
-          <div>
-            <h3>{initialData?.id ? "Edit menu" : "Tambah menu"}</h3>
-            <p>Input data menu dan kandungan gizi harian.</p>
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="menuReports" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>{initialData?.id ? "Edit menu" : "Tambah menu"}</h3>
+              <p>Input data menu dan kandungan gizi harian.</p>
+            </div>
           </div>
           <button type="button" className="menu-form-close-btn" onClick={onClose} disabled={loading}>
             Tutup
