@@ -122,8 +122,12 @@ function deriveEntrySplit(unit, detail) {
   }
 
   const totalTarget = targetSmall + targetLarge;
-  if (actualPm <= 0 || totalTarget <= 0) {
+  if (actualPm <= 0) {
     return { actual_small_portion: 0, actual_large_portion: 0 };
+  }
+
+  if (totalTarget <= 0) {
+    return { actual_small_portion: actualPm, actual_large_portion: 0 };
   }
 
   if (targetSmall <= 0) {
@@ -143,6 +147,25 @@ function deriveEntrySplit(unit, detail) {
     actual_small_portion: actualSmall,
     actual_large_portion: actualLarge,
   };
+}
+
+function derivePayloadSplit(unit, entry) {
+  const actualPm = Number(entry?.actual_pm || 0);
+  const actualSmall = Number(entry?.actual_small_portion || 0);
+  const actualLarge = Number(entry?.actual_large_portion || 0);
+
+  if (actualSmall + actualLarge === actualPm) {
+    return {
+      actual_small_portion: actualSmall,
+      actual_large_portion: actualLarge,
+    };
+  }
+
+  return deriveEntrySplit(unit, {
+    actual_pm: actualPm,
+    actual_small_portion: actualSmall,
+    actual_large_portion: actualLarge,
+  });
 }
 
 export default function DailyReport() {
@@ -361,11 +384,12 @@ export default function DailyReport() {
     if (!isAdmin) return;
     const filledEntries = {};
     units.forEach((unit) => {
+      const split = deriveEntrySplit(unit, { actual_pm: unit.default_target });
       filledEntries[unit.id] = {
         service_status: "penuh",
         actual_pm: unit.default_target,
-        actual_small_portion: Number(unit.small_target || 0),
-        actual_large_portion: Number(unit.large_target || 0),
+        actual_small_portion: split.actual_small_portion,
+        actual_large_portion: split.actual_large_portion,
         error: null,
       };
     });
@@ -460,16 +484,20 @@ export default function DailyReport() {
     try {
       const payload = {
         report_date: date,
-        details: units.map((u) => ({
-          unit_id: u.id,
-          target_pm: u.default_target,
-          target_small_portion: Number(u.small_target || 0),
-          target_large_portion: Number(u.large_target || 0),
-          service_status: entries[u.id].service_status,
-          actual_pm: entries[u.id].actual_pm || 0,
-          actual_small_portion: entries[u.id].actual_small_portion || 0,
-          actual_large_portion: entries[u.id].actual_large_portion || 0,
-        })),
+        details: units.map((u) => {
+          const entry = entries[u.id];
+          const split = derivePayloadSplit(u, entry);
+          return {
+            unit_id: u.id,
+            target_pm: u.default_target,
+            target_small_portion: Number(u.small_target || 0),
+            target_large_portion: Number(u.large_target || 0),
+            service_status: entry.service_status,
+            actual_pm: entry.actual_pm || 0,
+            actual_small_portion: split.actual_small_portion,
+            actual_large_portion: split.actual_large_portion,
+          };
+        }),
       };
       const result = await saveReport(payload);
       await loadReportList();

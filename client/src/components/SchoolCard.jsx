@@ -10,10 +10,11 @@ function getDefaultSplit(unit, actualPm) {
   const totalTarget = smallTarget + largeTarget;
   const actual = Number(actualPm || 0);
 
-  if (actual <= 0 || totalTarget <= 0) {
+  if (actual <= 0) {
     return { actualSmall: 0, actualLarge: 0 };
   }
 
+  if (totalTarget <= 0) return { actualSmall: actual, actualLarge: 0 };
   if (smallTarget <= 0) return { actualSmall: 0, actualLarge: actual };
   if (largeTarget <= 0) return { actualSmall: actual, actualLarge: 0 };
 
@@ -43,8 +44,9 @@ export default function SchoolCard({ unit, entry, onChange }) {
 
     if (status === "penuh") {
       actual = unit.default_target;
-      actualSmall = smallTarget;
-      actualLarge = largeTarget;
+      const split = getDefaultSplit(unit, actual);
+      actualSmall = split.actualSmall;
+      actualLarge = split.actualLarge;
     } else if (status === "libur") {
       actual = 0;
     } else if (status === "sebagian") {
@@ -89,7 +91,14 @@ export default function SchoolCard({ unit, entry, onChange }) {
       }
     }
 
-    onChange({ ...entry, actual_pm: actual, error });
+    const split = getDefaultSplit(unit, actual);
+    onChange({
+      ...entry,
+      actual_pm: actual,
+      actual_small_portion: split.actualSmall,
+      actual_large_portion: split.actualLarge,
+      error,
+    });
   };
 
   const handleSplitPartial = (field, raw) => {

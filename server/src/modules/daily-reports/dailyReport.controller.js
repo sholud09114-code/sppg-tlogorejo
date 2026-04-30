@@ -303,6 +303,54 @@ function validateReportDetails(details) {
   return null;
 }
 
+function normalizeReportDetailPortions(details) {
+  return details.map((detail) => {
+    const actual = Number(detail.actual_pm || 0);
+    const actualSmall = Number(detail.actual_small_portion ?? 0);
+    const actualLarge = Number(detail.actual_large_portion ?? 0);
+
+    if (actual <= 0 || actualSmall + actualLarge === actual) {
+      return detail;
+    }
+
+    const targetSmall = Number(detail.target_small_portion ?? 0);
+    const targetLarge = Number(detail.target_large_portion ?? 0);
+    const totalTarget = targetSmall + targetLarge;
+
+    if (totalTarget <= 0 || targetLarge <= 0) {
+      return {
+        ...detail,
+        actual_small_portion: actual,
+        actual_large_portion: 0,
+      };
+    }
+
+    if (targetSmall <= 0) {
+      return {
+        ...detail,
+        actual_small_portion: 0,
+        actual_large_portion: actual,
+      };
+    }
+
+    const rawSmall = (targetSmall / totalTarget) * actual;
+    let nextSmall = Math.round(rawSmall);
+    nextSmall = Math.max(0, Math.min(nextSmall, actual, targetSmall));
+    let nextLarge = actual - nextSmall;
+
+    if (nextLarge > targetLarge) {
+      nextLarge = targetLarge;
+      nextSmall = actual - nextLarge;
+    }
+
+    return {
+      ...detail,
+      actual_small_portion: nextSmall,
+      actual_large_portion: nextLarge,
+    };
+  });
+}
+
 async function upsertDailyReport(conn, { report_date, details, notes }) {
   await ensureDailyReportDetailColumns();
   const totalPm = details.reduce((sum, detail) => sum + Number(detail.actual_pm || 0), 0);
@@ -552,14 +600,15 @@ export async function importReportsBatch(req, res, next) {
     let updatedCount = 0;
 
     for (const row of preview.rows) {
-      const validationError = validateReportDetails(row.details);
+      const normalizedDetails = normalizeReportDetailPortions(row.details);
+      const validationError = validateReportDetails(normalizedDetails);
       if (validationError) {
         throw new Error(validationError);
       }
 
       const result = await upsertDailyReport(conn, {
         report_date: row.report_date,
-        details: row.details,
+        details: normalizedDetails,
         notes: row.notes || null,
       });
 
@@ -917,7 +966,8 @@ export async function saveReport(req, res, next) {
       });
     }
 
-    const validationError = validateReportDetails(details);
+    const normalizedDetails = normalizeReportDetailPortions(details);
+    const validationError = validateReportDetails(normalizedDetails);
     if (validationError) {
       return res.status(400).json({ error: validationError });
     }
@@ -925,7 +975,7 @@ export async function saveReport(req, res, next) {
     await conn.beginTransaction();
     const result = await upsertDailyReport(conn, {
       report_date,
-      details,
+      details: normalizedDetails,
       notes: notes || null,
     });
 
