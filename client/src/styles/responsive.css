@@ -239,6 +239,39 @@
     padding: 12px;
   }
 
+  .quick-action-buttons {
+    flex-direction: column;
+  }
+
+  .missing-report-panel {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .missing-report-head {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .missing-report-filter {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .missing-report-filter button {
+    padding: 0 6px;
+  }
+
+  .missing-report-list {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .missing-report-chip {
+    width: 100%;
+  }
+
   .modal-backdrop {
     align-items: flex-start;
     padding: 0.75rem;

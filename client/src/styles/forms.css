@@ -60,6 +60,23 @@ button:disabled {
   background: #fcfbf8;
 }
 
+.quick-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.holiday-quick-btn {
+  border-color: rgba(186, 117, 23, 0.3);
+  color: var(--text-warning);
+  background: var(--bg-warning);
+  font-weight: 500;
+}
+
+.holiday-quick-btn:hover:not(:disabled) {
+  background: #f7e4c4;
+}
+
 .quick-action-copy {
   display: flex;
   flex-direction: column;

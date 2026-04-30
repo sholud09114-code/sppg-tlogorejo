@@ -22,12 +22,44 @@ import {
 import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
 import { formatDateLong } from "../shared/utils/formatters.js";
 
+const REPORT_TRACKING_START_DATE = "2026-03-30";
+const MISSING_FILTERS = [
+  { id: "service-days", label: "Hari kerja" },
+  { id: "weekends", label: "Sabtu/Minggu" },
+  { id: "all", label: "Semua" },
+];
+
 // get today's date as YYYY-MM-DD in local time zone
 function getTodayISO() {
   const now = new Date();
   const offset = now.getTimezoneOffset();
   const local = new Date(now.getTime() - offset * 60 * 1000);
   return local.toISOString().slice(0, 10);
+}
+
+function parseISODate(date) {
+  return new Date(`${date}T00:00:00`);
+}
+
+function addDays(date, amount) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+}
+
+function toISODate(date) {
+  const offset = date.getTimezoneOffset();
+  const local = new Date(date.getTime() - offset * 60 * 1000);
+  return local.toISOString().slice(0, 10);
+}
+
+function isWeekendDate(date) {
+  const day = parseISODate(date).getDay();
+  return day === 0 || day === 6;
+}
+
+function getDayLabel(date) {
+  return new Intl.DateTimeFormat("id-ID", { weekday: "long" }).format(parseISODate(date));
 }
 
 function escapeHtml(value) {
@@ -186,11 +218,12 @@ export default function DailyReport() {
     date_from: getTodayISO(),
     date_to: getTodayISO(),
   });
+  const [missingFilter, setMissingFilter] = useState("service-days");
   const [printing, setPrinting] = useState(false);
   const isAdmin = user?.role === "admin";
 
   const loadReportList = async () => {
-    const cachedReports = getCachedReportList(100);
+    const cachedReports = getCachedReportList(400);
     if (cachedReports) {
       setReports(cachedReports);
       setReportsLoading(false);
@@ -199,7 +232,7 @@ export default function DailyReport() {
     }
 
     try {
-      const data = await listReports(100, { force: Boolean(cachedReports) });
+      const data = await listReports(400, { force: Boolean(cachedReports) });
       setReports(data);
     } catch (err) {
       if (!cachedReports) {
@@ -314,6 +347,30 @@ export default function DailyReport() {
     };
   }, [reports]);
 
+  const missingReportDates = useMemo(() => {
+    const filledDates = new Set(reports.map((report) => report.report_date));
+    const start = parseISODate(REPORT_TRACKING_START_DATE);
+    const end = parseISODate(getTodayISO());
+    const dates = [];
+
+    for (let cursor = start; cursor <= end; cursor = addDays(cursor, 1)) {
+      const isoDate = toISODate(cursor);
+      if (filledDates.has(isoDate)) continue;
+      const weekend = isWeekendDate(isoDate);
+
+      if (missingFilter === "service-days" && weekend) continue;
+      if (missingFilter === "weekends" && !weekend) continue;
+
+      dates.push({
+        date: isoDate,
+        dayLabel: getDayLabel(isoDate),
+        weekend,
+      });
+    }
+
+    return dates;
+  }, [reports, missingFilter]);
+
   const openNewReport = () => {
     if (!isAdmin) return;
     setDate(getTodayISO());
@@ -394,6 +451,21 @@ export default function DailyReport() {
       };
     });
     setEntries(filledEntries);
+  };
+
+  const handleFillAllHoliday = () => {
+    if (!isAdmin) return;
+    const holidayEntries = {};
+    units.forEach((unit) => {
+      holidayEntries[unit.id] = {
+        service_status: "libur",
+        actual_pm: 0,
+        actual_small_portion: 0,
+        actual_large_portion: 0,
+        error: null,
+      };
+    });
+    setEntries(holidayEntries);
   };
 
   const handleImportedReports = async (result) => {
@@ -482,8 +554,12 @@ export default function DailyReport() {
 
     setLoading(true);
     try {
+      const isHolidayReport =
+        units.length > 0 &&
+        units.every((unit) => entries[unit.id]?.service_status === "libur");
       const payload = {
         report_date: date,
+        notes: isHolidayReport ? "Tidak ada pelayanan karena hari libur." : null,
         details: units.map((u) => {
           const entry = entries[u.id];
           const split = derivePayloadSplit(u, entry);
@@ -606,6 +682,57 @@ export default function DailyReport() {
           />
         </div>
 
+        <div className="missing-report-panel">
+          <div className="missing-report-head">
+            <div>
+              <span className="missing-report-kicker">Kontrol kelengkapan</span>
+              <h3>Tanggal belum diisi</h3>
+              <p>
+                Dipantau sejak {formatDateLong(REPORT_TRACKING_START_DATE)} sampai hari ini.
+              </p>
+            </div>
+            <div className="missing-report-filter" aria-label="Filter tanggal belum diisi">
+              {MISSING_FILTERS.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  className={missingFilter === filter.id ? "active" : ""}
+                  onClick={() => setMissingFilter(filter.id)}
+                  disabled={reportsLoading}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {reportsLoading ? (
+            <LoadingMessage className="missing-report-loading">Memeriksa tanggal...</LoadingMessage>
+          ) : missingReportDates.length ? (
+            <div className="missing-report-list" aria-label="Daftar tanggal belum diisi">
+              {missingReportDates.slice(0, 18).map((item) => (
+                <button
+                  key={item.date}
+                  type="button"
+                  className={`missing-report-chip ${item.weekend ? "weekend" : ""}`}
+                  onClick={() => openEditReport(item.date)}
+                  disabled={!isAdmin}
+                >
+                  <strong>{formatDateLong(item.date)}</strong>
+                  <span>{item.dayLabel}</span>
+                </button>
+              ))}
+              {missingReportDates.length > 18 ? (
+                <span className="missing-report-more">
+                  +{missingReportDates.length - 18} tanggal lain
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <div className="missing-report-empty">Tidak ada tanggal kosong pada filter ini.</div>
+          )}
+        </div>
+
         <div className="feature-data-panel mt-4">
           <DailyReportTable
             reports={reports}
@@ -637,20 +764,30 @@ export default function DailyReport() {
                   <div className="quick-action-copy">
                     <strong>Isi cepat</strong>
                     <p>
-                      Gunakan aksi ini jika pada tanggal tersebut semua sekolah dilayani dengan
-                      porsi penuh.
+                      Gunakan aksi ini untuk layanan penuh, atau tandai seluruh unit libur jika
+                      tidak ada pelayanan.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    className={`w-full sm:w-auto ${
-                      isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"
-                    }`}
-                    onClick={handleFillAllFull}
-                    disabled={loading}
-                  >
-                    Semua sekolah dilayani penuh
-                  </button>
+                  <div className="quick-action-buttons">
+                    <button
+                      type="button"
+                      className={`w-full sm:w-auto ${
+                        isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"
+                      }`}
+                      onClick={handleFillAllFull}
+                      disabled={loading}
+                    >
+                      Semua sekolah dilayani penuh
+                    </button>
+                    <button
+                      type="button"
+                      className="holiday-quick-btn w-full sm:w-auto"
+                      onClick={handleFillAllHoliday}
+                      disabled={loading}
+                    >
+                      Tidak ada pelayanan karena hari libur
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="page-actions page-actions-stack report-header-actions w-full sm:w-auto">
