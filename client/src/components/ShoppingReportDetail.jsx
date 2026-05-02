@@ -23,7 +23,7 @@ export default function ShoppingReportDetail({ open, data, onClose }) {
                 <p>Ringkasan anggaran, realisasi belanja, dan rincian item pembelian.</p>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="rich-detail-close-btn">
+            <button type="button" onClick={onClose} className="rich-detail-close-btn" aria-label="Tutup detail laporan belanja">
               Tutup
             </button>
           </div>

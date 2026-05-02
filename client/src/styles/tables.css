@@ -665,11 +665,163 @@
 }
 
 .menu-report-table .col-menu {
-  min-width: 250px;
+  width: 27%;
 }
 
 .menu-report-table .col-nutrition {
-  min-width: 220px;
+  width: 24.5%;
+}
+
+.menu-report-table {
+  table-layout: fixed;
+  min-width: 0;
+}
+
+.menu-report-table th,
+.menu-report-table td {
+  padding: 11px 12px;
+}
+
+.menu-report-table th {
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.menu-report-table .col-no {
+  width: 48px;
+}
+
+.menu-report-table .col-date {
+  width: 112px;
+  min-width: 0;
+}
+
+.menu-report-table .col-actions {
+  width: 124px;
+  min-width: 0;
+}
+
+.menu-report-table th.col-no,
+.menu-report-table td.col-no {
+  padding-inline: 8px;
+}
+
+.menu-report-table th.col-date,
+.menu-report-table td.col-date {
+  padding-inline: 10px;
+}
+
+.menu-report-table th.col-menu,
+.menu-report-table td.col-menu {
+  padding-inline: 10px;
+}
+
+.menu-report-table .col-actions .table-actions {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.menu-report-table .col-actions .action-icon-btn {
+  min-width: 0;
+}
+
+.menu-report-table .col-no .table-index-badge {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0 7px;
+  border-radius: 10px;
+}
+
+.menu-report-scroll-shell::after {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .menu-report-scroll-shell::after {
+    display: inline-flex;
+  }
+}
+
+.menu-report-menu-cell {
+  min-width: 0;
+}
+
+.menu-report-menu-list {
+  display: grid;
+  gap: 5px;
+  color: #263247;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.menu-report-menu-list div {
+  position: relative;
+  min-width: 0;
+  padding-left: 14px;
+  overflow-wrap: anywhere;
+}
+
+.menu-report-menu-list div::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #4c7bf0;
+  font-weight: 700;
+}
+
+.menu-report-nutrition-breakdown {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+
+.menu-report-nutrition-row {
+  display: grid;
+  grid-template-columns: minmax(74px, 1fr) auto;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.menu-report-nutrition-row span {
+  min-width: 0;
+  color: #667085;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-report-nutrition-row strong {
+  color: #25304a;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.menu-report-card-nutrition {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.menu-report-card-nutrition-panel {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(122, 145, 191, 0.14);
+  border-radius: 14px;
+  background: rgba(248, 250, 255, 0.82);
+}
+
+.menu-report-card-nutrition-title {
+  display: block;
+  margin-bottom: 8px;
+  color: #405171;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .shopping-report-table .col-menu {

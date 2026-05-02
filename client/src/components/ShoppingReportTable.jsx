@@ -31,17 +31,20 @@ export default function ShoppingReportTable({
 
   return (
     <>
-      <div className="mobile-data-list">
+      <div className="mobile-data-list shopping-mobile-report-list">
         {reports.map((report, index) => (
-          <article className="mobile-data-card" key={report.id}>
+          <article className="mobile-data-card shopping-mobile-report-card" key={report.id}>
             <div className="mobile-data-card-head">
               <div>
                 <div className="mobile-data-card-title">{formatDate(report.report_date)}</div>
                 <div className="mobile-data-card-subtitle">{report.menu_name || "-"}</div>
               </div>
-              <span className="table-index-badge">{index + 1}</span>
+              <div className="shopping-mobile-report-badges">
+                <span className="shopping-mobile-item-badge">{formatNumber(report.item_count)} item</span>
+                <span className="table-index-badge">{index + 1}</span>
+              </div>
             </div>
-            <div className="mobile-metric-grid">
+            <div className="mobile-metric-grid shopping-mobile-report-metrics">
               <div className="mobile-metric mobile-metric-emphasis">
                 <span>Total belanja</span>
                 <strong>{formatMoney(report.total_spending)}</strong>
@@ -59,10 +62,6 @@ export default function ShoppingReportTable({
                 >
                   {formatMoney(report.difference_amount)}
                 </strong>
-              </div>
-              <div className="mobile-metric">
-                <span>Item</span>
-                <strong>{formatNumber(report.item_count)}</strong>
               </div>
             </div>
             <div className="table-actions mobile-table-actions">

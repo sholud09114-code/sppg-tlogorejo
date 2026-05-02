@@ -482,6 +482,21 @@ export default function MenuReportForm({
         </div>
 
         <form className="modal-form menu-report-form menu-report-compact-form" onSubmit={handleSubmit}>
+          <div className="menu-mobile-date-sticky">
+            <div className="daily-editor-date-field">
+              <div className="date-input-wrap">
+                <label htmlFor="menu_date_mobile">Tanggal menu</label>
+                <input
+                  id="menu_date_mobile"
+                  type="date"
+                  value={form.menu_date}
+                  onChange={(event) => handleChange("menu_date", event.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          </div>
+
           <StickyFormHeader className="menu-editor-sticky-header">
             <div className="daily-editor-command-row menu-editor-command-row">
               <div className="daily-editor-date-field">
@@ -665,7 +680,9 @@ export default function MenuReportForm({
 
                     return (
                       <div
-                        className={`menu-nutrition-row ${row.key === "energy" ? "primary-row" : "secondary-row"} ${
+                        className={`menu-nutrition-row menu-nutrition-row-${row.key} ${
+                          row.key === "energy" ? "primary-row" : "secondary-row"
+                        } ${
                           needsReview ? "needs-review" : ""
                         } ${hasImportedDraft && !needsReview ? "verified-row" : ""}`}
                         role="row"

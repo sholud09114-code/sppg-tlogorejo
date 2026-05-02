@@ -5,6 +5,7 @@ import MenuReportForm from "../components/MenuReportForm.jsx";
 import MenuReportTable from "../components/MenuReportTable.jsx";
 import Toast from "../components/Toast.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
+import { ActionToolbar, DataPanel, PageHeader, PageShell } from "../components/ui/index.js";
 import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
 import {
   createMenuReport,
@@ -205,35 +206,37 @@ export default function MenuReports() {
 
   return (
     <>
-      <section className="feature-page-card">
-        <div className="page-title gap-4">
-          <div className="min-w-0">
-            <h2>Laporan Menu</h2>
-            <p>Lihat daftar menu dan kandungan gizi yang pernah diinput.</p>
-          </div>
+      <PageShell className="menu-reports-page">
+        <PageHeader
+          icon="menuReports"
+          title="Laporan Menu"
+          description="Lihat daftar menu dan kandungan gizi yang pernah diinput."
+          className="menu-reports-header"
+          actions={
+            isAdmin ? (
+              <ActionToolbar className="menu-reports-toolbar w-full sm:w-auto">
+                <button
+                  type="button"
+                  className="submit-btn action-btn-primary-solid button-with-icon menu-reports-add-btn w-full sm:w-auto"
+                  onClick={handleAdd}
+                  disabled={saving}
+                >
+                  <span aria-hidden="true">+</span>
+                  <span>Tambah menu</span>
+                </button>
+              </ActionToolbar>
+            ) : null
+          }
+        />
 
-          {isAdmin ? (
-            <div className="page-actions action-toolbar-card w-full sm:w-auto">
-              <button
-                type="button"
-                className="submit-btn action-btn-primary-solid w-full sm:w-auto"
-                onClick={handleAdd}
-                disabled={saving}
-              >
-                + Tambah menu
-              </button>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-2">
+        <div className="menu-reports-summary-grid grid w-full grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-2">
           <SummaryMetricCard
             label="Total data menu"
             value={summary.totalMenus.toLocaleString("id-ID")}
             icon="totalData"
             tone="blue"
           />
-          <div className="summary-card home-feature-card home-feature-card-strong">
+          <div className="summary-card home-feature-card home-feature-card-strong menu-latest-summary-card">
             <div className="home-feature-icon-wrap">
               <div className="summary-metric-icon summary-metric-icon-blue">
                 <AppIcon name="menu" weight={APP_ICON_WEIGHT.summary} />
@@ -241,12 +244,14 @@ export default function MenuReports() {
             </div>
             <div className="home-feature-main">
               <span className="summary-card-label">Menu terbaru</span>
-              <strong className="home-feature-title text-base">{summary.latestMenu}</strong>
+              <strong className="home-feature-title text-base menu-latest-summary-title">
+                {summary.latestMenu}
+              </strong>
             </div>
           </div>
         </div>
 
-        <div className="feature-data-panel mt-4">
+        <DataPanel>
           <MenuReportTable
             reports={reports}
             loading={loading}
@@ -255,8 +260,8 @@ export default function MenuReports() {
             onDelete={handleDelete}
             canManage={isAdmin}
           />
-        </div>
-      </section>
+        </DataPanel>
+      </PageShell>
 
       <Toast kind={toast.kind} message={toast.message} />
 

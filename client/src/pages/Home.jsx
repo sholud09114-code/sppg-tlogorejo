@@ -5,18 +5,11 @@ import Toast from "../components/Toast.jsx";
 import { fetchHomeSummary } from "../api/dailyReportApi.js";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
-import { formatDateLong, formatNumber } from "../shared/utils/formatters.js";
+import { formatDateLong, formatKg, formatNumber } from "../shared/utils/formatters.js";
 import {
   generateOperationalAnomalies,
   generateOperationalRecommendations,
 } from "../shared/utils/operationalRecommendations.js";
-
-function formatWeight(value) {
-  return `${Number(value || 0).toLocaleString("id-ID", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })} kg`;
-}
 
 function HomeActionCard({
   eyebrow,
@@ -369,7 +362,7 @@ export default function Home({ onNavigate }) {
           />
           <SummaryMetricCard
             label="Sisa pangan"
-            value={foodWaste ? formatWeight(foodWaste.total_kg) : "-"}
+            value={foodWaste ? formatKg(foodWaste.total_kg, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : "-"}
             helper={foodWaste ? `Data ${yesterdayLong}` : "Belum ada data sisa kemarin"}
             icon="foodWaste"
             tone="blue"
@@ -408,7 +401,7 @@ export default function Home({ onNavigate }) {
               <HomeChecklistItem
                 icon="foodWaste"
                 title="Lengkapi sisa pangan kemarin"
-                description={foodWaste ? `${formatWeight(foodWaste.total_kg)} sisa pangan tercatat.` : "Data sisa pangan kemarin belum lengkap."}
+                description={foodWaste ? `${formatKg(foodWaste.total_kg, { minimumFractionDigits: 0, maximumFractionDigits: 2 })} sisa pangan tercatat.` : "Data sisa pangan kemarin belum lengkap."}
                 ok={Boolean(foodWaste)}
                 actionLabel={isAdmin && !foodWaste ? "Isi sisa" : "Lihat"}
                 onAction={() => onNavigate?.("food-waste")}
@@ -518,7 +511,7 @@ export default function Home({ onNavigate }) {
               <HomeActionCard
                 eyebrow={formatDateLong(foodWaste.report_date)}
                 title={foodWaste.menu_notes || "Catatan menu belum tersedia."}
-                description={`${formatWeight(foodWaste.total_kg)} total sisa pangan tercatat.`}
+                description={`${formatKg(foodWaste.total_kg, { minimumFractionDigits: 0, maximumFractionDigits: 2 })} total sisa pangan tercatat.`}
                 actionLabel="Detail"
                 onAction={() => onNavigate?.("food-waste")}
                 icon="foodWaste"

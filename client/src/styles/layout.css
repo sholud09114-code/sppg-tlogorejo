@@ -2580,6 +2580,10 @@ button.summary-metric-card {
   box-shadow: 0 16px 34px rgba(83, 109, 167, 0.08);
 }
 
+.daily-mobile-date-sticky {
+  display: none;
+}
+
 .daily-editor-command-row {
   display: grid;
   grid-template-columns: minmax(220px, 0.9fr) repeat(3, minmax(118px, 0.32fr)) auto;
@@ -3014,25 +3018,75 @@ button.summary-metric-card {
 .menu-report-compact-card {
   display: flex;
   flex-direction: column;
-  width: min(1320px, calc(100vw - 32px));
-  max-height: calc(100vh - 2rem);
+  width: min(1280px, calc(100vw - 32px));
+  max-height: calc(100vh - 24px);
   overflow: hidden;
-  padding: 26px 28px 0;
+  padding: 22px 24px 0;
   border-radius: 26px;
 }
 
+@supports (height: 100dvh) {
+  .menu-report-compact-card {
+    max-height: calc(100dvh - 24px);
+  }
+}
+
+.menu-report-editor-header {
+  flex: 0 0 auto;
+  margin-bottom: 12px;
+  padding-bottom: 14px;
+}
+
 .menu-report-compact-form {
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   flex: 1;
   gap: 0;
+  overflow: hidden;
+}
+
+.menu-mobile-date-sticky {
+  display: none;
 }
 
 .menu-editor-sticky-header {
-  margin-bottom: 14px;
+  flex: 0 0 auto;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px;
 }
 
 .menu-editor-command-row {
   grid-template-columns: minmax(220px, 1fr) minmax(132px, 0.35fr) minmax(170px, 0.45fr);
+}
+
+.menu-editor-sticky-header .daily-editor-date-field,
+.menu-editor-sticky-header .daily-editor-metric {
+  min-height: 52px;
+  padding: 8px 10px;
+}
+
+.menu-editor-sticky-header .daily-editor-metric strong {
+  font-size: 18px;
+}
+
+.menu-editor-tools {
+  gap: 10px;
+}
+
+.menu-report-compact-form .daily-realtime-status {
+  min-height: 30px;
+  padding: 4px 10px;
+  line-height: 1.3;
+}
+
+.menu-report-compact-form .shopping-import-status {
+  margin-top: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .menu-warning-metric {
@@ -3079,8 +3133,11 @@ button.summary-metric-card {
   gap: 18px;
   min-height: 0;
   flex: 1;
-  overflow: auto;
-  padding: 0 4px 16px 0;
+  align-items: start;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 4px 28px 0;
+  scroll-padding-bottom: 32px;
 }
 
 .menu-compact-main {
@@ -3239,7 +3296,7 @@ button.summary-metric-card {
 }
 
 .menu-nutrition-row {
-  grid-template-columns: minmax(96px, 1fr) minmax(82px, 112px) minmax(82px, 112px) 48px;
+  grid-template-columns: minmax(112px, 1fr) minmax(104px, 128px) minmax(104px, 128px) 62px;
 }
 
 .menu-nutrition-row.primary-row {
@@ -3271,6 +3328,7 @@ button.summary-metric-card {
   color: #69748a;
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .menu-nutrition-row input {
@@ -3290,7 +3348,30 @@ button.summary-metric-card {
 .menu-compact-summary {
   align-self: start;
   position: sticky;
-  top: 0;
+  top: 12px;
+  max-height: calc(100vh - 190px);
+  overflow: auto;
+  padding: 18px;
+  gap: 12px;
+}
+
+@supports (height: 100dvh) {
+  .menu-compact-summary {
+    max-height: calc(100dvh - 190px);
+  }
+}
+
+.menu-compact-summary .summary-panel-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.menu-compact-summary .summary-total .value {
+  font-size: 22px;
+}
+
+.menu-compact-summary .submit-btn {
+  min-height: 48px;
 }
 
 .menu-report-compact-form .mobile-submit-bar {
@@ -3375,7 +3456,7 @@ button.summary-metric-card {
 .shopping-spreadsheet-section {
   display: flex;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   flex-direction: column;
   gap: 10px;
   padding: 14px;
@@ -3392,6 +3473,7 @@ button.summary-metric-card {
 }
 
 .shopping-row {
+  position: relative;
   display: grid;
   grid-template-columns:
     38px minmax(120px, 1fr) minmax(150px, 1.25fr) minmax(70px, 0.42fr)
@@ -3404,6 +3486,10 @@ button.summary-metric-card {
   border: 1px solid rgba(149, 169, 226, 0.12);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.96);
+}
+
+.shopping-row.has-open-suggestions {
+  z-index: 12;
 }
 
 .shopping-row-head {
@@ -3452,6 +3538,26 @@ button.summary-metric-card {
   font-size: 12.5px;
 }
 
+.shopping-mobile-field {
+  display: contents;
+}
+
+.shopping-mobile-field-label {
+  display: none;
+}
+
+.shopping-add-row-bottom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 4px;
+  border-radius: 14px;
+  font-weight: 750;
+}
+
 .shopping-money-input {
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -3460,21 +3566,60 @@ button.summary-metric-card {
 .shopping-field-wrap {
   position: relative;
   min-width: 0;
+  overflow: visible;
 }
 
 .shopping-compact-suggestions {
-  position: absolute;
-  z-index: 8;
-  top: calc(100% + 5px);
-  left: 0;
-  right: 0;
+  position: static;
+  width: max(100%, 420px);
+  max-width: min(520px, calc(100vw - 48px));
   max-height: 220px;
-  overflow: auto;
-  padding: 6px;
+  margin-top: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 7px;
   border: 1px solid rgba(149, 169, 226, 0.18);
-  border-radius: 12px;
+  border-radius: 14px;
   background: #ffffff;
-  box-shadow: 0 18px 38px rgba(83, 109, 167, 0.14);
+  box-shadow: 0 22px 48px rgba(83, 109, 167, 0.18);
+  overscroll-behavior: contain;
+}
+
+.shopping-compact-suggestions .shopping-item-suggestion {
+  display: grid;
+  grid-template-columns: minmax(88px, 112px) minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.shopping-compact-suggestions .shopping-item-suggestion span {
+  color: #4d70b8;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.shopping-compact-suggestions .shopping-item-suggestion strong {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  color: #25304a;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.shopping-row.has-open-suggestions {
+  align-items: start;
 }
 
 .shopping-remove-row-btn {

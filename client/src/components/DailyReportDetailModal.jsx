@@ -326,27 +326,29 @@ export default function DailyReportDetailModal({ report, onClose }) {
                 </div>
 
                 <div className="table-wrap overflow-x-auto rounded-2xl daily-detail-table-shell">
-                  <table className="data-table min-w-[720px] daily-detail-table">
+                  <table className="data-table daily-detail-table">
                     <thead>
                       <tr>
-                        <th className="text-center">No</th>
-                        <th className="text-left">Nama Kelompok</th>
-                        <th className="text-right">Target</th>
-                        <th className="text-center">Status</th>
-                        <th className="text-right">Aktual</th>
+                        <th className="text-center daily-detail-col-no">No</th>
+                        <th className="text-left daily-detail-col-name">Nama Kelompok</th>
+                        <th className="text-right daily-detail-col-target">Target</th>
+                        <th className="text-center daily-detail-col-status">Status</th>
+                        <th className="text-right daily-detail-col-actual">Aktual</th>
                       </tr>
                     </thead>
                     <tbody>
                       {group.items.map((detail, index) => (
                         <tr key={detail.id || `${group.category}-${detail.unit_id}`}>
-                          <td className="text-center">
+                          <td className="text-center daily-detail-col-no">
                             <span className="table-index-badge">{index + 1}</span>
                           </td>
-                          <td className="text-left">{detail.unit_name}</td>
-                          <td className="text-right">
+                          <td className="text-left daily-detail-col-name">
+                            <span className="daily-detail-unit-name">{detail.unit_name}</span>
+                          </td>
+                          <td className="text-right daily-detail-col-target">
                             {Number(detail.target_pm || 0).toLocaleString("id-ID")}
                           </td>
-                          <td className="text-center">
+                          <td className="text-center daily-detail-col-status">
                             <span
                               className={`daily-detail-status-badge tone-${getStatusTone(detail.service_status)}`}
                             >
@@ -358,7 +360,7 @@ export default function DailyReportDetailModal({ report, onClose }) {
                               {formatStatus(detail.service_status)}
                             </span>
                           </td>
-                          <td className="text-right">
+                          <td className="text-right daily-detail-col-actual">
                             {Number(detail.actual_pm || 0).toLocaleString("id-ID")}
                           </td>
                         </tr>

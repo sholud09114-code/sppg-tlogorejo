@@ -27,6 +27,7 @@ import {
   Receipt,
   Scales,
   PaperPlaneTilt,
+  Plus,
   SignOut,
   ShoppingCart,
   SquaresFour,
@@ -91,6 +92,7 @@ export const appIconMap = {
   statusPartial: WarningCircle,
   statusHoliday: Prohibit,
   send: PaperPlaneTilt,
+  add: Plus,
 };
 
 export function AppIcon({

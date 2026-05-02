@@ -1,19 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { useAuth } from "./auth/AuthContext.jsx";
 import Header from "./components/Header.jsx";
 import LoadingMessage from "./components/LoadingMessage.jsx";
 import Navigation from "./components/Navigation.jsx";
 import Toast from "./components/Toast.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "./components/ui/appIcons.jsx";
-import BeneficiaryGroups from "./pages/BeneficiaryGroups.jsx";
-import DailyReport from "./pages/DailyReport.jsx";
-import FoodWaste from "./pages/FoodWaste.jsx";
-import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
-import MenuReports from "./pages/MenuReports.jsx";
-import PriceMonitoring from "./pages/PriceMonitoring.jsx";
-import ShoppingReports from "./pages/ShoppingReports.jsx";
-import WeeklyReports from "./pages/WeeklyReports.jsx";
+
+const BeneficiaryGroups = lazy(() => import("./pages/BeneficiaryGroups.jsx"));
+const DailyReport = lazy(() => import("./pages/DailyReport.jsx"));
+const FoodWaste = lazy(() => import("./pages/FoodWaste.jsx"));
+const Home = lazy(() => import("./pages/Home.jsx"));
+const MenuReports = lazy(() => import("./pages/MenuReports.jsx"));
+const PriceMonitoring = lazy(() => import("./pages/PriceMonitoring.jsx"));
+const ShoppingReports = lazy(() => import("./pages/ShoppingReports.jsx"));
+const WeeklyReports = lazy(() => import("./pages/WeeklyReports.jsx"));
 
 const PAGE_ROUTES = {
   home: "/",
@@ -83,25 +84,27 @@ export default function App() {
       </aside>
 
       <main className="container app-content">
-        {activePage === "home" ? (
-          <Home onNavigate={navigateToPage} />
-        ) : activePage === "daily" ? (
-          <DailyReport />
-        ) : activePage === "menu-reports" ? (
-          <MenuReports />
-        ) : activePage === "shopping-reports" ? (
-          <ShoppingReports />
-        ) : activePage === "food-waste" ? (
-          <FoodWaste />
-        ) : activePage === "price-monitoring" ? (
-          <PriceMonitoring />
-        ) : activePage === "weekly" ? (
-          <WeeklyReports onNavigate={navigateToPage} />
-        ) : activePage === "beneficiary-groups" ? (
-          <BeneficiaryGroups />
-        ) : (
-          <Toast kind="info" message="Menu ini belum tersedia." />
-        )}
+        <Suspense fallback={<LoadingMessage>Memuat halaman...</LoadingMessage>}>
+          {activePage === "home" ? (
+            <Home onNavigate={navigateToPage} />
+          ) : activePage === "daily" ? (
+            <DailyReport />
+          ) : activePage === "menu-reports" ? (
+            <MenuReports />
+          ) : activePage === "shopping-reports" ? (
+            <ShoppingReports />
+          ) : activePage === "food-waste" ? (
+            <FoodWaste />
+          ) : activePage === "price-monitoring" ? (
+            <PriceMonitoring />
+          ) : activePage === "weekly" ? (
+            <WeeklyReports onNavigate={navigateToPage} />
+          ) : activePage === "beneficiary-groups" ? (
+            <BeneficiaryGroups />
+          ) : (
+            <Toast kind="info" message="Menu ini belum tersedia." />
+          )}
+        </Suspense>
       </main>
     </div>
   );

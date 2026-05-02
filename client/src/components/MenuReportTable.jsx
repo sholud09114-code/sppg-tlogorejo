@@ -2,7 +2,7 @@ import ActionIconButton from "./ActionIconButton.jsx";
 import LoadingMessage from "./LoadingMessage.jsx";
 import { formatDate, formatNumber } from "../shared/utils/formatters.js";
 
-function renderMenuNames(report) {
+function renderMenuNames(report, className = "") {
   const menuNames = [
     report.menu_name_1,
     report.menu_name_2,
@@ -16,7 +16,7 @@ function renderMenuNames(report) {
   }
 
   return (
-    <div className="menu-report-mobile-menu-list">
+    <div className={["menu-report-menu-list", className].filter(Boolean).join(" ")}>
       {menuNames.map((name, index) => (
         <div key={`${report.id}-${index}`}>{name}</div>
       ))}
@@ -26,25 +26,25 @@ function renderMenuNames(report) {
 
 function NutritionBreakdown({ values }) {
   return (
-    <div className="min-w-[180px] space-y-1 text-sm">
-      <div className="flex flex-wrap items-baseline gap-1">
-        <span>Energi:</span>
+    <div className="menu-report-nutrition-breakdown">
+      <div className="menu-report-nutrition-row">
+        <span>Energi</span>
         <strong>{formatNumber(values.energy)} kkal</strong>
       </div>
-      <div className="flex flex-wrap items-baseline gap-1">
-        <span>Protein:</span>
+      <div className="menu-report-nutrition-row">
+        <span>Protein</span>
         <strong>{formatNumber(values.protein)} g</strong>
       </div>
-      <div className="flex flex-wrap items-baseline gap-1">
-        <span>Lemak:</span>
+      <div className="menu-report-nutrition-row">
+        <span>Lemak</span>
         <strong>{formatNumber(values.fat)} g</strong>
       </div>
-      <div className="flex flex-wrap items-baseline gap-1">
-        <span>Karbohidrat:</span>
+      <div className="menu-report-nutrition-row">
+        <span>Karbohidrat</span>
         <strong>{formatNumber(values.carbohydrate)} g</strong>
       </div>
-      <div className="flex flex-wrap items-baseline gap-1">
-        <span>Serat:</span>
+      <div className="menu-report-nutrition-row">
+        <span>Serat</span>
         <strong>{formatNumber(values.fiber)} g</strong>
       </div>
     </div>
@@ -73,7 +73,7 @@ export default function MenuReportTable({
 
   return (
     <>
-      <div className="mobile-data-list">
+      <div className="mobile-data-list menu-report-responsive-list">
         {reports.map((report, index) => (
           <article className="mobile-data-card menu-report-mobile-card" key={report.id}>
             <div className="mobile-data-card-head">
@@ -85,17 +85,33 @@ export default function MenuReportTable({
             <div className="mobile-data-section">
               <span className="mobile-data-label">Nama menu</span>
               <div className="mobile-data-copy menu-report-mobile-menu-copy">
-                {renderMenuNames(report)}
+                {renderMenuNames(report, "menu-report-mobile-menu-list")}
               </div>
             </div>
-            <div className="mobile-metric-grid menu-report-mobile-metrics">
-              <div className="mobile-metric">
-                <span>Energi kecil</span>
-                <strong>{formatNumber(report.small_energy)} kkal</strong>
+            <div className="menu-report-card-nutrition">
+              <div className="menu-report-card-nutrition-panel">
+                <span className="menu-report-card-nutrition-title">Porsi kecil</span>
+                <NutritionBreakdown
+                  values={{
+                    energy: report.small_energy,
+                    protein: report.small_protein,
+                    fat: report.small_fat,
+                    carbohydrate: report.small_carbohydrate,
+                    fiber: report.small_fiber,
+                  }}
+                />
               </div>
-              <div className="mobile-metric">
-                <span>Energi besar</span>
-                <strong>{formatNumber(report.large_energy)} kkal</strong>
+              <div className="menu-report-card-nutrition-panel">
+                <span className="menu-report-card-nutrition-title">Porsi besar</span>
+                <NutritionBreakdown
+                  values={{
+                    energy: report.large_energy,
+                    protein: report.large_protein,
+                    fat: report.large_fat,
+                    carbohydrate: report.large_carbohydrate,
+                    fiber: report.large_fiber,
+                  }}
+                />
               </div>
             </div>
             <div className="table-actions mobile-table-actions menu-report-mobile-actions">
@@ -111,9 +127,12 @@ export default function MenuReportTable({
         ))}
       </div>
 
-      <div className="data-table-scroll-shell scroll-affordance desktop-data-table" data-scroll-hint="Geser tabel">
+      <div
+        className="data-table-scroll-shell scroll-affordance desktop-data-table menu-report-desktop-table menu-report-scroll-shell"
+        data-scroll-hint="Geser tabel"
+      >
         <div className="table-wrap overflow-x-auto rounded-2xl">
-          <table className="data-table menu-report-table min-w-[1220px]">
+          <table className="data-table menu-report-table">
             <thead>
               <tr>
                 <th className="col-no text-center">No</th>
@@ -131,7 +150,9 @@ export default function MenuReportTable({
                     <span className="table-index-badge">{index + 1}</span>
                   </td>
                   <td className="col-date text-left">{formatDate(report.menu_date)}</td>
-                  <td className="col-menu text-left">{renderMenuNames(report)}</td>
+                  <td className="col-menu text-left">
+                    <div className="menu-report-menu-cell">{renderMenuNames(report)}</div>
+                  </td>
                   <td className="col-nutrition text-left">
                     <NutritionBreakdown
                       values={{

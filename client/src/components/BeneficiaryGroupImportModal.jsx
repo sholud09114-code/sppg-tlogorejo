@@ -190,7 +190,7 @@ export default function BeneficiaryGroupImportModal({
           </button>
         </div>
 
-        <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
+        <div className="beneficiary-import-body mt-4 min-h-0 flex-1 overflow-y-auto">
           {!preview && !loading && !error && (
             <div className="empty-state rounded-2xl px-4 py-8">
               Pilih file CSV atau Excel untuk melihat preview import.

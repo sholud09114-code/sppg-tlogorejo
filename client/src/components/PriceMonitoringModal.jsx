@@ -1,16 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchItemPriceMonitoring } from "../api/shoppingReportApi.js";
-import { formatMoney } from "../shared/utils/formatters.js";
+import { formatDateShort, formatMoney } from "../shared/utils/formatters.js";
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
-
-function formatDateLong(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
 
 function normalizeSuggestionText(value) {
   return String(value || "")
@@ -34,6 +25,16 @@ function PriceLineChart({ points }) {
     return <div className="empty-state">Belum ada data harga pada rentang ini.</div>;
   }
 
+  if (points.length === 1) {
+    return (
+      <div className="price-chart-card price-chart-single-point">
+        <strong>Baru ada 1 data harga</strong>
+        <span>Grafik tren akan tampil setelah ada lebih dari 1 histori.</span>
+        <small>{formatDateShort(points[0].report_date)} - {formatMoney(points[0].harga)}</small>
+      </div>
+    );
+  }
+
   const width = 760;
   const height = 260;
   const padding = 28;
@@ -53,6 +54,7 @@ function PriceLineChart({ points }) {
   });
 
   const path = coords.map((coord, index) => `${index === 0 ? "M" : "L"} ${coord.x} ${coord.y}`).join(" ");
+  const labelStep = Math.max(1, Math.ceil((points.length - 2) / 3));
 
   return (
     <div className="price-chart-card">
@@ -60,15 +62,17 @@ function PriceLineChart({ points }) {
         <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} className="price-chart-axis" />
         <line x1={padding} y1={padding} x2={padding} y2={height - padding} className="price-chart-axis" />
         <path d={path} className="price-chart-line" />
-        {coords.map((coord) => (
+        {coords.map((coord, index) => (
           <g key={`${coord.point.report_date}-${coord.point.report_id}`}>
             <circle cx={coord.x} cy={coord.y} r="4" className="price-chart-point" />
-            <text x={coord.x} y={height - 8} textAnchor="middle" className="price-chart-label">
-              {new Date(`${coord.point.report_date}T00:00:00`).toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "short",
-              })}
-            </text>
+            {points.length <= 5 || index === 0 || index === points.length - 1 || index % labelStep === 0 ? (
+              <text x={coord.x} y={height - 8} textAnchor="middle" className="price-chart-label">
+                {new Date(`${coord.point.report_date}T00:00:00`).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "short",
+                })}
+              </text>
+            ) : null}
           </g>
         ))}
         <text x={padding} y={padding - 8} className="price-chart-value">
@@ -243,7 +247,7 @@ export default function PriceMonitoringModal({
             </div>
           </div>
           {!embedded && (
-            <button type="button" onClick={onClose} disabled={loading}>
+            <button type="button" onClick={onClose} disabled={loading} aria-label="Tutup monitoring harga">
               Tutup
             </button>
           )}
@@ -355,7 +359,7 @@ export default function PriceMonitoringModal({
                   {history.map((row) => (
                     <article className={`price-history-card ${row.price_direction}`} key={`${row.report_id}-${row.report_date}-${row.harga}`}>
                       <div className="price-history-main">
-                        <strong>{formatDateLong(row.report_date)}</strong>
+                        <strong>{formatDateShort(row.report_date)}</strong>
                         <span>{row.code_barang || "-"} | {row.nama_barang || "-"}</span>
                         <small>{row.laporan_menu || "Laporan/menu belum tersedia"}</small>
                       </div>

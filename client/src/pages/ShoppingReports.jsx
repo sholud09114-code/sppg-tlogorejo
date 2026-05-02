@@ -315,7 +315,7 @@ export default function ShoppingReports() {
           ) : null}
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="shopping-page-summary-grid grid w-full grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <SummaryMetricCard
             label="Total laporan belanja"
             value={formatNumber(summary.totalReports)}

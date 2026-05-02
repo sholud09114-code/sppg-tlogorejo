@@ -24,12 +24,12 @@ export default function DailyReportTable({
 
   return (
     <>
-      <div className="mobile-data-list">
+      <div className="mobile-data-list daily-report-mobile-list">
         {reports.map((report, index) => {
           const isHolidayReport = Number(report.total_pm || 0) === 0;
           return (
           <article
-            className={`mobile-data-card ${isHolidayReport ? "daily-report-holiday-card" : ""}`}
+            className={`mobile-data-card daily-report-mobile-card ${isHolidayReport ? "daily-report-holiday-card" : ""}`}
             key={report.id}
           >
             <div className="mobile-data-card-head">
@@ -42,7 +42,7 @@ export default function DailyReportTable({
               <span className="table-index-badge">{index + 1}</span>
             </div>
             {isHolidayReport ? <div className="daily-report-holiday-note">Tidak ada pelayanan</div> : null}
-            <div className="mobile-metric-grid">
+            <div className="mobile-metric-grid daily-report-mobile-metrics">
               <div className="mobile-metric">
                 <span>Porsi kecil</span>
                 <strong>{Number(report.total_small_portion || 0).toLocaleString("id-ID")}</strong>

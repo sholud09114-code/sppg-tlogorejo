@@ -11,7 +11,7 @@ import {
   getCachedItemMasters,
   getCachedShoppingReports,
 } from "../api/shoppingReportApi.js";
-import { formatDateLong, formatMoney } from "../shared/utils/formatters.js";
+import { formatDateLong, formatMoney, formatPercent } from "../shared/utils/formatters.js";
 
 const HIGH_INCREASE_PERCENT = 10;
 const EMPTY_PRICE_ROWS = [];
@@ -30,14 +30,6 @@ function getTodayISO() {
   const offset = now.getTimezoneOffset();
   const local = new Date(now.getTime() - offset * 60 * 1000);
   return local.toISOString().slice(0, 10);
-}
-
-function formatPercent(value) {
-  if (value == null) return "-";
-  return `${Number(value).toLocaleString("id-ID", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}%`;
 }
 
 function getPriceStatusClass(status) {
@@ -393,9 +385,10 @@ export default function PriceMonitoring() {
                         >
                           <div className="price-detection-main">
                             <span className={`price-status-badge ${statusClass}`}>{row.status}</span>
-                            <div>
+                            <div className="price-detection-copy">
                               <strong>{row.nama_barang || "Barang tanpa nama"}</strong>
-                              <span>{row.kode_barang || "Tanpa kode"} | {row.laporan_menu || "-"}</span>
+                              <span className="price-detection-code">{row.kode_barang || "Tanpa kode"}</span>
+                              <small className="price-detection-menu">{row.laporan_menu || "-"}</small>
                             </div>
                           </div>
 

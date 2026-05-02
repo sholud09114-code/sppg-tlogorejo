@@ -989,7 +989,7 @@ export default function DailyReport() {
       {isAdmin && editorOpen && (
         <div className="modal-backdrop p-3 sm:p-4" role="presentation">
           <div
-            className="modal-card data-form-card data-form-card-xl"
+            className="modal-card data-form-card data-form-card-xl daily-report-input-modal"
             role="dialog"
             aria-modal="true"
           >
@@ -1017,7 +1017,13 @@ export default function DailyReport() {
               </div>
             </div>
 
-            <StickyFormHeader>
+            <div className="daily-mobile-date-sticky">
+              <div className="daily-editor-date-field">
+                <DateInput id="report-date-mobile" value={date} onChange={setDate} />
+              </div>
+            </div>
+
+            <StickyFormHeader className="daily-report-input-controls">
               <div className="daily-editor-command-row">
                 <div className="daily-editor-date-field">
                   <DateInput value={date} onChange={setDate} />
@@ -1221,6 +1227,7 @@ export default function DailyReport() {
               <button
                 type="button"
                 className="w-full sm:w-auto"
+                aria-label="Tutup modal cetak laporan harian"
                 onClick={() => {
                   if (printing) return;
                   setPrintModalOpen(false);
@@ -1267,7 +1274,7 @@ export default function DailyReport() {
             </div>
 
             <div className="modal-actions mt-4">
-              <button type="button" onClick={() => setPrintModalOpen(false)} disabled={printing}>
+              <button type="button" onClick={() => setPrintModalOpen(false)} disabled={printing} aria-label="Batal cetak laporan harian">
                 Batal
               </button>
               <button

@@ -48,7 +48,7 @@ export default function MenuReportDetail({ open, data, onClose }) {
                 <p>Ringkasan menu harian dan kandungan gizi porsi kecil serta porsi besar.</p>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="rich-detail-close-btn">
+            <button type="button" onClick={onClose} className="rich-detail-close-btn" aria-label="Tutup detail laporan menu">
               Tutup
             </button>
           </div>

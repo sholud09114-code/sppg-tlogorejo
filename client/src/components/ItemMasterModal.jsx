@@ -13,10 +13,7 @@ function getInitialForm(initialData) {
 
 import ActionIconButton from "./ActionIconButton.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
-
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString("id-ID");
-}
+import { formatNumber } from "../shared/utils/formatters.js";
 
 export default function ItemMasterModal({
   open,
@@ -103,7 +100,7 @@ export default function ItemMasterModal({
               <p>Kelola daftar barang untuk autofill item di laporan belanja.</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} disabled={saving}>
+          <button type="button" onClick={onClose} disabled={saving} aria-label="Tutup master barang">
             Tutup
           </button>
         </div>
@@ -159,7 +156,7 @@ export default function ItemMasterModal({
                         <td className="text-left">{item.item_name}</td>
                         <td className="text-left">{item.category || "-"}</td>
                         <td className="text-center">{item.default_unit || "-"}</td>
-                        <td className="text-right">{formatMoney(item.default_price)}</td>
+                        <td className="text-right">{formatNumber(item.default_price)}</td>
                         <td className="text-center">{item.is_active ? "Aktif" : "Nonaktif"}</td>
                         <td className="text-center">
                           <div className="table-actions">

@@ -163,6 +163,7 @@ export default function DailyReportImportModal({
             type="button"
             onClick={handleClose}
             disabled={loading || importing}
+            aria-label="Tutup import laporan harian"
           >
             Tutup
           </button>

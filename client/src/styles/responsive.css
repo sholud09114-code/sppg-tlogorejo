@@ -7,8 +7,10 @@
   }
 
   .beneficiary-hero {
-    padding: 16px;
-    border-radius: 22px;
+    gap: 12px;
+    padding: 12px;
+    padding-bottom: 14px;
+    border-radius: 20px;
   }
 
   .beneficiary-hero-actions {
@@ -20,6 +22,42 @@
   .beneficiary-breakdown-grid,
   .beneficiary-import-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .beneficiary-dashboard-page {
+    gap: 12px;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .beneficiary-hero-copy {
+    gap: 10px;
+  }
+
+  .beneficiary-hero-copy h2 {
+    font-size: 19px;
+    line-height: 1.2;
+  }
+
+  .beneficiary-hero-copy p {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .beneficiary-hero-actions .submit-btn,
+  .beneficiary-hero-actions .status-quick-btn {
+    min-height: 40px;
+    border-radius: 14px;
+    font-size: 12.5px;
+  }
+
+  .beneficiary-kpi-grid .summary-metric-card,
+  .beneficiary-breakdown-grid .weekly-category-card,
+  .beneficiary-import-stats .summary-card {
+    min-height: 76px;
+    padding: 10px;
+    border-radius: 15px;
   }
 
   .beneficiary-search {
@@ -27,11 +65,71 @@
     flex-basis: auto;
   }
 
+  .beneficiary-control-panel {
+    gap: 8px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+
   .beneficiary-filter-chips {
     justify-content: flex-start;
     overflow-x: auto;
     flex-wrap: nowrap;
-    padding-bottom: 2px;
+    gap: 7px;
+    padding: 0 28px 2px 0;
+    scrollbar-width: none;
+  }
+
+  .beneficiary-filter-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .beneficiary-filter-chips button {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 0 10px;
+  }
+
+  .beneficiary-data-panel {
+    margin-top: 10px !important;
+  }
+
+  .beneficiary-data-panel .mobile-data-list {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .beneficiary-mobile-card {
+    gap: 9px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .beneficiary-mobile-card + .beneficiary-mobile-card {
+    margin-top: 8px;
+  }
+
+  .beneficiary-mobile-card .mobile-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .beneficiary-mobile-card .mobile-metric {
+    min-height: 48px;
+    padding: 8px 9px;
+    border-radius: 12px;
+  }
+
+  .beneficiary-mobile-card .mobile-metric:first-child {
+    grid-column: 1 / -1;
+    min-height: 46px;
+  }
+
+  .beneficiary-mobile-card .mobile-table-actions {
+    gap: 7px;
+  }
+
+  .beneficiary-mobile-card .action-icon-btn {
+    min-height: 38px;
   }
 
   .beneficiary-form-header {
@@ -56,9 +154,60 @@
     display: none;
   }
 
+  .beneficiary-import-modal {
+    width: min(100%, calc(100vw - 16px));
+    max-height: calc(100vh - 24px);
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .beneficiary-import-header {
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(149, 169, 226, 0.14);
+  }
+
+  .beneficiary-import-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 9px;
+    border-radius: 15px;
+  }
+
+  .beneficiary-import-toolbar .status-quick-btn,
+  .beneficiary-import-toolbar .daily-reset-btn {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 8px;
+    font-size: 11.5px;
+  }
+
+  .beneficiary-import-body {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
   .beneficiary-import-mobile-list {
     display: grid;
     gap: 10px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .beneficiary-import-preview-card {
+    gap: 9px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .beneficiary-import-preview-card .mobile-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .beneficiary-import-preview-card .mobile-metric {
+    min-height: 46px;
+    padding: 8px 9px;
+    border-radius: 12px;
   }
 }
 
@@ -66,7 +215,7 @@
   .beneficiary-kpi-grid,
   .beneficiary-breakdown-grid,
   .beneficiary-import-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .beneficiary-hero-copy h2 {
@@ -263,37 +412,43 @@
   }
 
   .food-waste-summary-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
   .food-waste-summary-card.summary-metric-card {
     align-items: center;
     justify-content: flex-start;
-    gap: 12px;
-    min-height: 92px;
-    padding: 16px;
+    gap: 8px;
+    min-height: 76px;
+    padding: 10px;
+    border-radius: 15px;
+  }
+
+  .food-waste-summary-card.summary-metric-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 
   .food-waste-summary-card .summary-metric-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 16px;
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
   }
 
   .food-waste-summary-card .summary-metric-content {
     width: 100%;
-    gap: 6px;
+    gap: 3px;
   }
 
   .food-waste-summary-card .summary-card-label {
-    font-size: 12.5px;
-    line-height: 1.35;
+    font-size: 10.5px;
+    line-height: 1.25;
   }
 
   .food-waste-summary-card .summary-metric-content strong {
-    font-size: 21px;
-    line-height: 1.15;
+    font-size: 15.5px;
+    line-height: 1.18;
     overflow-wrap: anywhere;
   }
 
@@ -310,7 +465,33 @@
   }
 
   .weekly-dashboard-command-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .weekly-dashboard-page {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .weekly-dashboard-form {
+    margin-top: 8px;
+  }
+
+  .weekly-dashboard-sticky {
+    border-radius: 16px;
+  }
+
+  .weekly-range-field {
+    gap: 5px;
+  }
+
+  .weekly-range-field label {
+    font-size: 10.5px;
+  }
+
+  .weekly-range-field input {
+    min-height: 40px;
+    font-size: 13px;
   }
 
   .weekly-range-summary {
@@ -318,32 +499,109 @@
   }
 
   .weekly-dashboard-submit {
+    grid-column: 1 / -1;
     width: 100%;
+    min-height: 42px;
+    border-radius: 14px;
+    font-size: 13px;
   }
 
-  .weekly-kpi-grid,
+  .weekly-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
   .weekly-dashboard-grid,
   .weekly-anomaly-list,
   .weekly-recommendation-list {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .weekly-dashboard-content {
+    gap: 12px;
+    margin-top: 12px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .weekly-kpi-grid .summary-metric-card {
+    min-height: 78px;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 15px;
+  }
+
+  .weekly-kpi-grid .summary-metric-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .weekly-kpi-grid .summary-metric-content strong {
+    font-size: 15.5px;
+  }
+
+  .weekly-partial-state,
+  .weekly-insight-panel {
+    padding: 10px;
+    border-radius: 16px;
   }
 
   .weekly-dashboard-section {
-    padding: 14px;
-    border-radius: 20px;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .weekly-dashboard-section-head,
+  .weekly-insight-head {
+    gap: 9px;
+  }
+
+  .weekly-section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 13px;
+  }
+
+  .weekly-dashboard-section-head h3,
+  .weekly-insight-head h3 {
+    font-size: 15px;
+  }
+
+  .weekly-dashboard-section-head p,
+  .weekly-insight-head p {
+    font-size: 12px;
+    line-height: 1.35;
   }
 
   .weekly-section-metrics {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weekly-mini-metric {
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  .weekly-mini-metric strong {
+    font-size: 13px;
   }
 
   .weekly-category-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .weekly-category-card {
+    padding: 8px;
+    border-radius: 12px;
+  }
+
   .weekly-compact-card {
     grid-template-columns: 1fr;
     gap: 8px;
+    padding: 9px;
+    border-radius: 13px;
   }
 
   .weekly-compact-metrics,
@@ -352,24 +610,62 @@
     text-align: left;
   }
 
+  .operational-recommendation-card,
+  .operational-anomaly-card {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 8px;
+    padding: 9px;
+    border-radius: 13px;
+  }
+
+  .operational-recommendation-icon,
+  .operational-anomaly-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+  }
+
+  .operational-recommendation-cta,
+  .operational-anomaly-cta {
+    grid-column: 1 / -1;
+    min-height: 30px;
+    justify-self: stretch;
+  }
+
   .price-monitoring-hero {
     align-items: stretch;
     flex-direction: column;
-    padding: 14px;
-    border-radius: 20px;
+    gap: 9px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .price-monitoring-page {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
 
   .price-monitoring-hero-copy {
-    align-items: flex-start;
+    align-items: center;
+    gap: 9px;
   }
 
   .price-monitoring-hero h2 {
-    font-size: 20px;
+    font-size: 19px;
+    line-height: 1.2;
+  }
+
+  .price-monitoring-hero p {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.35;
   }
 
   .price-monitoring-hero-meta {
     width: 100%;
     min-width: 0;
+    padding: 8px 10px;
+    border-radius: 14px;
   }
 
   .price-monitoring-layout {
@@ -379,32 +675,327 @@
 
   .price-detection-panel,
   .price-history-panel {
-    padding: 12px;
-    border-radius: 20px;
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .price-section-head {
+    margin-bottom: 8px;
+  }
+
+  .price-section-head h3 {
+    font-size: 16px;
+  }
+
+  .price-section-head p {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.35;
   }
 
   .price-filter-panel {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    padding: 8px;
+    border-radius: 16px;
+  }
+
+  .price-filter-panel .filter-field input {
+    min-height: 38px;
+    padding-inline: 10px;
+  }
+
+  .price-filter-panel .filter-field input[type="date"] {
+    font-size: 13.5px;
+    line-height: 1.2;
+  }
+
+  .price-detection-checkbox {
+    grid-column: 1 / -1;
+    min-height: 30px;
+    gap: 7px;
+    font-size: 12px;
+  }
+
+  .price-detection-checkbox input {
+    position: relative;
+    width: 21px;
+    height: 21px;
+    flex: 0 0 21px;
+    margin: 0;
+    appearance: none;
+    border: 1.5px solid rgba(92, 112, 148, 0.35);
+    border-radius: 7px;
+    background: #ffffff;
+    box-shadow: inset 0 1px 1px rgba(20, 31, 51, 0.04);
+  }
+
+  .price-detection-checkbox input:checked {
+    border-color: #377df2;
+    background: #377df2;
+  }
+
+  .price-detection-checkbox input:checked::after {
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 6px;
+    height: 11px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    content: "";
+    transform: rotate(45deg);
+  }
+
+  .price-filter-panel .weekly-filter-action {
+    grid-column: 1 / -1;
+    margin-top: 1px;
+  }
+
+  .price-filter-panel .submit-btn {
+    min-height: 40px;
   }
 
   .price-kpi-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .price-monitoring-mobile-summary-card {
+    min-height: 76px;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 15px;
+  }
+
+  .price-monitoring-mobile-summary-card .summary-metric-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+  .price-monitoring-mobile-summary-card .summary-metric-content strong {
+    font-size: 16px;
+  }
+
+  .price-filter-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 7px;
+    width: 100%;
+    max-width: 100%;
+    margin-top: -2px;
+    padding: 0 34px 3px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .price-filter-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .price-filter-chips button {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 0 10px;
+    white-space: nowrap;
   }
 
   .price-detection-card,
   .price-history-card {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 15px;
+  }
+
+  .price-detection-card.naik,
+  .price-detection-card.high-increase,
+  .price-history-card.up {
+    background: rgba(255, 251, 235, 0.62);
+  }
+
+  .price-detection-card.tetap {
+    background: rgba(239, 246, 255, 0.58);
+  }
+
+  .price-detection-card.tanpa-histori {
+    background: rgba(248, 250, 252, 0.72);
+  }
+
+  .price-detection-main {
+    gap: 6px;
+  }
+
+  .price-detection-main strong,
+  .price-history-main strong {
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+
+  .price-detection-code,
+  .price-detection-menu,
+  .price-history-main span,
+  .price-history-main small {
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  .price-status-badge {
+    width: fit-content;
+    padding: 3px 8px;
+    font-size: 10.5px;
+    line-height: 1.2;
   }
 
   .price-detection-values,
   .price-history-values {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .price-detection-values > div,
+  .price-history-values > div {
+    padding: 7px 8px;
+    border-radius: 12px;
+  }
+
+  .price-detection-values strong,
+  .price-history-values strong {
+    font-size: 12.5px;
+  }
+
+  .price-detection-values small,
+  .price-history-values small {
+    font-size: 10.5px;
+    line-height: 1.3;
   }
 
   .price-history-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     justify-self: stretch;
+    gap: 6px;
     width: 100%;
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .price-history-btn svg {
+    flex: 0 0 auto;
+    width: 15px;
+    height: 15px;
+  }
+
+  .price-monitoring-results {
+    gap: 10px;
+    margin-top: 12px;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .price-history-panel .modal-header {
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+
+  .price-history-panel .weekly-filter-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    padding: 8px;
+    border-radius: 16px;
+  }
+
+  .price-history-panel .price-monitoring-search,
+  .price-history-panel .weekly-filter-action {
+    grid-column: 1 / -1;
+  }
+
+  .price-history-panel .filter-field {
+    gap: 5px;
+  }
+
+  .price-history-panel .filter-field label {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .price-history-panel .filter-field input {
+    min-height: 38px;
+    padding-inline: 10px;
+    font-size: 13.5px;
+    line-height: 1.2;
+  }
+
+  .price-history-panel .price-monitoring-search input {
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .price-history-panel .submit-btn {
+    min-height: 42px;
+    border-radius: 14px;
+    font-size: 13px;
+  }
+
+  .price-history-panel .weekly-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .price-history-panel .weekly-summary-grid .summary-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .price-history-panel .summary-card {
+    gap: 2px;
+    padding: 9px 10px;
+    border-radius: 14px;
+  }
+
+  .price-history-panel .summary-card-label {
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
+
+  .price-history-panel .summary-card strong {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .price-chart-card {
+    padding: 9px;
+    border-radius: 14px;
+    overflow-x: hidden;
+  }
+
+  .price-chart-svg {
+    min-width: 0;
+    height: 168px;
+  }
+
+  .price-chart-label,
+  .price-chart-value {
+    font-size: 10.5px;
+  }
+
+  .price-chart-single-point {
+    min-height: 0;
+    padding: 11px;
+  }
+
+  .price-history-list {
+    gap: 8px;
+    padding-bottom: calc(128px + env(safe-area-inset-bottom));
+  }
+
+  .price-change-indicator {
+    font-size: 11px;
   }
 
   .form-grid {
@@ -429,14 +1020,17 @@
 
   .daily-detail-hero {
     align-items: stretch;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     flex: 0 0 auto;
   }
 
   .daily-detail-close-btn {
-    width: 100%;
-    min-height: 40px;
+    width: auto;
+    min-height: 32px;
+    align-self: flex-start;
+    padding: 0 10px;
+    border-radius: 11px;
   }
 
   .daily-detail-summary-grid {
@@ -446,40 +1040,40 @@
   }
 
   .daily-detail-hero-main {
-    gap: 10px;
+    gap: 9px;
   }
 
   .daily-detail-hero-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
   }
 
   .daily-detail-eyebrow {
-    margin-bottom: 2px;
+    margin-bottom: 1px;
     font-size: 10px;
   }
 
   .daily-detail-hero-copy h3 {
-    font-size: 21px;
+    font-size: 18px;
   }
 
   .daily-detail-hero-copy p {
-    margin-top: 4px;
-    font-size: 12.5px;
-    line-height: 1.45;
+    margin-top: 2px;
+    font-size: 11.5px;
+    line-height: 1.4;
   }
 
   .daily-detail-summary-card {
-    gap: 8px;
-    padding: 11px;
-    border-radius: 16px;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 14px;
   }
 
   .daily-detail-summary-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
   }
 
   .daily-detail-summary-copy span {
@@ -487,16 +1081,16 @@
   }
 
   .daily-detail-summary-copy strong {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .daily-detail-summary-copy small {
     font-size: 10.5px;
-    line-height: 1.25;
+    line-height: 1.2;
   }
 
   .daily-detail-content {
-    gap: 12px;
+    gap: 8px;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
@@ -505,7 +1099,7 @@
   }
 
   .daily-detail-group {
-    gap: 8px;
+    gap: 6px;
     padding: 0;
     border: 0;
     border-radius: 0;
@@ -515,6 +1109,8 @@
 
   .daily-detail-group-head {
     align-items: center;
+    gap: 8px;
+    padding-bottom: 2px;
   }
 
   .daily-detail-group-kicker {
@@ -531,16 +1127,16 @@
 
   .daily-detail-mobile-list {
     display: grid;
-    gap: 8px;
+    gap: 6px;
   }
 
   .daily-detail-mobile-card {
     display: grid;
-    grid-template-columns: 32px minmax(0, 1fr);
-    gap: 8px 10px;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 5px 8px;
     align-items: center;
-    padding: 10px;
-    border-radius: 14px;
+    padding: 7px 8px;
+    border-radius: 12px;
     border: 1px solid rgba(149, 169, 226, 0.14);
     background: rgba(255, 255, 255, 0.98);
     box-shadow: 0 12px 26px rgba(83, 109, 167, 0.06);
@@ -554,15 +1150,19 @@
     grid-column: 1;
     grid-row: 1 / span 2;
     align-self: center;
-    min-width: 30px;
-    min-height: 30px;
+    min-width: 26px;
+    min-height: 26px;
+    padding: 0 6px;
+    border-radius: 9px;
+    font-size: 11px;
   }
 
   .daily-detail-mobile-title {
     grid-column: 2;
     color: #1e293b;
-    font-size: 12.5px;
-    line-height: 1.35;
+    font-size: 12.25px;
+    line-height: 1.3;
+    font-weight: 700;
   }
 
   .daily-detail-mobile-top .daily-detail-status-badge {
@@ -575,33 +1175,34 @@
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    gap: 4px;
   }
 
   .daily-detail-mobile-metrics div {
-    min-height: 44px;
-    padding: 7px 8px;
-    border-radius: 12px;
+    min-height: 34px;
+    padding: 5px 7px;
+    border-radius: 10px;
     background: rgba(244, 248, 255, 0.88);
   }
 
   .daily-detail-mobile-metrics span {
     display: block;
     color: #69748a;
-    font-size: 10px;
+    font-size: 9.5px;
     line-height: 1.25;
   }
 
   .daily-detail-mobile-metrics strong {
     color: #18243a;
-    font-size: 13px;
+    font-size: 12.5px;
     line-height: 1.25;
   }
 
   .daily-detail-status-badge {
-    min-height: 24px;
-    padding: 0 8px;
-    font-size: 10.5px;
+    min-height: 21px;
+    gap: 4px;
+    padding: 0 6px;
+    font-size: 10px;
   }
 
   .daily-detail-table-shell {
@@ -938,6 +1539,72 @@
     border-radius: 16px;
   }
 
+  .daily-report-mobile-list {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .daily-report-mobile-card {
+    gap: 9px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .daily-report-mobile-card + .daily-report-mobile-card {
+    margin-top: 8px;
+  }
+
+  .daily-report-mobile-card .mobile-data-card-subtitle {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .daily-report-mobile-card .table-index-badge {
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 9px;
+    font-size: 10.5px;
+    box-shadow: none;
+  }
+
+  .daily-report-mobile-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .daily-report-mobile-metrics .mobile-metric {
+    min-height: 48px;
+    padding: 8px 9px;
+    border-radius: 12px;
+  }
+
+  .daily-report-mobile-metrics .mobile-metric-emphasis {
+    grid-column: 1 / -1;
+    min-height: 46px;
+  }
+
+  .daily-report-mobile-card .mobile-table-actions {
+    gap: 7px;
+  }
+
+  .daily-report-mobile-card .action-icon-btn,
+  .beneficiary-mobile-card .action-icon-btn,
+  .food-waste-mobile-card .action-icon-btn,
+  .shopping-mobile-report-card .action-icon-btn,
+  .menu-report-responsive-list .action-icon-btn {
+    min-height: 38px;
+  }
+
+  .daily-report-mobile-card .action-icon-btn-delete,
+  .beneficiary-mobile-card .action-icon-btn-delete,
+  .food-waste-mobile-card .action-icon-btn-delete,
+  .menu-report-responsive-list .action-icon-btn-delete {
+    color: #b65a54;
+    border-color: rgba(239, 100, 97, 0.22);
+    background: rgba(239, 100, 97, 0.07);
+  }
+
   .action-icon-btn {
     width: auto;
     min-height: 40px;
@@ -995,7 +1662,7 @@
   }
 
   .daily-form-close-icon {
-    align-self: start;
+    align-self: center;
     width: 42px;
     height: 42px;
     min-height: 42px;
@@ -1386,6 +2053,35 @@
     font-size: 20px;
   }
 
+  .shopping-page-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .shopping-page-summary-grid .summary-metric-card {
+    min-height: 78px;
+    gap: 8px;
+    padding: 11px;
+    border-radius: 16px;
+  }
+
+  .shopping-page-summary-grid .summary-metric-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .shopping-page-summary-grid .summary-metric-content strong {
+    font-size: 15.5px;
+    line-height: 1.2;
+  }
+
+  .shopping-page-summary-grid .summary-card-label,
+  .shopping-page-summary-grid .summary-metric-helper {
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
+
   .mobile-data-card {
     gap: 11px;
     padding: 14px;
@@ -1427,6 +2123,117 @@
     font-size: 13.5px;
   }
 
+  .shopping-mobile-report-list {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .shopping-mobile-report-card {
+    gap: 9px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .shopping-mobile-report-card + .shopping-mobile-report-card {
+    margin-top: 8px;
+  }
+
+  .shopping-mobile-report-card .mobile-data-card-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .shopping-mobile-report-card .mobile-data-card-subtitle {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .shopping-mobile-report-badges {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .shopping-mobile-report-badges .table-index-badge {
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 9px;
+    color: #68758c;
+    background: rgba(247, 249, 252, 0.78);
+    box-shadow: none;
+    font-size: 10.5px;
+  }
+
+  .shopping-mobile-item-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 0 8px;
+    border: 1px solid rgba(116, 133, 166, 0.2);
+    border-radius: 999px;
+    color: #526079;
+    background: rgba(247, 249, 252, 0.95);
+    font-size: 10.5px;
+    font-weight: 750;
+    white-space: nowrap;
+  }
+
+  .shopping-mobile-report-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .shopping-mobile-report-metrics .mobile-metric {
+    min-height: 50px;
+    padding: 8px 9px;
+    border-radius: 12px;
+  }
+
+  .shopping-mobile-report-metrics .mobile-metric:nth-child(3) {
+    grid-column: 1 / -1;
+    min-height: 40px;
+    padding-block: 7px;
+  }
+
+  .shopping-mobile-report-metrics .shopping-difference-badge {
+    display: inline;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.25;
+  }
+
+  .shopping-mobile-report-metrics .shopping-difference-badge-positive,
+  .shopping-mobile-report-metrics .shopping-difference-badge-negative,
+  .shopping-mobile-report-metrics .shopping-difference-badge-neutral {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .shopping-mobile-report-card .mobile-table-actions {
+    gap: 7px;
+    margin-top: 1px;
+  }
+
+  .shopping-mobile-report-card .action-icon-btn {
+    min-height: 38px;
+  }
+
+  .shopping-mobile-report-card .action-icon-btn-delete {
+    color: #b65a54;
+    border-color: rgba(239, 100, 97, 0.22);
+    background: rgba(239, 100, 97, 0.07);
+  }
+
   .mobile-data-copy {
     font-size: 12.5px;
     line-height: 1.45;
@@ -1438,6 +2245,137 @@
     min-width: 28px;
     min-height: 28px;
     border-radius: 10px;
+  }
+
+  .food-waste-page-card {
+    padding: 12px;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+    border-radius: 20px;
+  }
+
+  .food-waste-hero {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .food-waste-hero-copy {
+    gap: 10px;
+    align-items: center;
+  }
+
+  .food-waste-hero-copy h2 {
+    font-size: 20px;
+    font-weight: 760;
+  }
+
+  .food-waste-hero-copy p {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .food-waste-hero-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+  }
+
+  .food-waste-hero-icon-svg {
+    width: 25px;
+    height: 25px;
+  }
+
+  .food-waste-toolbar-card {
+    gap: 8px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .food-waste-filter-field select,
+  .food-waste-add-btn {
+    min-height: 42px;
+    border-radius: 14px;
+    font-size: 13px;
+  }
+
+  .food-waste-data-panel {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .food-waste-data-panel-head {
+    margin-bottom: 10px;
+  }
+
+  .food-waste-mobile-list {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .food-waste-mobile-card {
+    gap: 9px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .food-waste-mobile-card + .food-waste-mobile-card {
+    margin-top: 8px;
+  }
+
+  .food-waste-mobile-card .mobile-data-card-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .food-waste-mobile-card .food-waste-value-badge-index {
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 9px;
+    font-size: 10.5px;
+    box-shadow: none;
+  }
+
+  .food-waste-mobile-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .food-waste-mobile-metrics .mobile-metric {
+    min-height: 48px;
+    padding: 8px 9px;
+    border-radius: 12px;
+  }
+
+  .food-waste-mobile-metrics .mobile-metric:nth-child(5),
+  .food-waste-mobile-metrics .mobile-metric:nth-child(6) {
+    min-height: 46px;
+  }
+
+  .food-waste-mobile-metrics .mobile-metric span {
+    font-size: 10.5px;
+  }
+
+  .food-waste-mobile-metrics .mobile-metric strong {
+    font-size: 12.5px;
+    line-height: 1.25;
+  }
+
+  .food-waste-mobile-card .mobile-data-section {
+    gap: 3px;
+  }
+
+  .food-waste-mobile-card .mobile-data-copy {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .food-waste-mobile-card .mobile-table-actions {
+    gap: 7px;
+  }
+
+  .food-waste-mobile-card .action-icon-btn {
+    min-height: 38px;
   }
 }
 
@@ -1491,6 +2429,15 @@
 @media (max-width: 540px) {
   .mobile-metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .shopping-page-summary-grid,
+  .shopping-mobile-report-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shopping-mobile-report-metrics .mobile-metric:nth-child(3) {
+    grid-column: 1 / -1;
   }
 
   .mobile-submit-bar {
@@ -2073,18 +3020,58 @@
 
   .menu-nutrition-row,
   .menu-nutrition-row-head {
-    grid-template-columns: minmax(92px, 1fr) minmax(78px, 108px) minmax(78px, 108px) 42px;
+    grid-template-columns: minmax(112px, 1fr) minmax(96px, 120px) minmax(96px, 120px) 58px;
     gap: 7px;
   }
 }
 
 @media (max-width: 1180px) {
+  .menu-report-desktop-table {
+    display: none;
+  }
+
+  .menu-report-responsive-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .menu-report-responsive-list .menu-report-mobile-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .menu-report-responsive-list .mobile-data-card-head {
+    align-items: center;
+  }
+
+  .menu-report-responsive-list .menu-report-mobile-menu-copy {
+    font-size: 13.5px;
+  }
+
+  .menu-report-responsive-list .menu-report-mobile-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .menu-report-responsive-list .menu-report-mobile-actions .action-icon-btn {
+    flex: 0 0 auto;
+  }
+
+  .menu-report-card-nutrition {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .menu-compact-workspace {
     grid-template-columns: 1fr;
+    overflow-y: auto;
+    padding: 0 2px 28px 0;
   }
 
   .menu-compact-summary {
     position: static;
+    max-height: none;
+    overflow: visible;
   }
 
   .shopping-editor-command-row,
@@ -2134,6 +3121,32 @@
 }
 
 @media (max-width: 768px) {
+  .menu-report-responsive-list {
+    gap: 10px;
+  }
+
+  .menu-report-responsive-list .menu-report-mobile-card {
+    padding: 14px;
+  }
+
+  .menu-report-card-nutrition {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .menu-report-card-nutrition-panel {
+    padding: 10px 11px;
+  }
+
+  .menu-report-card-nutrition-title {
+    margin-bottom: 6px;
+  }
+
+  .menu-report-nutrition-breakdown {
+    gap: 4px;
+    font-size: 12.5px;
+  }
+
   .daily-editor-sticky-header {
     margin: 0 -2px 12px;
     padding: 10px;
@@ -2265,16 +3278,382 @@
     padding: 22px;
   }
 
-  .menu-report-compact-card {
-    width: min(100%, calc(100vw - 16px));
-    padding: 14px 12px 0;
+  .daily-report-input-modal.data-form-card.data-form-card-xl {
+    max-height: calc(100vh - 16px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px 10px 0;
     border-radius: 18px;
   }
 
+  @supports (height: 100dvh) {
+    .daily-report-input-modal.data-form-card.data-form-card-xl {
+      max-height: calc(100dvh - 16px);
+    }
+  }
+
+  .daily-report-input-modal .daily-report-editor-header {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: center;
+    gap: 7px;
+    margin: 0 -1px 6px;
+    padding: 6px 7px;
+    border: 1px solid rgba(149, 169, 226, 0.16);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 22px rgba(83, 109, 167, 0.07);
+    backdrop-filter: blur(12px);
+  }
+
+  .daily-report-input-modal .daily-form-close-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-radius: 10px;
+    line-height: 1;
+  }
+
+  .daily-report-input-modal .daily-form-close-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .daily-report-input-modal .daily-form-header-main {
+    gap: 7px;
+  }
+
+  .daily-report-input-modal .daily-form-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .daily-report-input-modal .daily-form-header-copy h3 {
+    font-size: 15.5px;
+    line-height: 1.15;
+  }
+
+  .daily-report-input-modal .daily-form-header-copy p {
+    display: none;
+  }
+
+  .daily-mobile-date-sticky {
+    position: sticky;
+    top: 48px;
+    z-index: 14;
+    display: block;
+    margin: 0 -1px 6px;
+    padding: 6px;
+    border: 1px solid rgba(149, 169, 226, 0.16);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 10px 22px rgba(83, 109, 167, 0.07);
+    backdrop-filter: blur(12px);
+  }
+
+  .daily-mobile-date-sticky .daily-editor-date-field {
+    min-height: 38px;
+    padding: 5px 7px;
+    border-radius: 11px;
+    background: rgba(248, 251, 255, 0.9);
+  }
+
+  .daily-mobile-date-sticky .daily-editor-date-field .date-input-wrap label {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .daily-mobile-date-sticky .daily-editor-date-field .date-input-wrap input {
+    min-height: 28px;
+    font-size: 12px;
+  }
+
+  .daily-report-input-controls.daily-editor-sticky-header {
+    gap: 6px;
+    margin: 0 -1px 8px;
+    padding: 8px;
+    border-radius: 15px;
+  }
+
+  .daily-report-input-controls .daily-editor-command-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .daily-report-input-controls .daily-editor-date-field {
+    display: none;
+  }
+
+  .daily-report-input-controls .daily-editor-metric span {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .daily-report-input-controls .daily-editor-metric {
+    min-height: 42px;
+    padding: 6px 7px;
+    border-radius: 12px;
+    gap: 2px;
+  }
+
+  .daily-report-input-controls .daily-editor-metric strong {
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .daily-report-input-controls .daily-editor-total {
+    grid-column: auto;
+  }
+
+  .daily-report-input-controls .daily-editor-tools {
+    gap: 6px;
+  }
+
+  .daily-report-input-controls .daily-editor-tools-main {
+    gap: 6px;
+  }
+
+  .daily-report-input-controls .daily-unit-search {
+    height: 32px;
+    flex-basis: 100%;
+    gap: 6px;
+    padding: 0 8px;
+  }
+
+  .daily-report-input-controls .daily-unit-search input {
+    font-size: 12px;
+  }
+
+  .daily-report-input-controls .daily-quick-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 1px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .daily-report-input-controls .daily-quick-actions::-webkit-scrollbar,
+  .daily-report-input-controls .daily-filter-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .daily-report-input-controls .daily-quick-actions button {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 132px;
+    min-height: 31px;
+    padding: 0 9px;
+    font-size: 10.75px;
+    white-space: nowrap;
+  }
+
+  .daily-report-input-controls .daily-quick-actions .status-quick-btn {
+    border-color: rgba(44, 154, 102, 0.22);
+    color: #1f7a4d;
+    background: rgba(236, 253, 245, 0.9);
+  }
+
+  .daily-report-input-controls .daily-quick-actions .status-quick-btn.active,
+  .daily-report-input-controls .daily-quick-actions .status-quick-btn.active:hover:not(:disabled) {
+    border-color: rgba(44, 154, 102, 0.34);
+    color: #166341;
+    background: rgba(220, 252, 231, 0.96);
+    box-shadow: inset 0 0 0 1px rgba(44, 154, 102, 0.08);
+  }
+
+  .daily-report-input-controls .daily-quick-actions .holiday-quick-btn {
+    border-color: rgba(245, 158, 11, 0.26);
+    color: #92400e;
+    background: rgba(255, 251, 235, 0.94);
+  }
+
+  .daily-report-input-controls .daily-quick-actions .daily-reset-btn {
+    min-width: 92px;
+    border-color: rgba(149, 169, 226, 0.18);
+    color: #626b7d;
+    background: rgba(244, 247, 252, 0.96);
+  }
+
+  .daily-report-input-controls .daily-quick-actions button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .daily-report-input-controls .daily-filter-chips {
+    gap: 6px;
+    margin-top: 0;
+    padding-bottom: 1px;
+    scrollbar-width: none;
+  }
+
+  .daily-report-input-controls .daily-filter-chips button {
+    min-height: 30px;
+    padding: 0 8px;
+    font-size: 10.75px;
+  }
+
+  .daily-report-input-controls .daily-filter-chips button strong {
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  .daily-report-input-controls .daily-realtime-status {
+    min-height: 28px;
+    padding: 5px 8px;
+    border-radius: 11px;
+    font-size: 10.75px;
+    line-height: 1.3;
+  }
+
+  .daily-report-input-controls .daily-realtime-status.ready {
+    display: none;
+  }
+
+  .daily-report-input-modal .daily-input-grid.report-modal-grid {
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+    gap: 8px;
+    margin-top: 8px;
+    padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  }
+
+  .daily-report-input-modal .daily-input-grid .groups {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+
+  .daily-report-input-modal .mobile-submit-bar {
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    margin: 0 -10px;
+  }
+
+  .daily-report-input-modal .mobile-submit-btn {
+    min-height: 42px;
+    min-width: 126px;
+    border-radius: 14px;
+  }
+
+  .menu-report-compact-card {
+    width: min(100%, calc(100vw - 16px));
+    max-height: calc(100vh - 16px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px 10px 0;
+    border-radius: 18px;
+  }
+
+  @supports (height: 100dvh) {
+    .menu-report-compact-card {
+      max-height: calc(100dvh - 16px);
+    }
+  }
+
   .menu-report-editor-header {
-    grid-template-columns: 44px minmax(0, 1fr);
-    align-items: start;
-    gap: 10px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    display: grid;
+    flex-direction: initial;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: center;
+    gap: 7px;
+    min-height: 46px;
+    margin: 0 -1px 6px;
+    padding: 6px 7px;
+    border: 1px solid rgba(149, 169, 226, 0.16);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 22px rgba(83, 109, 167, 0.07);
+    backdrop-filter: blur(12px);
+  }
+
+  .menu-report-editor-header .daily-form-close-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-radius: 10px;
+    line-height: 1;
+  }
+
+  .menu-report-editor-header .daily-form-close-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .menu-report-editor-header .daily-form-header-main {
+    gap: 7px;
+  }
+
+  .menu-report-editor-header .daily-form-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .menu-report-editor-header .daily-form-header-copy h3 {
+    font-size: 15.5px;
+    line-height: 1.15;
+  }
+
+  .menu-report-editor-header .daily-form-header-copy p {
+    display: none;
+  }
+
+  .menu-report-compact-form {
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .menu-mobile-date-sticky {
+    position: sticky;
+    top: 52px;
+    z-index: 14;
+    display: block;
+    margin: 0 -1px 6px;
+    padding: 6px;
+    border: 1px solid rgba(149, 169, 226, 0.16);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 10px 22px rgba(83, 109, 167, 0.07);
+    backdrop-filter: blur(12px);
+  }
+
+  .menu-mobile-date-sticky .daily-editor-date-field {
+    min-height: 38px;
+    padding: 5px 7px;
+    border-radius: 11px;
+    background: rgba(248, 251, 255, 0.9);
+  }
+
+  .menu-mobile-date-sticky .daily-editor-date-field .date-input-wrap label {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .menu-mobile-date-sticky .daily-editor-date-field .date-input-wrap input {
+    min-height: 28px;
+    font-size: 12px;
   }
 
   .menu-editor-command-row {
@@ -2282,7 +3661,10 @@
     gap: 8px;
   }
 
-  .menu-editor-command-row .daily-editor-date-field,
+  .menu-editor-command-row .daily-editor-date-field {
+    display: none;
+  }
+
   .menu-editor-command-row .daily-editor-save {
     grid-column: 1 / -1;
   }
@@ -2295,16 +3677,39 @@
     align-items: stretch;
   }
 
+  .menu-editor-sticky-header {
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 15px;
+  }
+
+  .menu-editor-sticky-header .daily-editor-date-field,
+  .menu-editor-sticky-header .daily-editor-metric {
+    min-height: 42px;
+    padding: 6px 7px;
+    border-radius: 12px;
+  }
+
+  .menu-editor-sticky-header .daily-editor-metric strong {
+    font-size: 14.5px;
+    line-height: 1.15;
+  }
+
+  .menu-editor-sticky-header .daily-editor-metric span {
+    font-size: 10px;
+  }
+
   .menu-report-compact-form .daily-quick-actions {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
   }
 
   .menu-action-group {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px;
+    gap: 6px;
   }
 
   .menu-action-group-primary {
@@ -2313,65 +3718,223 @@
 
   .menu-action-group-secondary {
     padding-left: 0;
-    padding-top: 8px;
+    padding-top: 6px;
     border-left: 0;
     border-top: 1px solid rgba(149, 169, 226, 0.18);
   }
 
+  .menu-report-compact-form .daily-quick-actions button,
+  .menu-report-compact-form .daily-quick-actions .menu-inline-import-btn,
+  .menu-report-compact-form .daily-quick-actions .status-filter-chip {
+    min-height: 32px;
+    padding: 0 8px;
+    font-size: 10.75px;
+    gap: 5px;
+  }
+
+  .menu-report-compact-form .daily-quick-actions button svg,
+  .menu-report-compact-form .daily-quick-actions .menu-inline-import-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .menu-report-compact-form .daily-quick-actions .status-filter-chip strong {
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
   .menu-inline-import-btn {
     width: 100%;
-    min-height: 38px;
-    font-size: 11.5px;
+  }
+
+  .menu-report-compact-form .daily-realtime-status {
+    min-height: 28px;
+    padding: 5px 8px;
+    border-radius: 11px;
+    font-size: 10.75px;
+  }
+
+  .menu-report-compact-form .daily-realtime-status.ready {
+    display: none;
+  }
+
+  .menu-report-compact-form .shopping-import-status {
+    padding: 6px 8px;
+    border-radius: 10px;
+    font-size: 10.75px;
+    line-height: 1.3;
   }
 
   .menu-compact-workspace {
-    gap: 12px;
-    padding: 0 0 88px;
+    gap: 9px;
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+    padding: 0 0 calc(92px + env(safe-area-inset-bottom));
   }
 
   .menu-spreadsheet-section {
-    padding: 10px;
-    border-radius: 16px;
+    gap: 8px;
+    padding: 9px;
+    border-radius: 15px;
   }
 
   .menu-spreadsheet-head {
     flex-direction: column;
+    gap: 4px;
+  }
+
+  .menu-spreadsheet-head h4 {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .menu-spreadsheet-kicker {
+    font-size: 10px;
+  }
+
+  .menu-spreadsheet-head > span {
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 10.5px;
+  }
+
+  .menu-row-table {
     gap: 6px;
+  }
+
+  .menu-row-table .menu-row-head {
+    display: none;
   }
 
   .menu-row,
   .menu-row-head {
-    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+
+  .menu-row {
+    min-height: 50px;
+    padding: 7px;
+    border-radius: 12px;
+    gap: 6px;
   }
 
   .menu-row-actions,
   .menu-row-head span:last-child {
-    grid-column: 2;
-    justify-self: start;
+    grid-column: auto;
+    justify-self: end;
   }
 
   .menu-row-index {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    font-size: 11px;
+  }
+
+  .menu-row input {
+    min-height: 40px;
+    padding-inline: 9px;
+    border-radius: 9px;
+    font-size: 12.5px;
+  }
+
+  .menu-nutrition-row input {
+    min-height: 32px;
+    border-radius: 9px;
+  }
+
+  .menu-row-actions {
+    gap: 5px;
+  }
+
+  .menu-row-actions .menu-sort-move-btn {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 11px;
   }
 
   .menu-nutrition-row,
   .menu-nutrition-row-head {
-    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(76px, 0.55fr));
+    grid-template-columns: minmax(82px, 1fr) repeat(2, minmax(74px, 0.62fr));
+    gap: 6px;
   }
 
   .menu-nutrition-row > span:last-child,
   .menu-nutrition-row-head span:last-child {
-    grid-column: 1 / -1;
+    display: none;
+  }
+
+  .menu-nutrition-row-head {
+    min-height: 28px;
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .menu-nutrition-row {
+    min-height: 46px;
+    padding: 7px 8px;
+  }
+
+  .menu-nutrition-row.primary-row,
+  .menu-nutrition-row.secondary-row {
+    min-height: 46px;
+  }
+
+  .menu-nutrition-row strong {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 1px;
+    font-size: 12.5px;
+    line-height: 1.15;
+  }
+
+  .menu-nutrition-row strong::after {
+    color: #7b8496;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .menu-nutrition-row-energy strong::after {
+    content: "kkal";
+  }
+
+  .menu-nutrition-row-protein strong::after,
+  .menu-nutrition-row-fat strong::after,
+  .menu-nutrition-row-carbohydrate strong::after,
+  .menu-nutrition-row-fiber strong::after {
+    content: "g";
+  }
+
+  .menu-nutrition-row.primary-row strong {
+    font-size: 13px;
+  }
+
+  .menu-nutrition-row input {
+    min-height: 38px;
+    padding: 0 7px;
+    border-radius: 9px;
+    font-size: 14px;
+    line-height: 1.15;
   }
 
   .menu-nutrition-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
   }
 
   .menu-nutrition-actions button {
-    min-height: 38px;
+    min-height: 34px;
+    padding: 0 8px;
+    border-radius: 11px;
+    font-size: 10.75px;
+    line-height: 1.2;
     white-space: normal;
   }
 
@@ -2385,47 +3948,238 @@
 
   .shopping-report-compact-card {
     width: min(100%, calc(100vw - 16px));
-    padding: 14px 12px 0;
+    max-height: calc(100vh - 16px);
+    overflow: hidden;
+    padding: 10px 10px 0;
     border-radius: 18px;
   }
 
+  @supports (height: 100dvh) {
+    .shopping-report-compact-card {
+      max-height: calc(100dvh - 16px);
+    }
+  }
+
   .shopping-report-editor-header {
-    grid-template-columns: 44px minmax(0, 1fr);
-    align-items: start;
-    gap: 10px 12px;
+    display: grid;
+    flex: 0 0 auto;
+    flex-direction: initial;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: center;
+    gap: 7px;
+    margin: 0 -1px 6px;
+    padding: 6px 7px;
+    border: 1px solid rgba(149, 169, 226, 0.16);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  .shopping-report-editor-header .daily-form-close-icon {
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    border-radius: 10px;
+  }
+
+  .shopping-report-editor-header .daily-form-close-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .shopping-report-editor-header .daily-form-header-main {
+    gap: 7px;
+  }
+
+  .shopping-report-editor-header .daily-form-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .shopping-report-editor-header .daily-form-header-copy h3 {
+    font-size: 15.5px;
+    line-height: 1.15;
+  }
+
+  .shopping-report-editor-header .daily-form-header-copy p {
+    display: none;
+  }
+
+  .shopping-report-compact-form {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: 0;
+  }
+
+  .shopping-editor-sticky-header {
+    gap: 6px;
+    margin: 0 0 7px;
+    padding: 7px;
+    border-radius: 14px;
   }
 
   .shopping-editor-command-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
   }
 
   .shopping-editor-command-row .daily-editor-date-field {
     grid-column: 1 / -1;
+    min-height: 38px;
+    padding: 5px 7px;
+    border-radius: 11px;
+  }
+
+  .shopping-editor-command-row .daily-editor-date-field .date-input-wrap label,
+  .shopping-editor-command-row .daily-editor-metric span {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .shopping-editor-command-row .daily-editor-date-field .date-input-wrap input {
+    min-height: 28px;
+    font-size: 12px;
+  }
+
+  .shopping-editor-command-row .daily-editor-metric {
+    min-height: 40px;
+    padding: 5px 7px;
+    border-radius: 12px;
+  }
+
+  .shopping-editor-command-row .daily-editor-metric strong {
+    font-size: 14.5px;
+    line-height: 1.15;
   }
 
   .shopping-header-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .shopping-header-menu,
+  .shopping-header-notes {
+    grid-column: 1 / -1;
   }
 
   .shopping-header-field {
-    padding: 8px;
-    border-radius: 13px;
+    gap: 3px;
+    padding: 5px 7px;
+    border-radius: 12px;
+  }
+
+  .shopping-header-field span {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .shopping-header-field input {
+    min-height: 32px;
+    font-size: 12px;
+  }
+
+  .shopping-editor-tools {
+    gap: 5px;
+    align-items: stretch;
+  }
+
+  .shopping-report-compact-form .shopping-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    max-width: 100%;
+    gap: 6px;
+    overflow: visible;
+  }
+
+  .shopping-report-compact-form .shopping-quick-actions .menu-action-group {
+    display: contents;
+  }
+
+  .shopping-report-compact-form .shopping-quick-actions .menu-action-group-primary,
+  .shopping-report-compact-form .shopping-quick-actions .menu-action-group-secondary {
+    gap: 6px;
+  }
+
+  .shopping-report-compact-form .shopping-quick-actions .menu-action-group-secondary {
+    padding-top: 0;
+    padding-left: 0;
+    border-top: 0;
+    border-left: 0;
+  }
+
+  .shopping-report-compact-form .shopping-add-row-top {
+    display: none;
+  }
+
+  .shopping-report-compact-form .shopping-quick-actions button,
+  .shopping-report-compact-form .shopping-quick-actions .menu-inline-import-btn,
+  .shopping-report-compact-form .shopping-quick-actions .status-filter-chip {
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    padding: 0 8px;
+    gap: 5px;
+    font-size: 10.75px;
+    white-space: nowrap;
+  }
+
+  .shopping-report-compact-form .shopping-quick-actions .status-filter-chip {
+    min-width: 0;
+  }
+
+  .shopping-report-compact-form .shopping-quick-actions button svg,
+  .shopping-report-compact-form .shopping-quick-actions .menu-inline-import-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .shopping-report-compact-form .daily-realtime-status {
+    min-height: 26px;
+    padding: 4px 8px;
+    border-radius: 11px;
+    font-size: 10.75px;
+    line-height: 1.3;
+  }
+
+  .shopping-report-compact-form .daily-realtime-status.ready {
+    display: none;
+  }
+
+  .shopping-report-compact-form .shopping-import-status {
+    padding: 5px 8px;
+    border-radius: 10px;
+    font-size: 10.75px;
+    line-height: 1.3;
   }
 
   .shopping-compact-workspace {
-    gap: 12px;
-    padding: 0 0 88px;
+    flex: 0 0 auto;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    min-height: auto;
+    overflow: visible;
+    padding: 0 0 calc(88px + env(safe-area-inset-bottom));
   }
 
   .shopping-spreadsheet-section {
-    padding: 10px;
-    border-radius: 16px;
+    gap: 7px;
+    padding: 8px;
+    border-radius: 15px;
+  }
+
+  .shopping-compact-summary {
+    display: none;
   }
 
   .shopping-row-table {
-    gap: 8px;
+    gap: 7px;
   }
 
   .shopping-row-head {
@@ -2433,10 +4187,10 @@
   }
 
   .shopping-row {
-    grid-template-columns: 30px minmax(0, 1fr) 34px;
-    gap: 8px;
-    padding: 9px;
-    border-radius: 14px;
+    grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 34px;
+    gap: 7px;
+    padding: 8px;
+    border-radius: 13px;
   }
 
   .shopping-row-index {
@@ -2445,27 +4199,95 @@
     height: 26px;
   }
 
-  .shopping-field-wrap,
-  .shopping-row input[data-shopping-field="description"],
-  .shopping-row input[data-shopping-field="notes"] {
-    grid-column: 2;
+  .shopping-field-wrap {
+    grid-column: 2 / 4;
   }
 
-  .shopping-row input[data-shopping-field="qty"],
-  .shopping-row select[data-shopping-field="unit_name"],
-  .shopping-row input[data-shopping-field="price"],
-  .shopping-row input[data-shopping-field="amount"] {
-    grid-column: 2;
+  .shopping-mobile-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .shopping-mobile-field-label {
+    display: block;
+    color: #69748a;
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.2;
+  }
+
+  .shopping-field-wrap .shopping-mobile-field-label {
+    margin-bottom: 3px;
+  }
+
+  .shopping-mobile-field-description,
+  .shopping-mobile-field-notes {
+    grid-column: 1 / -1;
+  }
+
+  .shopping-compact-suggestions {
+    width: min(calc(100vw - 64px), 420px);
+    max-width: calc(100vw - 64px);
+    max-height: 240px;
+  }
+
+  .shopping-compact-suggestions .shopping-item-suggestion {
+    grid-template-columns: minmax(74px, 0.42fr) minmax(0, 1fr);
+    gap: 8px;
+    min-height: 40px;
+    padding: 7px 8px;
+  }
+
+  .shopping-compact-suggestions .shopping-item-suggestion span {
+    font-size: 11px;
+  }
+
+  .shopping-compact-suggestions .shopping-item-suggestion strong {
+    font-size: 12px;
+  }
+
+  .shopping-mobile-field-qty,
+  .shopping-mobile-field-unit {
+    grid-column: span 2;
+  }
+
+  .shopping-mobile-field-price,
+  .shopping-mobile-field-amount {
+    grid-column: span 2;
   }
 
   .shopping-row input[data-shopping-field="notes"] {
     display: block;
   }
 
+  .shopping-row input,
+  .shopping-row select {
+    min-height: 38px;
+    padding-inline: 9px;
+    font-size: 12px;
+  }
+
+  .shopping-add-row-bottom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 40px;
+    margin-top: 2px;
+    border-radius: 13px;
+    font-size: 12px;
+    font-weight: 750;
+  }
+
   .shopping-remove-row-btn {
-    grid-column: 3;
+    grid-column: 4;
     grid-row: 1;
     align-self: start;
+    width: 34px;
+    min-height: 34px;
   }
 
   .shopping-compact-summary {
@@ -2474,52 +4296,139 @@
 
   .shopping-report-compact-form .mobile-submit-bar {
     display: flex;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    margin: 0 -10px;
+  }
+
+  .shopping-report-compact-form .mobile-submit-btn {
+    min-height: 42px;
+    border-radius: 14px;
   }
 
   .food-waste-compact-card {
     width: min(100%, calc(100vw - 16px));
-    padding: 14px 12px 0;
+    max-height: calc(100vh - 24px);
+    padding: 12px 10px 0;
     border-radius: 18px;
+    overflow: hidden;
   }
 
   .food-waste-editor-header {
     grid-template-columns: 44px minmax(0, 1fr);
-    align-items: start;
+    align-items: center;
     gap: 10px 12px;
+    padding-bottom: 8px;
+  }
+
+  .food-waste-editor-header .daily-form-header-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .food-waste-editor-header .daily-form-header-copy h3 {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .food-waste-editor-header .daily-form-header-copy p {
+    font-size: 11.5px;
+    line-height: 1.3;
   }
 
   .food-waste-sticky-header {
-    margin: 0 -2px 12px;
+    margin: 0 -2px 8px;
   }
 
   .food-waste-command-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .food-waste-command-row .daily-editor-metric {
+    min-height: 42px;
+    padding: 7px 8px;
+    border-radius: 12px;
+  }
+
+  .food-waste-command-row .daily-editor-metric span {
+    font-size: 10.5px;
+  }
+
+  .food-waste-command-row .daily-editor-metric strong {
+    font-size: 13px;
+  }
+
+  .food-waste-command-row .daily-editor-date-field {
+    grid-column: 1 / -1;
+  }
+
+  .food-waste-command-row .daily-editor-date-field .date-input-wrap input {
+    min-height: 40px;
+    font-size: 13px;
+  }
+
+  .food-waste-editor-tools {
+    gap: 6px;
+  }
+
+  .food-waste-editor-tools .daily-realtime-status {
+    min-height: 32px;
+    padding: 7px 9px;
+    font-size: 11.5px;
   }
 
   .food-waste-context-pills {
     width: 100%;
+    gap: 6px;
+  }
+
+  .food-waste-context-pill {
+    min-height: 26px;
+    padding: 0 8px;
+    font-size: 10.5px;
   }
 
   .food-waste-compact-workspace {
-    gap: 12px;
-    padding: 0 0 88px;
+    flex: 1;
+    gap: 10px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 calc(96px + env(safe-area-inset-bottom));
   }
 
   .food-waste-spreadsheet-section {
-    padding: 10px;
+    gap: 8px;
+    padding: 9px;
     border-radius: 16px;
   }
 
   .food-waste-context-grid {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .food-waste-context-field {
+    gap: 4px;
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  .food-waste-context-field input,
+  .food-waste-context-field textarea {
+    min-height: 42px;
+    font-size: 12.5px;
+  }
+
+  .food-waste-context-field textarea {
+    min-height: 72px;
   }
 
   .food-waste-row {
     grid-template-columns: minmax(0, 1fr) minmax(84px, 0.45fr) 34px;
-    gap: 8px;
-    min-height: 44px;
-    padding: 8px;
+    gap: 7px;
+    min-height: 42px;
+    padding: 7px 8px;
   }
 
   .food-waste-row-head {
@@ -2532,6 +4441,66 @@
 
   .food-waste-compact-form .mobile-submit-bar {
     display: flex;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    margin: 0 -10px;
+  }
+
+  .food-waste-compact-form .mobile-submit-btn {
+    min-height: 42px;
+    border-radius: 14px;
+  }
+
+  .food-waste-detail-card {
+    width: min(100%, calc(100vw - 16px));
+    max-height: calc(100vh - 24px);
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .food-waste-detail-card .rich-detail-shell {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .food-waste-detail-card .rich-detail-hero {
+    gap: 10px;
+    padding-bottom: 10px;
+  }
+
+  .food-waste-detail-card .rich-detail-close-btn {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .food-waste-detail-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .food-waste-detail-summary-grid .rich-detail-summary-card:first-child,
+  .food-waste-detail-summary-grid .rich-detail-summary-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .food-waste-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .food-waste-detail-item {
+    min-height: 52px;
+    padding: 9px 10px;
+    border-radius: 13px;
+  }
+
+  .food-waste-detail-item span {
+    font-size: 10.5px;
+  }
+
+  .food-waste-detail-item strong {
+    font-size: 13px;
   }
 }
 

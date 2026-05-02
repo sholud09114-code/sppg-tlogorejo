@@ -19,6 +19,30 @@ import {
 const SHOPPING_ITEM_FIELDS = ["item_lookup", "description", "qty", "unit_name", "price", "amount", "notes"];
 const MAX_IMAGE_IMPORT_SIZE_BYTES = 8 * 1024 * 1024;
 
+function formatRupiahDisplay(value) {
+  if (value === "" || value == null) return "";
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return "";
+  return formatMoney(numericValue);
+}
+
+function parseRupiahInput(value) {
+  const numericText = String(value || "").replace(/[^\d]/g, "");
+  return numericText ? Number(numericText) : "";
+}
+
+function formatPortionCountInput(value) {
+  if (value === "" || value == null) return "";
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return "";
+  return String(Math.trunc(numericValue));
+}
+
+function parsePortionCountInput(value) {
+  const numericText = String(value || "").replace(/[^\d]/g, "");
+  return numericText ? Number(numericText) : "";
+}
+
 function focusShoppingField(rowIndex, fieldName) {
   window.setTimeout(() => {
     const input = document.querySelector(`[data-shopping-row="${rowIndex}"] [data-shopping-field="${fieldName}"]`);
@@ -46,6 +70,7 @@ export default function ShoppingReportForm({
   const [reviewRows, setReviewRows] = useState(() => new Set());
   const [showReviewOnly, setShowReviewOnly] = useState(false);
   const [hasImportedDraft, setHasImportedDraft] = useState(false);
+  const [focusedMoneyField, setFocusedMoneyField] = useState(null);
 
   useEffect(() => {
     if (open) {
@@ -59,6 +84,7 @@ export default function ShoppingReportForm({
       setReviewRows(new Set());
       setShowReviewOnly(false);
       setHasImportedDraft(false);
+      setFocusedMoneyField(null);
     }
   }, [open, initialData]);
 
@@ -610,8 +636,10 @@ export default function ShoppingReportForm({
                   type="number"
                   min="0"
                   step="1"
-                  value={form.small_portion_count}
-                  onChange={(event) => handleNumberChange("header", null, "small_portion_count", event.target.value)}
+                  value={formatPortionCountInput(form.small_portion_count)}
+                  onChange={(event) =>
+                    handleNumberChange("header", null, "small_portion_count", parsePortionCountInput(event.target.value))
+                  }
                   disabled={loading}
                 />
               </label>
@@ -621,8 +649,10 @@ export default function ShoppingReportForm({
                   type="number"
                   min="0"
                   step="1"
-                  value={form.large_portion_count}
-                  onChange={(event) => handleNumberChange("header", null, "large_portion_count", event.target.value)}
+                  value={formatPortionCountInput(form.large_portion_count)}
+                  onChange={(event) =>
+                    handleNumberChange("header", null, "large_portion_count", parsePortionCountInput(event.target.value))
+                  }
                   disabled={loading}
                 />
               </label>
@@ -642,10 +672,6 @@ export default function ShoppingReportForm({
               <div className="daily-editor-tools-main">
                 <QuickActionBar className="shopping-quick-actions" ariaLabel="Aksi cepat laporan belanja">
                   <div className="menu-action-group menu-action-group-primary">
-                    <button type="button" className="status-quick-btn" onClick={addItemRow} disabled={loading}>
-                      <AppIcon name="statusFull" size={17} weight={APP_ICON_WEIGHT.action} />
-                      Tambah baris
-                    </button>
                     <label className="menu-inline-import-btn" htmlFor="shopping_import_image">
                       <AppIcon name="import" size={17} weight={APP_ICON_WEIGHT.action} />
                       Import gambar
@@ -733,19 +759,22 @@ export default function ShoppingReportForm({
 
                   {visibleItems.map(({ item, index }) => {
                     const rowNeedsReview = reviewRows.has(index);
+                    const priceFocused = focusedMoneyField?.index === index && focusedMoneyField?.field === "price";
+                    const amountFocused = focusedMoneyField?.index === index && focusedMoneyField?.field === "amount";
                     return (
                       <div
                         className={compactRowClass("shopping-row", {
                           active: activeItemIndex === index,
                           needsReview: rowNeedsReview,
                           verified: hasImportedDraft && !rowNeedsReview,
-                        })}
+                        }) + (String(item.item_lookup || "").trim() && itemSuggestions[index]?.length > 0 ? " has-open-suggestions" : "")}
                         role="row"
                         key={`shopping-item-${index}`}
                         data-shopping-row={index}
                       >
                         <span className="shopping-row-index">{index + 1}</span>
                         <div className="shopping-field-wrap">
+                          <span className="shopping-mobile-field-label">Kode / barang</span>
                           <input
                             data-shopping-field="item_lookup"
                             type="text"
@@ -775,76 +804,103 @@ export default function ShoppingReportForm({
                             </div>
                           ) : null}
                         </div>
-                        <input
-                          data-shopping-field="description"
-                          type="text"
-                          value={item.description}
-                          onFocus={() => setActiveItemIndex(index)}
-                          onChange={(event) => handleItemChange(index, "description", event.target.value)}
-                          onKeyDown={(event) => handleItemKeyDown(event, index, "description")}
-                          placeholder="Uraian"
-                          disabled={loading}
-                        />
-                        <input
-                          data-shopping-field="qty"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={item.qty}
-                          onFocus={() => setActiveItemIndex(index)}
-                          onChange={(event) => handleNumberChange("item", index, "qty", event.target.value)}
-                          onKeyDown={(event) => handleItemKeyDown(event, index, "qty")}
-                          disabled={loading}
-                        />
-                        <select
-                          data-shopping-field="unit_name"
-                          value={item.unit_name}
-                          onFocus={() => setActiveItemIndex(index)}
-                          onChange={(event) => handleItemChange(index, "unit_name", event.target.value)}
-                          onKeyDown={(event) => handleItemKeyDown(event, index, "unit_name")}
-                          disabled={loading}
-                        >
-                          <option value="">Satuan</option>
-                          {getUnitOptions(item.unit_name).map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                        <input
-                          data-shopping-field="price"
-                          className="shopping-money-input"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={item.price}
-                          onFocus={() => setActiveItemIndex(index)}
-                          onChange={(event) => handleNumberChange("item", index, "price", event.target.value)}
-                          onKeyDown={(event) => handleItemKeyDown(event, index, "price")}
-                          disabled={loading}
-                        />
-                        <input
-                          data-shopping-field="amount"
-                          className="shopping-money-input"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={item.amount}
-                          onFocus={() => setActiveItemIndex(index)}
-                          onChange={(event) => handleNumberChange("item", index, "amount", event.target.value)}
-                          onKeyDown={(event) => handleItemKeyDown(event, index, "amount")}
-                          disabled={loading}
-                        />
-                        <input
-                          data-shopping-field="notes"
-                          type="text"
-                          value={item.notes}
-                          onFocus={() => setActiveItemIndex(index)}
-                          onChange={(event) => handleItemChange(index, "notes", event.target.value)}
-                          onKeyDown={(event) => handleItemKeyDown(event, index, "notes")}
-                          placeholder="Opsional"
-                          disabled={loading}
-                        />
+                        <label className="shopping-mobile-field shopping-mobile-field-description">
+                          <span className="shopping-mobile-field-label">Uraian</span>
+                          <input
+                            data-shopping-field="description"
+                            type="text"
+                            value={item.description}
+                            onFocus={() => setActiveItemIndex(index)}
+                            onChange={(event) => handleItemChange(index, "description", event.target.value)}
+                            onKeyDown={(event) => handleItemKeyDown(event, index, "description")}
+                            placeholder="Uraian"
+                            disabled={loading}
+                          />
+                        </label>
+                        <label className="shopping-mobile-field shopping-mobile-field-qty">
+                          <span className="shopping-mobile-field-label">Qty</span>
+                          <input
+                            data-shopping-field="qty"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={item.qty}
+                            onFocus={() => setActiveItemIndex(index)}
+                            onChange={(event) => handleNumberChange("item", index, "qty", event.target.value)}
+                            onKeyDown={(event) => handleItemKeyDown(event, index, "qty")}
+                            placeholder="Qty"
+                            disabled={loading}
+                          />
+                        </label>
+                        <label className="shopping-mobile-field shopping-mobile-field-unit">
+                          <span className="shopping-mobile-field-label">Satuan</span>
+                          <select
+                            data-shopping-field="unit_name"
+                            value={item.unit_name}
+                            onFocus={() => setActiveItemIndex(index)}
+                            onChange={(event) => handleItemChange(index, "unit_name", event.target.value)}
+                            onKeyDown={(event) => handleItemKeyDown(event, index, "unit_name")}
+                            disabled={loading}
+                          >
+                            <option value="">Satuan</option>
+                            {getUnitOptions(item.unit_name).map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="shopping-mobile-field shopping-mobile-field-price">
+                          <span className="shopping-mobile-field-label">Harga</span>
+                          <input
+                            data-shopping-field="price"
+                            className="shopping-money-input"
+                            type="text"
+                            inputMode="numeric"
+                            value={priceFocused ? item.price : formatRupiahDisplay(item.price)}
+                            onFocus={() => {
+                              setActiveItemIndex(index);
+                              setFocusedMoneyField({ index, field: "price" });
+                            }}
+                            onBlur={() => setFocusedMoneyField(null)}
+                            onChange={(event) => handleNumberChange("item", index, "price", parseRupiahInput(event.target.value))}
+                            onKeyDown={(event) => handleItemKeyDown(event, index, "price")}
+                            placeholder="Rp 0"
+                            disabled={loading}
+                          />
+                        </label>
+                        <label className="shopping-mobile-field shopping-mobile-field-amount">
+                          <span className="shopping-mobile-field-label">Jumlah</span>
+                          <input
+                            data-shopping-field="amount"
+                            className="shopping-money-input"
+                            type="text"
+                            inputMode="numeric"
+                            value={amountFocused ? item.amount : formatRupiahDisplay(item.amount)}
+                            onFocus={() => {
+                              setActiveItemIndex(index);
+                              setFocusedMoneyField({ index, field: "amount" });
+                            }}
+                            onBlur={() => setFocusedMoneyField(null)}
+                            onChange={(event) => handleNumberChange("item", index, "amount", parseRupiahInput(event.target.value))}
+                            onKeyDown={(event) => handleItemKeyDown(event, index, "amount")}
+                            placeholder="Rp 0"
+                            disabled={loading}
+                          />
+                        </label>
+                        <label className="shopping-mobile-field shopping-mobile-field-notes">
+                          <span className="shopping-mobile-field-label">Catatan</span>
+                          <input
+                            data-shopping-field="notes"
+                            type="text"
+                            value={item.notes}
+                            onFocus={() => setActiveItemIndex(index)}
+                            onChange={(event) => handleItemChange(index, "notes", event.target.value)}
+                            onKeyDown={(event) => handleItemKeyDown(event, index, "notes")}
+                            placeholder="Opsional"
+                            disabled={loading}
+                          />
+                        </label>
                         <button
                           type="button"
                           className="menu-sort-move-btn shopping-remove-row-btn"
@@ -858,6 +914,15 @@ export default function ShoppingReportForm({
                     );
                   })}
                 </div>
+                <button
+                  type="button"
+                  className="status-quick-btn shopping-add-row-bottom"
+                  onClick={addItemRow}
+                  disabled={loading}
+                >
+                  <AppIcon name="add" size={17} weight={APP_ICON_WEIGHT.action} />
+                  Tambah baris
+                </button>
               </section>
             </div>
 

@@ -1,4 +1,4 @@
-import { formatDate, formatPortions, formatWeight } from "../shared/utils/formatters.js";
+import { formatDate, formatKgPerPortion, formatPortions, formatWeight } from "../shared/utils/formatters.js";
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 function formatWastePerPortion(totalKg, totalPortions) {
@@ -8,10 +8,10 @@ function formatWastePerPortion(totalKg, totalPortions) {
     return "0 kg/porsi";
   }
 
-  return `${(numericTotalKg / numericTotalPortions).toLocaleString("id-ID", {
+  return formatKgPerPortion(numericTotalKg / numericTotalPortions, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 4,
-  })} kg/porsi`;
+  });
 }
 
 export default function FoodWasteDetail({ open, data, onClose }) {
@@ -27,7 +27,7 @@ export default function FoodWasteDetail({ open, data, onClose }) {
   return (
     <div className="modal-backdrop" role="presentation">
       <div
-        className="modal-card report-modal-card rich-detail-card w-full max-w-5xl rounded-2xl p-4 sm:p-5"
+        className="modal-card report-modal-card rich-detail-card food-waste-detail-card w-full max-w-5xl rounded-2xl p-4 sm:p-5"
         role="dialog"
         aria-modal="true"
       >
@@ -43,7 +43,7 @@ export default function FoodWasteDetail({ open, data, onClose }) {
                 <p>Ringkasan total porsi, total sisa pangan, dan komposisi bahan sisa.</p>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="rich-detail-close-btn">
+            <button type="button" onClick={onClose} className="rich-detail-close-btn" aria-label="Tutup detail sisa pangan">
               Tutup
             </button>
           </div>

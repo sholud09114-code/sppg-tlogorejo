@@ -14,7 +14,7 @@ import {
   getCachedFoodWasteReports,
   updateFoodWaste,
 } from "../api/foodWasteApi.js";
-import { formatDate, formatPortions, formatWeight } from "../shared/utils/formatters.js";
+import { formatDate, formatKgPerPortion, formatPortions, formatWeight } from "../shared/utils/formatters.js";
 
 function getWastePerPortion(report) {
   const totalKg = Number(report?.total_kg || 0);
@@ -26,10 +26,10 @@ function getWastePerPortion(report) {
 }
 
 function formatWastePerPortion(value) {
-  return `${Number(value || 0).toLocaleString("id-ID", {
+  return formatKgPerPortion(value, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 4,
-  })} kg/porsi`;
+  });
 }
 
 export default function FoodWaste() {
@@ -257,9 +257,9 @@ export default function FoodWaste() {
               </div>
             ) : (
               <>
-                <div className="mobile-data-list">
+                <div className="mobile-data-list food-waste-mobile-list">
                   {sortedReports.map((report, index) => (
-                    <article className="mobile-data-card" key={report.id}>
+                    <article className="mobile-data-card food-waste-mobile-card" key={report.id}>
                       <div className="mobile-data-card-head">
                         <div>
                           <div className="mobile-data-card-title">{formatDate(report.report_date)}</div>
@@ -269,7 +269,7 @@ export default function FoodWaste() {
                         </div>
                         <span className="food-waste-value-badge food-waste-value-badge-index">{index + 1}</span>
                       </div>
-                      <div className="mobile-metric-grid">
+                      <div className="mobile-metric-grid food-waste-mobile-metrics">
                         <div className="mobile-metric">
                           <span>Karbohidrat</span>
                           <strong>{formatWeight(report.carb_source)}</strong>
