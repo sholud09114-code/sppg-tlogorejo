@@ -1,21 +1,58 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Toast from "../components/Toast.jsx";
+import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
+import { StickyFormHeader } from "../components/ui/FormPatterns.jsx";
+import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
 import { fetchWeeklySummary } from "../api/dailyReportApi.js";
+import { fetchFoodWasteReports, getCachedFoodWasteReports } from "../api/foodWasteApi.js";
 import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
-import { formatDateLong, formatMoney, formatNumber } from "../shared/utils/formatters.js";
+import {
+  formatDateLong,
+  formatMoney,
+  formatNumber,
+  formatWeight,
+} from "../shared/utils/formatters.js";
+import {
+  generateOperationalAnomalies,
+  generateOperationalRecommendations,
+} from "../shared/utils/operationalRecommendations.js";
 
-function renderNutritionBlock(report, portionSize) {
-  const prefix = portionSize === "small" ? "small" : "large";
+const HIGH_WASTE_PERCENT = 5;
+const EMPTY_REPORTS = [];
+const RECOMMENDATION_PRIORITY = {
+  critical: 0,
+  warning: 1,
+  info: 2,
+  success: 3,
+};
+const ANOMALY_RECOMMENDATION_DEDUP = {
+  "shopping-over-budget": ["review-shopping-budget"],
+  "daily-without-shopping": ["review-shopping-budget"],
+  "high-food-waste": ["review-food-waste"],
+  "daily-without-menu": ["complete-menu-report"],
+};
 
-  return (
-    <div className="weekly-nutrition-list">
-      <span>Energi: {formatNumber(report[`${prefix}_energy`])} kkal</span>
-      <span>Protein: {formatNumber(report[`${prefix}_protein`])} g</span>
-      <span>Lemak: {formatNumber(report[`${prefix}_fat`])} g</span>
-      <span>Karbohidrat: {formatNumber(report[`${prefix}_carbohydrate`])} g</span>
-      <span>Serat: {formatNumber(report[`${prefix}_fiber`])} g</span>
-    </div>
-  );
+function getTodayISO() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  const local = new Date(now.getTime() - offset * 60 * 1000);
+  return local.toISOString().slice(0, 10);
+}
+
+function addDaysISO(baseDate, amount) {
+  const date = new Date(`${baseDate}T00:00:00`);
+  date.setDate(date.getDate() + amount);
+  const offset = date.getTimezoneOffset();
+  const local = new Date(date.getTime() - offset * 60 * 1000);
+  return local.toISOString().slice(0, 10);
+}
+
+function getDefaultRange() {
+  const endDate = getTodayISO();
+  return {
+    start_date: addDaysISO(endDate, -6),
+    end_date: endDate,
+  };
 }
 
 function getMenuNames(report) {
@@ -28,14 +65,122 @@ function getMenuNames(report) {
   ].filter(Boolean);
 }
 
-export default function WeeklyReports() {
-  const [filters, setFilters] = useState({
-    start_date: "",
-    end_date: "",
+function renderMenuNames(report) {
+  const names = getMenuNames(report);
+  if (!names.length) return <span className="weekly-muted">Belum ada nama menu</span>;
+
+  return (
+    <div className="weekly-menu-list weekly-chip-list">
+      {names.map((name) => (
+        <span key={`${report.id}-${name}`}>{name}</span>
+      ))}
+    </div>
+  );
+}
+
+function formatCompactNutrition(report, portionSize) {
+  const prefix = portionSize === "small" ? "small" : "large";
+  return `${formatNumber(report[`${prefix}_energy`])} kkal | P ${formatNumber(
+    report[`${prefix}_protein`]
+  )}g | L ${formatNumber(report[`${prefix}_fat`])}g | K ${formatNumber(
+    report[`${prefix}_carbohydrate`]
+  )}g`;
+}
+
+function getWastePercentage(report) {
+  const totalKg = Number(report?.total_kg || 0);
+  const portions = Number(report?.total_portions || 0);
+  if (!Number.isFinite(totalKg) || !Number.isFinite(portions) || portions <= 0) return 0;
+  return (totalKg / portions) * 100;
+}
+
+function filterReportsByDateRange(reports, startDate, endDate) {
+  return reports.filter((report) => {
+    const reportDate = String(report.report_date || "");
+    return reportDate >= startDate && reportDate <= endDate;
   });
+}
+
+function DashboardSection({ icon, title, description, metrics, children, empty }) {
+  return (
+    <section className="weekly-dashboard-section">
+      <div className="weekly-dashboard-section-head">
+        <span className="weekly-section-icon">
+          <AppIcon name={icon} size={22} weight={APP_ICON_WEIGHT.summary} />
+        </span>
+        <div className="min-w-0">
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+      </div>
+
+      {metrics?.length ? (
+        <div className="weekly-section-metrics">
+          {metrics.map((metric) => (
+            <div className={`weekly-mini-metric ${metric.warning ? "warning" : ""}`} key={metric.label}>
+              <span>{metric.label}</span>
+              <strong>{metric.value}</strong>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {empty ? <div className="empty-state weekly-empty-state">{empty}</div> : children}
+    </section>
+  );
+}
+
+function RecommendationCard({ recommendation }) {
+  return (
+    <article className={`operational-recommendation-card ${recommendation.level}`}>
+      <span className="operational-recommendation-icon">
+        <AppIcon name={recommendation.icon} size={18} weight={APP_ICON_WEIGHT.summary} />
+      </span>
+      <div className="operational-recommendation-copy">
+        <span>{recommendation.level}</span>
+        <strong>{recommendation.title}</strong>
+        <p>{recommendation.description}</p>
+      </div>
+      {recommendation.ctaLabel ? (
+        <span className="operational-recommendation-cta passive">{recommendation.ctaLabel}</span>
+      ) : null}
+    </article>
+  );
+}
+
+function AnomalyCard({ anomaly, onNavigate }) {
+  return (
+    <article className={`operational-anomaly-card ${anomaly.level}`}>
+      <span className="operational-anomaly-icon">
+        <AppIcon name={anomaly.icon} size={18} weight={APP_ICON_WEIGHT.summary} />
+      </span>
+      <div className="operational-anomaly-copy">
+        <span>{anomaly.level}</span>
+        <strong>{anomaly.title}</strong>
+        <p>{anomaly.description}</p>
+      </div>
+      {anomaly.ctaPage ? (
+        <button
+          type="button"
+          className="operational-anomaly-cta"
+          onClick={() => onNavigate?.(anomaly.ctaPage)}
+        >
+          {anomaly.ctaLabel || "Buka"}
+        </button>
+      ) : null}
+    </article>
+  );
+}
+
+export default function WeeklyReports({ onNavigate }) {
+  const [filters, setFilters] = useState(getDefaultRange);
   const [loading, setLoading] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [reportData, setReportData] = useState(null);
+  const [foodWasteReports, setFoodWasteReports] = useState([]);
+  const [weeklyError, setWeeklyError] = useState(null);
+  const [foodWasteError, setFoodWasteError] = useState(null);
+  const [foodWasteLoaded, setFoodWasteLoaded] = useState(false);
   const [toast, setToast] = useState({ kind: null, message: null });
 
   const handleChange = (field, value) => {
@@ -65,16 +210,55 @@ export default function WeeklyReports() {
 
     try {
       setLoading(true);
-      const data = await fetchWeeklySummary(filters.start_date, filters.end_date);
-      setReportData(data);
+      setWeeklyError(null);
+      setFoodWasteError(null);
+      setFoodWasteLoaded(false);
+      const cachedFoodWaste = getCachedFoodWasteReports();
+      const [weeklyResult, wasteResult] = await Promise.allSettled([
+        fetchWeeklySummary(filters.start_date, filters.end_date),
+        fetchFoodWasteReports({ force: Boolean(cachedFoodWaste) }),
+      ]);
+
+      if (weeklyResult.status === "fulfilled") {
+        setReportData(weeklyResult.value);
+      } else {
+        setReportData(null);
+        setWeeklyError(weeklyResult.reason?.message || "Gagal memuat weekly summary.");
+      }
+
+      if (wasteResult.status === "fulfilled") {
+        setFoodWasteReports(filterReportsByDateRange(wasteResult.value, filters.start_date, filters.end_date));
+        setFoodWasteLoaded(true);
+      } else {
+        setFoodWasteReports([]);
+        setFoodWasteLoaded(false);
+        setFoodWasteError(wasteResult.reason?.message || "Gagal memuat data sisa pangan.");
+      }
+
       setHasSubmitted(true);
-      setToast({ kind: null, message: null });
+      if (weeklyResult.status === "rejected" && wasteResult.status === "rejected") {
+        setToast({
+          kind: "danger",
+          message: "Semua sumber data gagal dimuat. Coba ulangi beberapa saat lagi.",
+        });
+      } else if (weeklyResult.status === "rejected" || wasteResult.status === "rejected") {
+        setToast({
+          kind: "warning",
+          message: "Sebagian data gagal dimuat. Dashboard menampilkan data yang tersedia.",
+        });
+      } else {
+        setToast({ kind: null, message: null });
+      }
     } catch (err) {
       setReportData(null);
+      setFoodWasteReports([]);
+      setWeeklyError(err.message);
+      setFoodWasteError(err.message);
+      setFoodWasteLoaded(false);
       setHasSubmitted(true);
       setToast({
         kind: "danger",
-        message: "Gagal memuat laporan mingguan: " + err.message,
+        message: "Gagal memuat dashboard agregasi: " + err.message,
       });
     } finally {
       setLoading(false);
@@ -84,375 +268,397 @@ export default function WeeklyReports() {
   const dailySummary = reportData?.daily_reports?.summary || null;
   const menuSummary = reportData?.menu_reports?.summary || null;
   const shoppingSummary = reportData?.shopping_reports?.summary || null;
+  const dailyReports = reportData?.daily_reports?.reports || EMPTY_REPORTS;
+  const menuReports = reportData?.menu_reports?.reports || EMPTY_REPORTS;
+  const shoppingReports = reportData?.shopping_reports?.reports || EMPTY_REPORTS;
+
+  const wasteSummary = useMemo(() => {
+    const totalKg = foodWasteReports.reduce((sum, report) => sum + Number(report.total_kg || 0), 0);
+    const totalPortions = foodWasteReports.reduce(
+      (sum, report) => sum + Number(report.total_portions || 0),
+      0
+    );
+    const highWasteCount = foodWasteReports.filter(
+      (report) => getWastePercentage(report) >= HIGH_WASTE_PERCENT
+    ).length;
+
+    return {
+      totalKg,
+      totalPortions,
+      totalReports: foodWasteReports.length,
+      averagePercent: totalPortions > 0 ? (totalKg / totalPortions) * 100 : 0,
+      highWasteCount,
+    };
+  }, [foodWasteReports]);
+
+  const hasWeeklyData = Boolean(reportData);
+  const hasDashboardData = hasWeeklyData || foodWasteLoaded;
+  const weeklyUnavailableText = weeklyError ? "Weekly summary gagal dimuat." : null;
+  const foodWasteUnavailableText = foodWasteError ? "Data sisa pangan gagal dimuat." : null;
+
+  const anomalies = useMemo(
+    () =>
+      generateOperationalAnomalies({
+        dailyReports: weeklyError ? [] : dailyReports,
+        menuReports: weeklyError ? [] : menuReports,
+        shoppingReports: weeklyError ? [] : shoppingReports,
+        foodWasteReports: foodWasteError ? [] : foodWasteReports,
+        checkShoppingCompleteness: !weeklyError,
+        pmDropPercent: 15,
+        highWastePercent: HIGH_WASTE_PERCENT,
+      }),
+    [dailyReports, foodWasteError, foodWasteReports, menuReports, shoppingReports, weeklyError]
+  );
+
+  const hasPrimaryAnomaly = anomalies.some((anomaly) => anomaly.level !== "success");
+
+  const recommendations = useMemo(
+    () =>
+      generateOperationalRecommendations({
+        startDate: filters.start_date,
+        endDate: filters.end_date,
+        dailyDays: weeklyError ? null : dailySummary?.total_days,
+        menuDays: weeklyError ? null : menuSummary?.total_days,
+        highWasteCount: foodWasteError ? 0 : wasteSummary.highWasteCount,
+        wasteAveragePercent: foodWasteError ? 0 : wasteSummary.averagePercent,
+        overBudgetCount: weeklyError
+          ? 0
+          : shoppingReports.filter((report) => Number(report.difference_amount || 0) < 0).length,
+      }),
+    [
+      filters.end_date,
+      filters.start_date,
+      foodWasteError,
+      menuSummary?.total_days,
+      dailySummary?.total_days,
+      shoppingReports,
+      wasteSummary.averagePercent,
+      wasteSummary.highWasteCount,
+      weeklyError,
+    ]
+  );
+
+  const visibleRecommendations = useMemo(() => {
+    const suppressedRecommendationIds = new Set();
+
+    anomalies.forEach((anomaly) => {
+      if (anomaly.level === "success") return;
+
+      (ANOMALY_RECOMMENDATION_DEDUP[anomaly.id] || []).forEach((recommendationId) => {
+        suppressedRecommendationIds.add(recommendationId);
+      });
+    });
+
+    return recommendations
+      .filter((recommendation) => !suppressedRecommendationIds.has(recommendation.id))
+      .sort(
+        (left, right) =>
+          (RECOMMENDATION_PRIORITY[left.level] ?? 99) -
+          (RECOMMENDATION_PRIORITY[right.level] ?? 99)
+      )
+      .slice(0, 2);
+  }, [anomalies, recommendations]);
+
+  const rangeLabel = reportData?.range
+    ? `${formatDateLong(reportData.range.start_date)} - ${formatDateLong(reportData.range.end_date)}`
+    : `${formatDateLong(filters.start_date)} - ${formatDateLong(filters.end_date)}`;
 
   return (
     <>
-      <section className="feature-page-card">
+      <section className="feature-page-card weekly-dashboard-page">
         <div className="page-title gap-4">
           <div className="min-w-0">
-            <h2>Laporan mingguan</h2>
-            <p>Lihat akumulasi laporan harian, menu, dan belanja pada rentang tanggal fleksibel.</p>
+            <h2>Dashboard agregasi operasional</h2>
+            <p>Rekap PM, menu, belanja, dan sisa pangan dalam satu rentang kerja.</p>
           </div>
         </div>
 
-        <form className="weekly-filter-panel" onSubmit={handleSubmit}>
-          <div className="filter-field">
-            <label htmlFor="weekly_start_date">Tanggal mulai</label>
-            <input
-              id="weekly_start_date"
-              type="date"
-              value={filters.start_date}
-              onChange={(event) => handleChange("start_date", event.target.value)}
-              disabled={loading}
-            />
-          </div>
+        <form className="weekly-dashboard-form" onSubmit={handleSubmit}>
+          <StickyFormHeader className="weekly-dashboard-sticky">
+            <div className="daily-editor-command-row weekly-dashboard-command-row">
+              <div className="daily-editor-date-field weekly-range-field">
+                <label htmlFor="weekly_start_date">Tanggal mulai</label>
+                <input
+                  id="weekly_start_date"
+                  type="date"
+                  value={filters.start_date}
+                  onChange={(event) => handleChange("start_date", event.target.value)}
+                  disabled={loading}
+                />
+              </div>
 
-          <div className="filter-field">
-            <label htmlFor="weekly_end_date">Tanggal selesai</label>
-            <input
-              id="weekly_end_date"
-              type="date"
-              value={filters.end_date}
-              onChange={(event) => handleChange("end_date", event.target.value)}
-              disabled={loading}
-            />
-          </div>
+              <div className="daily-editor-date-field weekly-range-field">
+                <label htmlFor="weekly_end_date">Tanggal selesai</label>
+                <input
+                  id="weekly_end_date"
+                  type="date"
+                  value={filters.end_date}
+                  onChange={(event) => handleChange("end_date", event.target.value)}
+                  disabled={loading}
+                />
+              </div>
 
-          <div className="weekly-filter-action">
-            <button type="submit" className="submit-btn w-full sm:w-auto" disabled={loading}>
-              {loading ? "Memuat..." : "Tampilkan laporan"}
-            </button>
-          </div>
+              <div className="daily-editor-metric weekly-range-summary">
+                <span>Rentang aktif</span>
+                <strong>{rangeLabel}</strong>
+              </div>
+
+              <button type="submit" className="submit-btn weekly-dashboard-submit" disabled={loading}>
+                <span className="button-with-icon">
+                  <AppIcon name="weekly" size={18} weight={APP_ICON_WEIGHT.action} />
+                  <span>{loading ? "Memuat..." : "Tampilkan dashboard"}</span>
+                </span>
+              </button>
+            </div>
+          </StickyFormHeader>
         </form>
 
         {!hasSubmitted ? (
-          <div className="empty-state mt-4">
-            Pilih tanggal mulai dan tanggal selesai untuk menampilkan laporan mingguan atau 2 mingguan.
+          <div className="weekly-dashboard-empty">
+            <AppIcon name="weekly" size={30} weight={APP_ICON_WEIGHT.summary} />
+            <strong>Pilih rentang laporan</strong>
+            <span>Default sudah disiapkan 7 hari terakhir. Klik tampilkan untuk melihat dashboard agregasi.</span>
           </div>
-        ) : reportData ? (
-          <>
-          <div className="weekly-summary-grid mt-4">
-            <div className="summary-card">
-              <span className="summary-card-label">Rentang laporan</span>
-              <strong className="text-base">
-                {formatDateLong(reportData.range.start_date)} - {formatDateLong(reportData.range.end_date)}
-              </strong>
-            </div>
-            <div className="summary-card">
-              <span className="summary-card-label">Total PM keseluruhan</span>
-              <strong>{formatNumber(dailySummary?.total_pm)}</strong>
-            </div>
-            <div className="summary-card">
-              <span className="summary-card-label">Hari dengan laporan PM</span>
-              <strong>{formatNumber(dailySummary?.total_days)}</strong>
-            </div>
-            <div className="summary-card">
-              <span className="summary-card-label">Total akumulasi belanja</span>
-              <strong>{formatMoney(shoppingSummary?.total_spending)}</strong>
-            </div>
-            <div className="summary-card">
-              <span className="summary-card-label">Total pagu</span>
-              <strong>{formatMoney(shoppingSummary?.total_budget)}</strong>
-            </div>
-            <div className="summary-card">
-              <span className="summary-card-label">Total selisih</span>
-              <strong>{formatMoney(shoppingSummary?.total_difference)}</strong>
-            </div>
-          </div>
-
-          <section className="weekly-section">
-            <div className="page-title weekly-section-head">
-              <div>
-                <h2>Ringkasan PM Harian</h2>
-                <p>Akumulasi penerima manfaat pada rentang tanggal yang dipilih.</p>
-              </div>
-            </div>
-
-            <div className="weekly-summary-grid compact">
-              {CATEGORY_ORDER.map((category) => (
-                <div className="summary-card" key={category}>
-                  <span className="summary-card-label">{category}</span>
-                  <strong>{formatNumber(dailySummary?.by_category?.[category])}</strong>
+        ) : hasDashboardData ? (
+          <div className="weekly-dashboard-content">
+            {(weeklyError || foodWasteError) && (
+              <section className="weekly-partial-state">
+                <AppIcon name="statusPartial" size={20} weight={APP_ICON_WEIGHT.summary} />
+                <div>
+                  <strong>Data tampil parsial</strong>
+                  <span>
+                    {weeklyError ? `Weekly summary: ${weeklyError}` : "Weekly summary berhasil dimuat."}
+                    {" "}
+                    {foodWasteError ? `Sisa pangan: ${foodWasteError}` : "Sisa pangan berhasil dimuat."}
+                  </span>
                 </div>
-              ))}
+              </section>
+            )}
+
+            <div className="weekly-kpi-grid">
+              <SummaryMetricCard
+                label="Total PM"
+                value={weeklyError ? "Gagal dimuat" : formatNumber(dailySummary?.total_pm)}
+                icon="beneficiaries"
+                tone="blue"
+                emphasis
+                onClick={() => onNavigate?.("daily")}
+                title="Klik untuk buka Laporan Harian"
+              />
+              <SummaryMetricCard
+                label="Total belanja"
+                value={weeklyError ? "Gagal dimuat" : formatMoney(shoppingSummary?.total_spending)}
+                icon="money"
+                tone={Number(shoppingSummary?.total_difference || 0) < 0 ? "amber" : "green"}
+                onClick={() => onNavigate?.("shopping-reports")}
+                title="Klik untuk buka Laporan Belanja"
+              />
+              <SummaryMetricCard
+                label="Sisa pangan"
+                value={foodWasteError ? "Gagal dimuat" : formatWeight(wasteSummary.totalKg)}
+                helper="Sumber: data Sisa Pangan"
+                icon="foodWaste"
+                tone={wasteSummary.highWasteCount > 0 ? "amber" : "blue"}
+                onClick={() => onNavigate?.("food-waste")}
+                title="Klik untuk buka Sisa Pangan"
+              />
+              <SummaryMetricCard
+                label="Hari terlapor"
+                value={
+                  weeklyError
+                    ? "Gagal dimuat"
+                    : `${formatNumber(dailySummary?.total_days)} PM / ${formatNumber(menuSummary?.total_days)} menu`
+                }
+                icon="date"
+                tone="blue"
+                onClick={() => onNavigate?.("menu-reports")}
+                title="Klik untuk buka Laporan Menu"
+              />
             </div>
 
-            {reportData.daily_reports.reports.length > 0 ? (
-              <>
-              <div className="mobile-data-list mt-3">
-                {reportData.daily_reports.reports.map((report) => (
-                  <article className="mobile-data-card" key={`daily-mobile-${report.report_id}`}>
-                    <div className="mobile-data-card-head">
-                      <div>
-                        <div className="mobile-data-card-title">{formatDateLong(report.report_date)}</div>
-                        <div className="mobile-data-card-subtitle">Ringkasan PM harian</div>
-                      </div>
-                    </div>
-                    <div className="mobile-metric-grid">
-                      <div className="mobile-metric mobile-metric-emphasis">
-                        <span>Total PM</span>
-                        <strong>{formatNumber(report.total_pm)}</strong>
-                      </div>
-                      <div className="mobile-metric">
-                        <span>Porsi kecil</span>
-                        <strong>{formatNumber(report.total_small_portion)}</strong>
-                      </div>
-                      <div className="mobile-metric">
-                        <span>Porsi besar</span>
-                        <strong>{formatNumber(report.total_large_portion)}</strong>
-                      </div>
-                      {CATEGORY_ORDER.map((category) => (
-                        <div className="mobile-metric" key={`${report.report_id}-${category}`}>
-                          <span>{category}</span>
-                          <strong>{formatNumber(report.by_category?.[category])}</strong>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
+            <section className={`weekly-insight-panel ${hasPrimaryAnomaly ? "has-warning" : ""}`}>
+              <div className="weekly-insight-head">
+                <span className="weekly-section-icon">
+                  <AppIcon
+                    name={hasPrimaryAnomaly ? "statusPartial" : "statusFull"}
+                    size={22}
+                    weight={APP_ICON_WEIGHT.summary}
+                  />
+                </span>
+                <div>
+                  <h3>{hasPrimaryAnomaly ? "Anomali operasional" : "Tidak ada anomali utama"}</h3>
+                  <p>
+                    {hasPrimaryAnomaly
+                      ? `${anomalies.length} alert rule-based ditemukan pada rentang ini.`
+                      : "Rule dasar tidak menemukan kondisi operasional yang perlu ditandai."}
+                  </p>
+                </div>
+              </div>
+              <div className="operational-anomaly-list weekly-anomaly-list">
+                {anomalies.slice(0, 4).map((anomaly) => (
+                  <AnomalyCard key={anomaly.id} anomaly={anomaly} onNavigate={onNavigate} />
                 ))}
               </div>
-              <div className="data-table-scroll-shell scroll-affordance mt-3 desktop-data-table" data-scroll-hint="Geser tabel">
-                <div className="table-wrap">
-                <table className="data-table min-w-[1080px]">
-                  <thead>
-                    <tr>
-                      <th className="text-left">Tanggal</th>
-                      <th className="text-right">Total PM</th>
-                      <th className="text-right">Porsi Kecil</th>
-                      <th className="text-right">Porsi Besar</th>
-                      <th className="text-right">PAUD/TK/KB</th>
-                      <th className="text-right">SD</th>
-                      <th className="text-right">SMP</th>
-                      <th className="text-right">SMK</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reportData.daily_reports.reports.map((report) => (
-                      <tr key={`daily-${report.report_id}`}>
-                        <td className="text-left">{formatDateLong(report.report_date)}</td>
-                        <td className="text-right">{formatNumber(report.total_pm)}</td>
-                        <td className="text-right">{formatNumber(report.total_small_portion)}</td>
-                        <td className="text-right">{formatNumber(report.total_large_portion)}</td>
-                        <td className="text-right">{formatNumber(report.by_category?.["PAUD/TK/KB"])}</td>
-                        <td className="text-right">{formatNumber(report.by_category?.SD)}</td>
-                        <td className="text-right">{formatNumber(report.by_category?.SMP)}</td>
-                        <td className="text-right">{formatNumber(report.by_category?.SMK)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {visibleRecommendations.length ? (
+                <div className="operational-recommendation-list weekly-recommendation-list">
+                  {visibleRecommendations.map((recommendation) => (
+                    <RecommendationCard key={recommendation.id} recommendation={recommendation} />
+                  ))}
                 </div>
-              </div>
-              </>
-            ) : (
-              <div className="empty-state mt-3">Belum ada laporan PM harian pada rentang ini.</div>
-            )}
-          </section>
+              ) : null}
+            </section>
 
-          <section className="weekly-section">
-            <div className="page-title weekly-section-head">
-              <div>
-                <h2>Ringkasan Menu</h2>
-                <p>Daftar menu per tanggal beserta ringkasan kandungan gizi jika tersedia.</p>
-              </div>
-            </div>
-
-            <div className="weekly-summary-grid compact">
-              <div className="summary-card">
-                <span className="summary-card-label">Hari dengan data menu</span>
-                <strong>{formatNumber(menuSummary?.total_days)}</strong>
-              </div>
-              <div className="summary-card">
-                <span className="summary-card-label">Jumlah entri menu</span>
-                <strong>{formatNumber(menuSummary?.total_reports)}</strong>
-              </div>
-            </div>
-
-            {reportData.menu_reports.reports.length > 0 ? (
-              <>
-              <div className="mobile-data-list mt-3">
-                {reportData.menu_reports.reports.map((report) => {
-                  const menuNames = getMenuNames(report);
-                  return (
-                    <article className="mobile-data-card" key={`menu-mobile-${report.id}`}>
-                      <div className="mobile-data-card-head">
-                        <div>
-                          <div className="mobile-data-card-title">{formatDateLong(report.menu_date)}</div>
-                          <div className="mobile-data-card-subtitle">Ringkasan menu</div>
-                        </div>
+            <div className="weekly-dashboard-grid">
+              <DashboardSection
+                icon="daily"
+                title="PM"
+                description="Akumulasi penerima manfaat dan porsi harian."
+                metrics={[
+                  { label: "Hari laporan", value: weeklyError ? "Tidak tersedia" : formatNumber(dailySummary?.total_days) },
+                  { label: "Total PM", value: weeklyError ? "Tidak tersedia" : formatNumber(dailySummary?.total_pm) },
+                  {
+                    label: "Porsi kecil/besar",
+                    value: weeklyError
+                      ? "Tidak tersedia"
+                      : `${formatNumber(
+                          dailyReports.reduce((sum, report) => sum + Number(report.total_small_portion || 0), 0)
+                        )} / ${formatNumber(
+                          dailyReports.reduce((sum, report) => sum + Number(report.total_large_portion || 0), 0)
+                        )}`,
+                  },
+                ]}
+                empty={weeklyUnavailableText || (!dailyReports.length ? "Belum ada laporan PM harian pada rentang ini." : null)}
+              >
+                <div className="weekly-category-grid">
+                  {CATEGORY_ORDER.map((category) => (
+                    <div className="weekly-category-card" key={category}>
+                      <span>{category}</span>
+                      <strong>{formatNumber(dailySummary?.by_category?.[category])}</strong>
+                    </div>
+                  ))}
+                </div>
+                <div className="weekly-card-list">
+                  {dailyReports.map((report) => (
+                    <article className="weekly-compact-card" key={`daily-${report.report_id}`}>
+                      <div>
+                        <strong>{formatDateLong(report.report_date)}</strong>
+                        <span>Total PM {formatNumber(report.total_pm)}</span>
                       </div>
-                      <div className="mobile-data-section">
-                        <span className="mobile-data-label">Nama menu</span>
-                        <div className="mobile-data-copy">
-                          {menuNames.length > 0 ? (
-                            <div className="weekly-menu-list">
-                              {menuNames.map((name) => (
-                                <span key={`${report.id}-mobile-${name}`}>{name}</span>
-                              ))}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
-                        </div>
-                      </div>
-                      <div className="mobile-metric-grid">
-                        <div className="mobile-metric">
-                          <span>Gizi porsi kecil</span>
-                          <div className="weekly-mobile-nutrition">
-                            {renderNutritionBlock(report, "small")}
-                          </div>
-                        </div>
-                        <div className="mobile-metric">
-                          <span>Gizi porsi besar</span>
-                          <div className="weekly-mobile-nutrition">
-                            {renderNutritionBlock(report, "large")}
-                          </div>
-                        </div>
+                      <div className="weekly-compact-metrics">
+                        <span>Kecil {formatNumber(report.total_small_portion)}</span>
+                        <span>Besar {formatNumber(report.total_large_portion)}</span>
                       </div>
                     </article>
-                  );
-                })}
-              </div>
-              <div className="data-table-scroll-shell scroll-affordance mt-3 desktop-data-table" data-scroll-hint="Geser tabel">
-                <div className="table-wrap">
-                <table className="data-table min-w-[1180px]">
-                  <thead>
-                    <tr>
-                      <th className="text-left">Tanggal</th>
-                      <th className="text-left">Nama Menu</th>
-                      <th className="text-left">Gizi Porsi Kecil</th>
-                      <th className="text-left">Gizi Porsi Besar</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reportData.menu_reports.reports.map((report) => (
-                      <tr key={`menu-${report.id}`}>
-                        <td className="text-left">{formatDateLong(report.menu_date)}</td>
-                        <td className="text-left">
-                          <div className="weekly-menu-list">
-                            {getMenuNames(report)
-                              .map((name) => (
-                                <span key={`${report.id}-${name}`}>{name}</span>
-                              ))}
-                          </div>
-                        </td>
-                        <td className="text-left">{renderNutritionBlock(report, "small")}</td>
-                        <td className="text-left">{renderNutritionBlock(report, "large")}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  ))}
                 </div>
-              </div>
-              </>
-            ) : (
-              <div className="empty-state mt-3">Belum ada laporan menu pada rentang ini.</div>
-            )}
-          </section>
+              </DashboardSection>
 
-          <section className="weekly-section">
-            <div className="page-title weekly-section-head">
-              <div>
-                <h2>Ringkasan Belanja</h2>
-                <p>Akumulasi pagu, belanja, dan selisih per tanggal laporan belanja.</p>
-              </div>
-            </div>
-
-            <div className="weekly-summary-grid compact">
-              <div className="summary-card">
-                <span className="summary-card-label">Hari dengan laporan belanja</span>
-                <strong>{formatNumber(shoppingSummary?.total_days)}</strong>
-              </div>
-              <div className="summary-card">
-                <span className="summary-card-label">Jumlah entri belanja</span>
-                <strong>{formatNumber(shoppingSummary?.total_reports)}</strong>
-              </div>
-              <div className="summary-card">
-                <span className="summary-card-label">Total belanja</span>
-                <strong>{formatMoney(shoppingSummary?.total_spending)}</strong>
-              </div>
-              <div className="summary-card">
-                <span className="summary-card-label">Total pagu</span>
-                <strong>{formatMoney(shoppingSummary?.total_budget)}</strong>
-              </div>
-              <div className="summary-card">
-                <span className="summary-card-label">Total selisih</span>
-                <strong>{formatMoney(shoppingSummary?.total_difference)}</strong>
-              </div>
-            </div>
-
-            {reportData.shopping_reports.reports.length > 0 ? (
-              <>
-              <div className="mobile-data-list mt-3">
-                {reportData.shopping_reports.reports.map((report) => (
-                  <article className="mobile-data-card" key={`shopping-mobile-${report.id}`}>
-                    <div className="mobile-data-card-head">
+              <DashboardSection
+                icon="menuReports"
+                title="Menu"
+                description="Daftar menu dan indikator gizi utama."
+                metrics={[
+                  { label: "Hari menu", value: weeklyError ? "Tidak tersedia" : formatNumber(menuSummary?.total_days) },
+                  { label: "Entri menu", value: weeklyError ? "Tidak tersedia" : formatNumber(menuSummary?.total_reports) },
+                ]}
+                empty={weeklyUnavailableText || (!menuReports.length ? "Belum ada laporan menu pada rentang ini." : null)}
+              >
+                <div className="weekly-card-list">
+                  {menuReports.map((report) => (
+                    <article className="weekly-compact-card weekly-menu-card" key={`menu-${report.id}`}>
                       <div>
-                        <div className="mobile-data-card-title">{formatDateLong(report.report_date)}</div>
-                        <div className="mobile-data-card-subtitle">{report.menu_name || "-"}</div>
+                        <strong>{formatDateLong(report.menu_date)}</strong>
+                        {renderMenuNames(report)}
                       </div>
-                    </div>
-                    <div className="mobile-metric-grid">
-                      <div className="mobile-metric">
-                        <span>Porsi kecil</span>
-                        <strong>{formatNumber(report.small_portion_count)}</strong>
+                      <div className="weekly-nutrition-compact">
+                        <span>Kecil: {formatCompactNutrition(report, "small")}</span>
+                        <span>Besar: {formatCompactNutrition(report, "large")}</span>
                       </div>
-                      <div className="mobile-metric">
-                        <span>Porsi besar</span>
-                        <strong>{formatNumber(report.large_portion_count)}</strong>
-                      </div>
-                      <div className="mobile-metric mobile-metric-emphasis">
-                        <span>Total belanja</span>
-                        <strong>{formatMoney(report.total_spending)}</strong>
-                      </div>
-                      <div className="mobile-metric">
-                        <span>Pagu</span>
-                        <strong>{formatMoney(report.daily_budget)}</strong>
-                      </div>
-                      <div className="mobile-metric">
-                        <span>Selisih</span>
-                        <strong>{formatMoney(report.difference_amount)}</strong>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <div className="data-table-scroll-shell scroll-affordance mt-3 desktop-data-table" data-scroll-hint="Geser tabel">
-                <div className="table-wrap">
-                  <table className="data-table min-w-[1080px]">
-                    <thead>
-                      <tr>
-                        <th className="text-left">Tanggal</th>
-                        <th className="text-left">Nama Menu</th>
-                        <th className="text-right">Porsi Kecil</th>
-                        <th className="text-right">Porsi Besar</th>
-                        <th className="text-right">Total Belanja</th>
-                        <th className="text-right">Pagu</th>
-                        <th className="text-right">Selisih</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {reportData.shopping_reports.reports.map((report) => (
-                        <tr key={`shopping-${report.id}`}>
-                          <td className="text-left">{formatDateLong(report.report_date)}</td>
-                          <td className="text-left">{report.menu_name || "-"}</td>
-                          <td className="text-right">{formatNumber(report.small_portion_count)}</td>
-                          <td className="text-right">{formatNumber(report.large_portion_count)}</td>
-                          <td className="text-right">{formatMoney(report.total_spending)}</td>
-                          <td className="text-right">{formatMoney(report.daily_budget)}</td>
-                          <td className="text-right">{formatMoney(report.difference_amount)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    </article>
+                  ))}
                 </div>
-              </div>
-              </>
-            ) : (
-              <div className="empty-state mt-3">Belum ada laporan belanja pada rentang ini.</div>
-            )}
-          </section>
-          </>
+              </DashboardSection>
+
+              <DashboardSection
+                icon="shoppingReports"
+                title="Belanja"
+                description="Kontrol total belanja, pagu, dan selisih."
+                metrics={[
+                  { label: "Hari belanja", value: weeklyError ? "Tidak tersedia" : formatNumber(shoppingSummary?.total_days) },
+                  { label: "Total belanja", value: weeklyError ? "Tidak tersedia" : formatMoney(shoppingSummary?.total_spending) },
+                  {
+                    label: "Selisih pagu",
+                    value: weeklyError ? "Tidak tersedia" : formatMoney(shoppingSummary?.total_difference),
+                    warning: Number(shoppingSummary?.total_difference || 0) < 0,
+                  },
+                ]}
+                empty={weeklyUnavailableText || (!shoppingReports.length ? "Belum ada laporan belanja pada rentang ini." : null)}
+              >
+                <div className="weekly-card-list">
+                  {shoppingReports.map((report) => {
+                    const overBudget = Number(report.difference_amount || 0) < 0;
+                    return (
+                      <article
+                        className={`weekly-compact-card ${overBudget ? "weekly-card-warning" : ""}`}
+                        key={`shopping-${report.id}`}
+                      >
+                        <div>
+                          <strong>{formatDateLong(report.report_date)}</strong>
+                          <span>{report.menu_name || "Menu belum tersedia"}</span>
+                        </div>
+                        <div className="weekly-compact-metrics">
+                          <span>Belanja {formatMoney(report.total_spending)}</span>
+                          <span className={overBudget ? "weekly-danger-text" : ""}>
+                            Selisih {formatMoney(report.difference_amount)}
+                          </span>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </DashboardSection>
+
+              <DashboardSection
+                icon="foodWaste"
+                title="Sisa pangan"
+                description="Ringkasan sisa pangan dari data sisa yang sudah ada."
+                metrics={[
+                  { label: "Hari sisa", value: foodWasteError ? "Tidak tersedia" : formatNumber(wasteSummary.totalReports) },
+                  { label: "Total sisa", value: foodWasteError ? "Tidak tersedia" : formatWeight(wasteSummary.totalKg) },
+                  {
+                    label: "Rata-rata",
+                    value: foodWasteError ? "Tidak tersedia" : `${wasteSummary.averagePercent.toFixed(2)}%`,
+                    warning: wasteSummary.highWasteCount > 0,
+                  },
+                ]}
+                empty={foodWasteUnavailableText || (!foodWasteReports.length ? "Belum ada data sisa pangan pada rentang ini." : null)}
+              >
+                <div className="weekly-card-list">
+                  {foodWasteReports.map((report) => {
+                    const percentage = getWastePercentage(report);
+                    const highWaste = percentage >= HIGH_WASTE_PERCENT;
+                    return (
+                      <article
+                        className={`weekly-compact-card ${highWaste ? "weekly-card-warning" : ""}`}
+                        key={`waste-${report.id}`}
+                      >
+                        <div>
+                          <strong>{formatDateLong(report.report_date)}</strong>
+                          <span>{report.menu_notes || "Catatan menu belum tersedia"}</span>
+                        </div>
+                        <div className="weekly-compact-metrics">
+                          <span>Sisa {formatWeight(report.total_kg)}</span>
+                          <span className={highWaste ? "weekly-danger-text" : ""}>
+                            {percentage.toFixed(2)}%
+                          </span>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </DashboardSection>
+            </div>
+          </div>
         ) : (
           <div className="empty-state mt-4">Data laporan tidak tersedia untuk rentang ini.</div>
         )}

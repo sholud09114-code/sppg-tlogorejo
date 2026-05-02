@@ -7,6 +7,8 @@ export default function SummaryPanel({
   totalUnits,
   onSubmit,
   loading,
+  disabled = false,
+  disabledReason = "",
   className = "",
 }) {
   const grand = Object.values(totals).reduce((a, b) => a + b, 0);
@@ -46,7 +48,8 @@ export default function SummaryPanel({
         type="button"
         className="submit-btn w-full"
         onClick={onSubmit}
-        disabled={loading}
+        disabled={loading || disabled}
+        title={disabled ? disabledReason : undefined}
       >
         <span className="button-with-icon">
           <AppIcon name="send" size={18} weight={APP_ICON_WEIGHT.action} />

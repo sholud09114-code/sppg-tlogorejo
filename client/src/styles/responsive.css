@@ -1,4 +1,86 @@
 @media (max-width: 768px) {
+  .beneficiary-hero,
+  .beneficiary-control-panel,
+  .beneficiary-data-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .beneficiary-hero {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .beneficiary-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .beneficiary-kpi-grid,
+  .beneficiary-breakdown-grid,
+  .beneficiary-import-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .beneficiary-search {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .beneficiary-filter-chips {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+  }
+
+  .beneficiary-form-header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .beneficiary-form-header-status {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+  }
+
+  .beneficiary-form-layout {
+    display: block;
+  }
+
+  .beneficiary-form-summary {
+    position: static;
+    margin-top: 14px;
+  }
+
+  .beneficiary-import-table-wrap {
+    display: none;
+  }
+
+  .beneficiary-import-mobile-list {
+    display: grid;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .beneficiary-kpi-grid,
+  .beneficiary-breakdown-grid,
+  .beneficiary-import-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .beneficiary-hero-copy h2 {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 769px) {
+  .beneficiary-import-mobile-list {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
   .login-page {
     padding: 14px;
   }
@@ -224,6 +306,104 @@
   }
 
   .weekly-filter-action {
+    width: 100%;
+  }
+
+  .weekly-dashboard-command-row {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-range-summary {
+    display: none;
+  }
+
+  .weekly-dashboard-submit {
+    width: 100%;
+  }
+
+  .weekly-kpi-grid,
+  .weekly-dashboard-grid,
+  .weekly-anomaly-list,
+  .weekly-recommendation-list {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-dashboard-section {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .weekly-section-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weekly-compact-card {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .weekly-compact-metrics,
+  .weekly-nutrition-compact {
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .price-monitoring-hero {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .price-monitoring-hero-copy {
+    align-items: flex-start;
+  }
+
+  .price-monitoring-hero h2 {
+    font-size: 20px;
+  }
+
+  .price-monitoring-hero-meta {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .price-monitoring-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .price-detection-panel,
+  .price-history-panel {
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .price-filter-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .price-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .price-detection-card,
+  .price-history-card {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .price-detection-values,
+  .price-history-values {
+    grid-template-columns: 1fr;
+  }
+
+  .price-history-btn {
+    justify-self: stretch;
     width: 100%;
   }
 
@@ -1475,6 +1655,183 @@
 
 /* Mobile typography tuning for long-use operational screens */
 @media (max-width: 768px) {
+  .home-saas-shell {
+    gap: 14px;
+  }
+
+  .home-saas-hero {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .home-saas-eyebrow {
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 11.5px;
+  }
+
+  .home-saas-hero h1 {
+    font-size: 30px;
+    line-height: 1.08;
+  }
+
+  .home-saas-hero p {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .home-saas-meta-row {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .home-command-center {
+    gap: 12px;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .home-command-head strong {
+    font-size: 28px;
+  }
+
+  .home-command-progress-copy {
+    font-size: 12.5px;
+  }
+
+  .home-status-grid {
+    gap: 6px;
+  }
+
+  .home-status-pill {
+    min-height: 28px;
+    padding: 0 9px;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+
+  .home-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .home-kpi-card {
+    min-height: 118px;
+    border-radius: 18px;
+  }
+
+  .home-workspace-grid,
+  .home-insight-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .home-panel-premium {
+    border-radius: 20px;
+  }
+
+  .home-panel-head.horizontal {
+    flex-direction: column;
+  }
+
+  .home-quick-action-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .home-quick-action {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    gap: 10px;
+    min-height: 82px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .home-quick-action-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .home-quick-action-copy strong {
+    font-size: 14px;
+  }
+
+  .home-quick-action-copy small {
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+
+  .home-quick-action-cta {
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 10px;
+    font-size: 11.5px;
+  }
+
+  .home-checklist-item {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 9px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .home-checklist-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .home-checklist-copy strong {
+    font-size: 13.5px;
+  }
+
+  .home-checklist-copy small {
+    overflow: visible;
+    font-size: 11.5px;
+    line-height: 1.35;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .home-checklist-item .home-status-pill,
+  .home-checklist-action {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .home-primary-continue {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+    border-radius: 17px;
+  }
+
+  .home-primary-continue-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .home-primary-continue-cta {
+    grid-column: 2;
+    justify-self: start;
+    min-height: 30px;
+  }
+
+  .operational-recommendation-card,
+  .operational-anomaly-card {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .operational-recommendation-cta,
+  .operational-anomaly-cta {
+    grid-column: 2;
+    justify-self: start;
+  }
+
   body {
     font-size: 14px;
     line-height: 1.55;
@@ -1629,6 +1986,34 @@
 }
 
 @media (max-width: 390px) {
+  .home-saas-hero {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .home-saas-hero h1 {
+    font-size: 26px;
+  }
+
+  .home-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-quick-action {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .home-quick-action-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .home-quick-action-cta {
+    grid-column: 2;
+    justify-self: start;
+  }
+
   .page-title h2,
   .home-welcome-copy h1 {
     font-size: 20px;
@@ -1646,5 +2031,526 @@
   .rich-detail-summary-copy strong,
   .daily-detail-summary-copy strong {
     font-size: 16px;
+  }
+}
+
+/* Daily Report Input 2.0 responsive overrides */
+@media (max-width: 1180px) {
+  .daily-editor-command-row {
+    grid-template-columns: minmax(0, 1fr) repeat(3, minmax(104px, 0.3fr));
+  }
+
+  .daily-editor-save {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .daily-editor-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .daily-editor-tools-main {
+    width: 100%;
+  }
+
+  .daily-quick-actions,
+  .daily-filter-chips {
+    width: 100%;
+  }
+
+  .data-form-card .daily-unit-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .data-form-card .daily-unit-row .daily-partial-inputs {
+    grid-column: 1;
+  }
+
+  .menu-editor-command-row {
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(118px, 0.35fr));
+  }
+
+  .menu-nutrition-row,
+  .menu-nutrition-row-head {
+    grid-template-columns: minmax(92px, 1fr) minmax(78px, 108px) minmax(78px, 108px) 42px;
+    gap: 7px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .menu-compact-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-compact-summary {
+    position: static;
+  }
+
+  .shopping-editor-command-row,
+  .shopping-header-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shopping-header-menu,
+  .shopping-header-notes {
+    grid-column: 1 / -1;
+  }
+
+  .shopping-compact-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .shopping-compact-summary {
+    position: static;
+  }
+
+  .food-waste-command-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .food-waste-command-row .daily-editor-date-field {
+    grid-column: 1 / -1;
+  }
+
+  .food-waste-compact-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .food-waste-compact-summary {
+    position: static;
+  }
+
+  .shopping-row {
+    grid-template-columns:
+      34px minmax(112px, 1fr) minmax(130px, 1.1fr) minmax(68px, 0.42fr)
+      minmax(72px, 0.45fr) minmax(86px, 0.5fr) minmax(92px, 0.55fr) 32px;
+  }
+
+  .shopping-row-head span:nth-child(8),
+  .shopping-row input[data-shopping-field="notes"] {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .daily-editor-sticky-header {
+    margin: 0 -2px 12px;
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .daily-editor-command-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .daily-editor-date-field {
+    grid-column: 1 / -1;
+    min-height: 0;
+    padding: 8px;
+  }
+
+  .daily-editor-metric {
+    min-height: 52px;
+    padding: 9px 10px;
+    border-radius: 14px;
+  }
+
+  .daily-editor-metric strong {
+    font-size: 17px;
+  }
+
+  .daily-editor-save {
+    display: none;
+  }
+
+  .daily-editor-total {
+    grid-column: 1 / -1;
+  }
+
+  .daily-unit-search {
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  .daily-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .daily-quick-actions button {
+    min-height: 38px;
+    padding: 0 8px;
+    font-size: 11.5px;
+    white-space: normal;
+  }
+
+  .daily-filter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .daily-filter-chips button {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 11.5px;
+  }
+
+  .data-form-card .daily-spreadsheet-grid .category-group {
+    padding: 8px;
+    border-radius: 16px;
+  }
+
+  .data-form-card .daily-unit-row {
+    scroll-margin: 190px;
+    gap: 10px;
+    min-height: 0;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .daily-unit-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .data-form-card .daily-unit-row .school-card-index {
+    display: none;
+  }
+
+  .data-form-card .daily-unit-row .school-card-head .name {
+    font-size: 14.5px;
+    line-height: 1.32;
+  }
+
+  .data-form-card .daily-unit-row .school-card-head .target {
+    font-size: 11.5px;
+  }
+
+  .data-form-card .daily-unit-row .daily-status-segment {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+    padding: 3px;
+    border-radius: 13px;
+  }
+
+  .data-form-card .daily-unit-row .status-btn {
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 5px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .data-form-card .daily-unit-row .status-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .data-form-card .daily-unit-row .daily-partial-inputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .data-form-card .daily-unit-row .partial-input-wrap {
+    padding: 7px;
+  }
+
+  .daily-empty-filter-state {
+    min-height: 160px;
+    padding: 22px;
+  }
+
+  .menu-report-compact-card {
+    width: min(100%, calc(100vw - 16px));
+    padding: 14px 12px 0;
+    border-radius: 18px;
+  }
+
+  .menu-report-editor-header {
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px 12px;
+  }
+
+  .menu-editor-command-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .menu-editor-command-row .daily-editor-date-field,
+  .menu-editor-command-row .daily-editor-save {
+    grid-column: 1 / -1;
+  }
+
+  .menu-editor-command-row .daily-editor-save {
+    display: none;
+  }
+
+  .menu-editor-tools {
+    align-items: stretch;
+  }
+
+  .menu-report-compact-form .daily-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .menu-action-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .menu-action-group-primary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .menu-action-group-secondary {
+    padding-left: 0;
+    padding-top: 8px;
+    border-left: 0;
+    border-top: 1px solid rgba(149, 169, 226, 0.18);
+  }
+
+  .menu-inline-import-btn {
+    width: 100%;
+    min-height: 38px;
+    font-size: 11.5px;
+  }
+
+  .menu-compact-workspace {
+    gap: 12px;
+    padding: 0 0 88px;
+  }
+
+  .menu-spreadsheet-section {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .menu-spreadsheet-head {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .menu-row,
+  .menu-row-head {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .menu-row-actions,
+  .menu-row-head span:last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .menu-row-index {
+    width: 28px;
+    height: 28px;
+  }
+
+  .menu-nutrition-row,
+  .menu-nutrition-row-head {
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(76px, 0.55fr));
+  }
+
+  .menu-nutrition-row > span:last-child,
+  .menu-nutrition-row-head span:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .menu-nutrition-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .menu-nutrition-actions button {
+    min-height: 38px;
+    white-space: normal;
+  }
+
+  .menu-compact-summary {
+    display: none;
+  }
+
+  .menu-report-compact-form .mobile-submit-bar {
+    display: flex;
+  }
+
+  .shopping-report-compact-card {
+    width: min(100%, calc(100vw - 16px));
+    padding: 14px 12px 0;
+    border-radius: 18px;
+  }
+
+  .shopping-report-editor-header {
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px 12px;
+  }
+
+  .shopping-editor-command-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .shopping-editor-command-row .daily-editor-date-field {
+    grid-column: 1 / -1;
+  }
+
+  .shopping-header-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .shopping-header-field {
+    padding: 8px;
+    border-radius: 13px;
+  }
+
+  .shopping-compact-workspace {
+    gap: 12px;
+    padding: 0 0 88px;
+  }
+
+  .shopping-spreadsheet-section {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .shopping-row-table {
+    gap: 8px;
+  }
+
+  .shopping-row-head {
+    display: none;
+  }
+
+  .shopping-row {
+    grid-template-columns: 30px minmax(0, 1fr) 34px;
+    gap: 8px;
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  .shopping-row-index {
+    align-self: start;
+    width: 26px;
+    height: 26px;
+  }
+
+  .shopping-field-wrap,
+  .shopping-row input[data-shopping-field="description"],
+  .shopping-row input[data-shopping-field="notes"] {
+    grid-column: 2;
+  }
+
+  .shopping-row input[data-shopping-field="qty"],
+  .shopping-row select[data-shopping-field="unit_name"],
+  .shopping-row input[data-shopping-field="price"],
+  .shopping-row input[data-shopping-field="amount"] {
+    grid-column: 2;
+  }
+
+  .shopping-row input[data-shopping-field="notes"] {
+    display: block;
+  }
+
+  .shopping-remove-row-btn {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .shopping-compact-summary {
+    display: none;
+  }
+
+  .shopping-report-compact-form .mobile-submit-bar {
+    display: flex;
+  }
+
+  .food-waste-compact-card {
+    width: min(100%, calc(100vw - 16px));
+    padding: 14px 12px 0;
+    border-radius: 18px;
+  }
+
+  .food-waste-editor-header {
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px 12px;
+  }
+
+  .food-waste-sticky-header {
+    margin: 0 -2px 12px;
+  }
+
+  .food-waste-command-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .food-waste-context-pills {
+    width: 100%;
+  }
+
+  .food-waste-compact-workspace {
+    gap: 12px;
+    padding: 0 0 88px;
+  }
+
+  .food-waste-spreadsheet-section {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .food-waste-context-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .food-waste-row {
+    grid-template-columns: minmax(0, 1fr) minmax(84px, 0.45fr) 34px;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  .food-waste-row-head {
+    font-size: 10.5px;
+  }
+
+  .food-waste-compact-summary {
+    display: none;
+  }
+
+  .food-waste-compact-form .mobile-submit-bar {
+    display: flex;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-action-group,
+  .menu-action-group-primary {
+    grid-template-columns: 1fr;
+  }
+
+  .data-form-card .daily-unit-row .status-btn {
+    gap: 3px;
+    font-size: 10.5px;
+  }
+
+  .data-form-card .daily-unit-row .daily-partial-inputs {
+    grid-template-columns: 1fr;
   }
 }

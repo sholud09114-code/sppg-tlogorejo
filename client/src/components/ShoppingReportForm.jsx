@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchReportByDate } from "../api/dailyReportApi.js";
 import { extractShoppingReportImage } from "../api/shoppingReportApi.js";
-import ShoppingReportHeaderSection from "../features/shopping-reports/components/ShoppingReportHeaderSection.jsx";
-import ShoppingReportImageImport from "../features/shopping-reports/components/ShoppingReportImageImport.jsx";
-import ShoppingReportItemsSection from "../features/shopping-reports/components/ShoppingReportItemsSection.jsx";
-import ShoppingReportSummaryCards from "../features/shopping-reports/components/ShoppingReportSummaryCards.jsx";
+import { formatMoney } from "../shared/utils/formatters.js";
+import { MobileSubmitBar, QuickActionBar, StickyFormHeader, SummaryPanelCard, compactRowClass } from "./ui/FormPatterns.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 import {
   LARGE_PORTION_RATE,
@@ -13,9 +11,21 @@ import {
   formatImageDraftError,
   getInitialState,
   getMenuReportName,
+  getUnitOptions,
   matchesMasterItemExactly,
   scoreMasterItemSuggestion,
 } from "../features/shopping-reports/utils/shoppingReportFormUtils.js";
+
+const SHOPPING_ITEM_FIELDS = ["item_lookup", "description", "qty", "unit_name", "price", "amount", "notes"];
+const MAX_IMAGE_IMPORT_SIZE_BYTES = 8 * 1024 * 1024;
+
+function focusShoppingField(rowIndex, fieldName) {
+  window.setTimeout(() => {
+    const input = document.querySelector(`[data-shopping-row="${rowIndex}"] [data-shopping-field="${fieldName}"]`);
+    input?.focus();
+    input?.select?.();
+  }, 0);
+}
 
 export default function ShoppingReportForm({
   open,
@@ -32,6 +42,10 @@ export default function ShoppingReportForm({
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [imageDraftStatus, setImageDraftStatus] = useState(null);
   const [imageProcessing, setImageProcessing] = useState(false);
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const [reviewRows, setReviewRows] = useState(() => new Set());
+  const [showReviewOnly, setShowReviewOnly] = useState(false);
+  const [hasImportedDraft, setHasImportedDraft] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -41,6 +55,10 @@ export default function ShoppingReportForm({
       setSelectedImageFile(null);
       setImageDraftStatus(null);
       setImageProcessing(false);
+      setActiveItemIndex(0);
+      setReviewRows(new Set());
+      setShowReviewOnly(false);
+      setHasImportedDraft(false);
     }
   }, [open, initialData]);
 
@@ -117,6 +135,61 @@ export default function ShoppingReportForm({
     [form.small_portion_count, form.large_portion_count]
   );
   const differenceAmount = Number(dailyBudget || 0) - Number(totalSpending || 0);
+  const reviewCount = reviewRows.size;
+  const visibleItems = useMemo(
+    () =>
+      form.items
+        .map((item, index) => ({ item, index }))
+        .filter(({ index }) => !showReviewOnly || reviewRows.has(index)),
+    [form.items, reviewRows, showReviewOnly]
+  );
+  const importReviewLabel = hasImportedDraft
+    ? reviewCount > 0
+      ? "Hasil import belum diverifikasi"
+      : "Hasil import sudah diverifikasi"
+    : "Input manual";
+  const validationErrors = useMemo(() => {
+    const errors = [];
+    if (!form.report_date) errors.push("Tanggal laporan wajib diisi.");
+    if (!String(form.menu_name || "").trim()) errors.push("Nama menu wajib diisi.");
+
+    const smallPortionCount = Number(form.small_portion_count === "" ? 0 : form.small_portion_count);
+    const largePortionCount = Number(form.large_portion_count === "" ? 0 : form.large_portion_count);
+    if (
+      !Number.isFinite(smallPortionCount) ||
+      !Number.isFinite(largePortionCount) ||
+      smallPortionCount < 0 ||
+      largePortionCount < 0
+    ) {
+      errors.push("Jumlah porsi harus bernilai 0 atau lebih.");
+    }
+
+    if (!form.items.length) {
+      errors.push("Minimal ada 1 item belanja.");
+    }
+
+    form.items.forEach((item, index) => {
+      const description = String(item.description || "").trim();
+      const qty = Number(item.qty === "" ? 0 : item.qty);
+      const price = Number(item.price === "" ? 0 : item.price);
+      const amount = Number(item.amount === "" ? 0 : item.amount);
+
+      if (!description) errors.push(`Baris ${index + 1}: uraian wajib diisi.`);
+      if (
+        !Number.isFinite(qty) ||
+        !Number.isFinite(price) ||
+        !Number.isFinite(amount) ||
+        qty < 0 ||
+        price < 0 ||
+        amount < 0
+      ) {
+        errors.push(`Baris ${index + 1}: nilai item tidak boleh negatif.`);
+      }
+    });
+
+    return errors;
+  }, [form]);
+  const hasBlockingError = validationErrors.length > 0;
   const itemSuggestions = useMemo(
     () =>
       form.items.map((item) => {
@@ -157,6 +230,7 @@ export default function ShoppingReportForm({
 
   const handleHeaderChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    if (error) setError(null);
   };
 
   const handleItemChange = (index, field, value) => {
@@ -180,6 +254,13 @@ export default function ShoppingReportForm({
       items[index] = current;
       return { ...prev, items };
     });
+    setReviewRows((prev) => {
+      if (!prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.delete(index);
+      return next;
+    });
+    if (error) setError(null);
   };
 
   const handleSelectMasterItem = (index, masterItem) => {
@@ -194,6 +275,12 @@ export default function ShoppingReportForm({
         show_suggestions: false,
       };
       return { ...prev, items };
+    });
+    setReviewRows((prev) => {
+      if (!prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.delete(index);
+      return next;
     });
   };
 
@@ -210,7 +297,10 @@ export default function ShoppingReportForm({
   };
 
   const addItemRow = () => {
+    const nextIndex = form.items.length;
     setForm((prev) => ({ ...prev, items: [...prev.items, createEmptyItem()] }));
+    setActiveItemIndex(nextIndex);
+    focusShoppingField(nextIndex, "item_lookup");
   };
 
   const removeItemRow = (index) => {
@@ -221,10 +311,50 @@ export default function ShoppingReportForm({
         items: prev.items.filter((_, itemIndex) => itemIndex !== index),
       };
     });
+    setReviewRows((prev) => {
+      if (!prev.size) return prev;
+      const next = new Set();
+      prev.forEach((rowIndex) => {
+        if (rowIndex < index) next.add(rowIndex);
+        if (rowIndex > index) next.add(rowIndex - 1);
+      });
+      return next;
+    });
+  };
+
+  const handleItemKeyDown = (event, index, field) => {
+    if (event.key !== "Enter") return;
+    if (event.isComposing || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.currentTarget?.tagName === "SELECT") return;
+    event.preventDefault();
+
+    const fieldIndex = SHOPPING_ITEM_FIELDS.indexOf(field);
+    if (fieldIndex < SHOPPING_ITEM_FIELDS.length - 1) {
+      focusShoppingField(index, SHOPPING_ITEM_FIELDS[fieldIndex + 1]);
+      return;
+    }
+
+    if (index === form.items.length - 1) {
+      addItemRow();
+      return;
+    }
+
+    setActiveItemIndex(index + 1);
+    focusShoppingField(index + 1, SHOPPING_ITEM_FIELDS[0]);
+  };
+
+  const markAllReviewed = () => {
+    setReviewRows(new Set());
+    setShowReviewOnly(false);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if (hasBlockingError) {
+      setError(validationErrors[0]);
+      return;
+    }
 
     if (!form.report_date) {
       setError("Tanggal laporan wajib diisi.");
@@ -311,6 +441,15 @@ export default function ShoppingReportForm({
 
   const handleImageFileChange = (event) => {
     const nextFile = event.target.files?.[0] || null;
+    if (nextFile && nextFile.size > MAX_IMAGE_IMPORT_SIZE_BYTES) {
+      event.target.value = "";
+      setSelectedImageFile(null);
+      setImageDraftStatus({
+        kind: "danger",
+        message: "Ukuran gambar maksimal 8 MB agar proses import tetap stabil.",
+      });
+      return;
+    }
     setSelectedImageFile(nextFile);
     setImageDraftStatus(null);
   };
@@ -376,13 +515,18 @@ export default function ShoppingReportForm({
             : Number(draft.large_portion_count || 0),
         items: draftItems,
       }));
+      setReviewRows(new Set(draftItems.map((_, index) => index)));
+      setShowReviewOnly(draftItems.length > 0);
+      setHasImportedDraft(true);
+      setActiveItemIndex(0);
 
       setImageDraftStatus({
         kind: draft?.warnings?.length ? "warning" : "success",
         message: draft?.warnings?.length
           ? `Draft berhasil diisi. Cek kembali: ${draft.warnings.join(" | ")}`
-          : "Draft berhasil diisi dari gambar. Periksa kembali sebelum disimpan.",
+          : `Draft berhasil diisi dari gambar. ${draftItems.length} baris ditandai untuk dicek cepat.`,
       });
+      focusShoppingField(0, "item_lookup");
     } catch (err) {
       setImageDraftStatus({
         kind: "danger",
@@ -395,77 +539,363 @@ export default function ShoppingReportForm({
 
   return (
     <div className="modal-backdrop" role="presentation">
-      <div className="modal-card data-form-card data-form-card-xl" role="dialog" aria-modal="true">
-        <div className="modal-header">
-          <div className="unified-modal-title">
-            <span className="unified-modal-icon">
-              <AppIcon name="shoppingReports" size={22} weight={APP_ICON_WEIGHT.summary} />
-            </span>
-            <div className="unified-modal-title-copy">
+      <div className="modal-card data-form-card data-form-card-xl shopping-report-compact-card" role="dialog" aria-modal="true">
+        <div className="modal-header daily-report-editor-header shopping-report-editor-header">
+          <button
+            type="button"
+            className="daily-form-close-icon daily-form-close-leading"
+            aria-label="Tutup form input laporan belanja"
+            onClick={onClose}
+            disabled={loading}
+          >
+            <AppIcon name="close" size={20} weight={APP_ICON_WEIGHT.action} />
+          </button>
+          <div className="daily-form-header-main min-w-0 flex-1">
+            <div className="daily-form-header-icon">
+              <AppIcon name="shoppingReports" size={24} weight={APP_ICON_WEIGHT.summary} />
+            </div>
+            <div className="daily-form-header-copy">
               <h3>{initialData?.id ? "Edit laporan belanja" : "Tambah laporan belanja"}</h3>
-              <p>Input header laporan dan daftar item belanja harian.</p>
+              <p>Input belanja harian dengan tabel ringkas, total otomatis, dan review cepat.</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} disabled={loading}>
-            Tutup
-          </button>
         </div>
 
-        <form className="modal-form data-form" onSubmit={handleSubmit}>
-          <div className="data-form-body">
-            <ShoppingReportImageImport
-              imageDraftStatus={imageDraftStatus}
-              imageProcessing={imageProcessing}
-              loading={loading}
-              onFileChange={handleImageFileChange}
-              onProcessImage={handleProcessImage}
-              selectedImageFile={selectedImageFile}
-            />
-
-            <ShoppingReportHeaderSection
-              form={form}
-              loading={loading}
-              onHeaderChange={handleHeaderChange}
-              onMenuNameChange={(value) => {
-                setMenuNameAutoFilled(false);
-                handleHeaderChange("menu_name", value);
-              }}
-              onNumberChange={handleNumberChange}
-            />
-
-            <div className="data-form-info">
-              Pagu harian dihitung otomatis: porsi kecil x Rp 8.000 + porsi besar x Rp 10.000. Jika
-              tanggal sudah ada di Laporan harian, jumlah porsi akan terisi otomatis.
+        <form className="modal-form data-form shopping-report-compact-form" onSubmit={handleSubmit}>
+          <StickyFormHeader className="shopping-editor-sticky-header">
+            <div className="daily-editor-command-row shopping-editor-command-row">
+              <div className="daily-editor-date-field">
+                <div className="date-input-wrap">
+                  <label htmlFor="shopping_report_date">Tanggal laporan</label>
+                  <input
+                    id="shopping_report_date"
+                    type="date"
+                    value={form.report_date}
+                    onChange={(event) => handleHeaderChange("report_date", event.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="daily-editor-metric">
+                <span>Item</span>
+                <strong>{form.items.length}</strong>
+              </div>
+              <div className="daily-editor-metric shopping-total-metric">
+                <span>Total belanja</span>
+                <strong>{formatMoney(totalSpending)}</strong>
+              </div>
+              <div className={`daily-editor-metric shopping-money-metric ${differenceAmount < 0 ? "menu-warning-metric" : ""}`}>
+                <span>Selisih pagu</span>
+                <strong>{formatMoney(differenceAmount)}</strong>
+              </div>
             </div>
 
-            <ShoppingReportSummaryCards
-              dailyBudget={dailyBudget}
-              differenceAmount={differenceAmount}
-              totalSpending={totalSpending}
-            />
+            <div className="shopping-header-grid">
+              <label className="shopping-header-field shopping-header-menu">
+                <span>Nama menu</span>
+                <input
+                  type="text"
+                  value={form.menu_name}
+                  onChange={(event) => {
+                    setMenuNameAutoFilled(false);
+                    handleHeaderChange("menu_name", event.target.value);
+                  }}
+                  placeholder="Nama menu"
+                  disabled={loading}
+                />
+              </label>
+              <label className="shopping-header-field">
+                <span>Porsi kecil</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.small_portion_count}
+                  onChange={(event) => handleNumberChange("header", null, "small_portion_count", event.target.value)}
+                  disabled={loading}
+                />
+              </label>
+              <label className="shopping-header-field">
+                <span>Porsi besar</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.large_portion_count}
+                  onChange={(event) => handleNumberChange("header", null, "large_portion_count", event.target.value)}
+                  disabled={loading}
+                />
+              </label>
+              <label className="shopping-header-field shopping-header-notes">
+                <span>Catatan</span>
+                <input
+                  type="text"
+                  value={form.notes}
+                  onChange={(event) => handleHeaderChange("notes", event.target.value)}
+                  placeholder="Opsional"
+                  disabled={loading}
+                />
+              </label>
+            </div>
 
-            <ShoppingReportItemsSection
-              itemSuggestions={itemSuggestions}
-              items={form.items}
+            <div className="daily-editor-tools shopping-editor-tools">
+              <div className="daily-editor-tools-main">
+                <QuickActionBar className="shopping-quick-actions" ariaLabel="Aksi cepat laporan belanja">
+                  <div className="menu-action-group menu-action-group-primary">
+                    <button type="button" className="status-quick-btn" onClick={addItemRow} disabled={loading}>
+                      <AppIcon name="statusFull" size={17} weight={APP_ICON_WEIGHT.action} />
+                      Tambah baris
+                    </button>
+                    <label className="menu-inline-import-btn" htmlFor="shopping_import_image">
+                      <AppIcon name="import" size={17} weight={APP_ICON_WEIGHT.action} />
+                      Import gambar
+                    </label>
+                    <input
+                      id="shopping_import_image"
+                      className="menu-upload-input"
+                      type="file"
+                      accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                      onChange={handleImageFileChange}
+                      disabled={loading || imageProcessing}
+                    />
+                    <button
+                      type="button"
+                      className="holiday-quick-btn"
+                      onClick={handleProcessImage}
+                      disabled={loading || imageProcessing || !selectedImageFile}
+                    >
+                      <AppIcon name="history" size={17} weight={APP_ICON_WEIGHT.action} />
+                      {imageProcessing ? "Memproses..." : "Proses draft"}
+                    </button>
+                  </div>
+                  <div className="menu-action-group menu-action-group-secondary">
+                    <button
+                      type="button"
+                      className={`status-filter-chip shopping-review-filter ${showReviewOnly ? "active" : ""}`}
+                      onClick={() => setShowReviewOnly((prev) => !prev)}
+                      disabled={loading || reviewCount === 0}
+                    >
+                      Perlu dicek
+                      <strong>{reviewCount}</strong>
+                    </button>
+                    {reviewCount > 0 ? (
+                      <button type="button" className="status-filter-chip active" onClick={markAllReviewed} disabled={loading}>
+                        Tandai dicek
+                      </button>
+                    ) : null}
+                  </div>
+                </QuickActionBar>
+              </div>
+              <div className={`daily-realtime-status ${reviewCount || hasBlockingError ? "warning" : "ready"}`}>
+                <AppIcon name={reviewCount ? "statusPartial" : "statusFull"} size={16} weight={APP_ICON_WEIGHT.action} />
+                <span>
+                  <strong>{importReviewLabel}</strong>
+                  {hasBlockingError
+                    ? ` | ${validationErrors.length} data wajib belum valid.`
+                    : reviewCount
+                    ? ` | ${reviewCount} baris perlu dicek.`
+                    : selectedImageFile?.name
+                    ? ` | File: ${selectedImageFile.name}`
+                    : " | Enter pindah field/baris."}
+                </span>
+              </div>
+            </div>
+            {imageDraftStatus && (
+              <div className={`shopping-import-status ${imageDraftStatus.kind || "info"}`}>
+                {imageDraftStatus.message}
+              </div>
+            )}
+          </StickyFormHeader>
+
+          <div className="shopping-compact-workspace">
+            <div className="shopping-compact-main">
+              <section className="shopping-spreadsheet-section">
+                <div className="menu-spreadsheet-head">
+                  <div>
+                    <span className="menu-spreadsheet-kicker">Item belanja</span>
+                    <h4>Daftar pembelian harian</h4>
+                  </div>
+                  <span>{visibleItems.length}/{form.items.length} baris tampil</span>
+                </div>
+
+                <div className="shopping-row-table" role="table" aria-label="Daftar item belanja">
+                  <div className="shopping-row shopping-row-head" role="row">
+                    <span>No</span>
+                    <span>Cari barang</span>
+                    <span>Uraian</span>
+                    <span>Qty</span>
+                    <span>Satuan</span>
+                    <span>Harga</span>
+                    <span>Jumlah</span>
+                    <span>Keterangan</span>
+                    <span></span>
+                  </div>
+
+                  {visibleItems.map(({ item, index }) => {
+                    const rowNeedsReview = reviewRows.has(index);
+                    return (
+                      <div
+                        className={compactRowClass("shopping-row", {
+                          active: activeItemIndex === index,
+                          needsReview: rowNeedsReview,
+                          verified: hasImportedDraft && !rowNeedsReview,
+                        })}
+                        role="row"
+                        key={`shopping-item-${index}`}
+                        data-shopping-row={index}
+                      >
+                        <span className="shopping-row-index">{index + 1}</span>
+                        <div className="shopping-field-wrap">
+                          <input
+                            data-shopping-field="item_lookup"
+                            type="text"
+                            value={item.item_lookup || ""}
+                            onFocus={() => setActiveItemIndex(index)}
+                            onChange={(event) => {
+                              handleItemChange(index, "item_lookup", event.target.value);
+                              handleItemChange(index, "master_item_id", null);
+                            }}
+                            onKeyDown={(event) => handleItemKeyDown(event, index, "item_lookup")}
+                            placeholder="Kode / barang"
+                            disabled={loading}
+                          />
+                          {String(item.item_lookup || "").trim() && itemSuggestions[index]?.length > 0 ? (
+                            <div className="shopping-item-suggestions shopping-compact-suggestions">
+                              {itemSuggestions[index].map((masterItem) => (
+                                <button
+                                  key={masterItem.id}
+                                  type="button"
+                                  className="shopping-item-suggestion"
+                                  onClick={() => handleSelectMasterItem(index, masterItem)}
+                                >
+                                  <span>{masterItem.item_code}</span>
+                                  <strong>{masterItem.item_name}</strong>
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                        <input
+                          data-shopping-field="description"
+                          type="text"
+                          value={item.description}
+                          onFocus={() => setActiveItemIndex(index)}
+                          onChange={(event) => handleItemChange(index, "description", event.target.value)}
+                          onKeyDown={(event) => handleItemKeyDown(event, index, "description")}
+                          placeholder="Uraian"
+                          disabled={loading}
+                        />
+                        <input
+                          data-shopping-field="qty"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.qty}
+                          onFocus={() => setActiveItemIndex(index)}
+                          onChange={(event) => handleNumberChange("item", index, "qty", event.target.value)}
+                          onKeyDown={(event) => handleItemKeyDown(event, index, "qty")}
+                          disabled={loading}
+                        />
+                        <select
+                          data-shopping-field="unit_name"
+                          value={item.unit_name}
+                          onFocus={() => setActiveItemIndex(index)}
+                          onChange={(event) => handleItemChange(index, "unit_name", event.target.value)}
+                          onKeyDown={(event) => handleItemKeyDown(event, index, "unit_name")}
+                          disabled={loading}
+                        >
+                          <option value="">Satuan</option>
+                          {getUnitOptions(item.unit_name).map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          data-shopping-field="price"
+                          className="shopping-money-input"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.price}
+                          onFocus={() => setActiveItemIndex(index)}
+                          onChange={(event) => handleNumberChange("item", index, "price", event.target.value)}
+                          onKeyDown={(event) => handleItemKeyDown(event, index, "price")}
+                          disabled={loading}
+                        />
+                        <input
+                          data-shopping-field="amount"
+                          className="shopping-money-input"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.amount}
+                          onFocus={() => setActiveItemIndex(index)}
+                          onChange={(event) => handleNumberChange("item", index, "amount", event.target.value)}
+                          onKeyDown={(event) => handleItemKeyDown(event, index, "amount")}
+                          disabled={loading}
+                        />
+                        <input
+                          data-shopping-field="notes"
+                          type="text"
+                          value={item.notes}
+                          onFocus={() => setActiveItemIndex(index)}
+                          onChange={(event) => handleItemChange(index, "notes", event.target.value)}
+                          onKeyDown={(event) => handleItemKeyDown(event, index, "notes")}
+                          placeholder="Opsional"
+                          disabled={loading}
+                        />
+                        <button
+                          type="button"
+                          className="menu-sort-move-btn shopping-remove-row-btn"
+                          onClick={() => removeItemRow(index)}
+                          disabled={loading || form.items.length === 1}
+                          aria-label={`Hapus baris belanja ${index + 1}`}
+                        >
+                          <AppIcon name="delete" size={15} weight={APP_ICON_WEIGHT.action} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+
+            <SummaryPanelCard
+              className="shopping-compact-summary"
+              title="Ringkasan belanja"
+              rows={[
+                { label: "Total belanja", value: formatMoney(totalSpending) },
+                { label: "Pagu harian", value: formatMoney(dailyBudget) },
+                { label: "Item", value: form.items.length },
+                { label: "Perlu cek", value: reviewCount },
+              ]}
+              totalLabel="Selisih"
+              totalValue={formatMoney(differenceAmount)}
+              submitLabel="Simpan belanja"
               loading={loading}
-              onAddItem={addItemRow}
-              onItemChange={handleItemChange}
-              onNumberChange={handleNumberChange}
-              onRemoveItem={removeItemRow}
-              onSelectMasterItem={handleSelectMasterItem}
+              disabled={hasBlockingError}
+              disabledReason={validationErrors[0]}
+              note="Jumlah otomatis dihitung dari qty x harga dan payload tetap kompatibel."
             />
           </div>
 
           {error && <div className="error-message">{error}</div>}
 
-          <div className="modal-actions data-form-actions">
-            <button type="button" onClick={onClose} disabled={loading}>
-              Batal
-            </button>
-            <button type="submit" className="submit-btn" disabled={loading}>
+          <MobileSubmitBar
+            className="shopping-mobile-submit-bar"
+            title={formatMoney(totalSpending)}
+            subtitle={`${form.items.length} item${reviewCount ? ` | ${reviewCount} perlu cek` : ""}`}
+          >
+            <button
+              type="submit"
+              className="submit-btn mobile-submit-btn"
+              disabled={loading || hasBlockingError}
+              title={hasBlockingError ? validationErrors[0] : undefined}
+            >
               {loading ? "Menyimpan..." : "Simpan"}
             </button>
-          </div>
+          </MobileSubmitBar>
         </form>
       </div>
     </div>

@@ -351,45 +351,34 @@ export default function PriceMonitoringModal({
               <PriceLineChart points={history} />
 
               {history.length > 0 && (
-                <div className="table-wrap price-monitoring-table-wrap">
-                  <table className="data-table min-w-[1180px]">
-                    <thead>
-                      <tr>
-                        <th className="text-left">Tanggal</th>
-                        <th className="text-left">Kode Barang</th>
-                        <th className="text-left">Nama Barang</th>
-                        <th className="text-right">Harga</th>
-                        <th className="text-center">Perubahan</th>
-                        <th className="text-right">Qty</th>
-                        <th className="text-center">Satuan</th>
-                        <th className="text-right">Jumlah</th>
-                        <th className="text-left">Laporan/Menu</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {history.map((row) => (
-                        <tr key={`${row.report_id}-${row.report_date}-${row.harga}`}>
-                          <td className="text-left">{formatDateLong(row.report_date)}</td>
-                          <td className="text-left">{row.code_barang}</td>
-                          <td className="text-left">{row.nama_barang}</td>
-                          <td className="text-right">{formatMoney(row.harga)}</td>
-                          <td className="text-center">
-                            <span className={`price-change-indicator ${row.price_direction}`}>
-                              {row.price_direction === "up"
-                                ? `Naik ${formatMoney(row.price_change)}`
-                                : row.price_direction === "down"
-                                  ? `Turun ${formatMoney(Math.abs(row.price_change))}`
-                                  : "Tetap"}
-                            </span>
-                          </td>
-                          <td className="text-right">{Number(row.qty || 0).toLocaleString("id-ID")}</td>
-                          <td className="text-center">{row.satuan || "-"}</td>
-                          <td className="text-right">{formatMoney(row.jumlah)}</td>
-                          <td className="text-left">{row.laporan_menu || "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="price-history-list">
+                  {history.map((row) => (
+                    <article className={`price-history-card ${row.price_direction}`} key={`${row.report_id}-${row.report_date}-${row.harga}`}>
+                      <div className="price-history-main">
+                        <strong>{formatDateLong(row.report_date)}</strong>
+                        <span>{row.code_barang || "-"} | {row.nama_barang || "-"}</span>
+                        <small>{row.laporan_menu || "Laporan/menu belum tersedia"}</small>
+                      </div>
+                      <div className="price-history-values">
+                        <div>
+                          <span>Harga</span>
+                          <strong>{formatMoney(row.harga)}</strong>
+                        </div>
+                        <div>
+                          <span>Jumlah</span>
+                          <strong>{formatMoney(row.jumlah)}</strong>
+                          <small>{Number(row.qty || 0).toLocaleString("id-ID")} {row.satuan || ""}</small>
+                        </div>
+                      </div>
+                      <span className={`price-change-indicator ${row.price_direction}`}>
+                        {row.price_direction === "up"
+                          ? `Naik ${formatMoney(row.price_change)}`
+                          : row.price_direction === "down"
+                            ? `Turun ${formatMoney(Math.abs(row.price_change))}`
+                            : "Tetap"}
+                      </span>
+                    </article>
+                  ))}
                 </div>
               )}
             </div>

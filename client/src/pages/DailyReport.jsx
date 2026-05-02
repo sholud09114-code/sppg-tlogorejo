@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext.jsx";
 import DateInput from "../components/DateInput.jsx";
 import CategoryGroup from "../components/CategoryGroup.jsx";
@@ -8,6 +8,7 @@ import DailyReportTable from "../components/DailyReportTable.jsx";
 import LoadingMessage from "../components/LoadingMessage.jsx";
 import SummaryPanel from "../components/SummaryPanel.jsx";
 import Toast from "../components/Toast.jsx";
+import { MobileSubmitBar, QuickActionBar, StickyFormHeader } from "../components/ui/FormPatterns.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
 import {
@@ -23,6 +24,14 @@ import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/rep
 import { formatDateLong } from "../shared/utils/formatters.js";
 
 const REPORT_TRACKING_START_DATE = "2026-03-30";
+const DAILY_FILTERS = [
+  { id: "all", label: "Semua" },
+  { id: "missing", label: "Belum diisi" },
+  { id: "partial", label: "Sebagian" },
+  { id: "holiday", label: "Libur" },
+  { id: "error", label: "Error" },
+];
+const DAILY_AUTO_OPEN_KEY = "sppg:auto-open-daily-report";
 
 // get today's date as YYYY-MM-DD in local time zone
 function getTodayISO() {
@@ -195,6 +204,25 @@ function derivePayloadSplit(unit, entry) {
   });
 }
 
+function buildFullEntries(units) {
+  const filledEntries = {};
+  units.forEach((unit) => {
+    const split = deriveEntrySplit(unit, { actual_pm: unit.default_target });
+    filledEntries[unit.id] = {
+      service_status: "penuh",
+      actual_pm: unit.default_target,
+      actual_small_portion: split.actual_small_portion,
+      actual_large_portion: split.actual_large_portion,
+      error: null,
+    };
+  });
+  return filledEntries;
+}
+
+function normalizeSearch(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
 export default function DailyReport() {
   const { user } = useAuth();
   const [units, setUnits] = useState([]);
@@ -210,6 +238,12 @@ export default function DailyReport() {
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [missingReportOpen, setMissingReportOpen] = useState(false);
+  const [activeInputFilter, setActiveInputFilter] = useState("all");
+  const [highlightedUnitId, setHighlightedUnitId] = useState(null);
+  const [activeUnitId, setActiveUnitId] = useState(null);
+  const [recentlyChangedUnitId, setRecentlyChangedUnitId] = useState(null);
+  const [progressPulse, setProgressPulse] = useState(false);
+  const [unitSearch, setUnitSearch] = useState("");
   const [printRange, setPrintRange] = useState({
     date_from: getTodayISO(),
     date_to: getTodayISO(),
@@ -281,7 +315,7 @@ export default function DailyReport() {
             message: "Laporan untuk tanggal ini sudah ada — mode edit aktif.",
           });
         } else {
-          setEntries({});
+          setEntries(buildFullEntries(units));
           setToast({ kind: null, message: null });
         }
       })
@@ -294,8 +328,19 @@ export default function DailyReport() {
   }, [date, units, editorOpen]);
 
   const handleEntryChange = (unitId, newEntry) => {
+    if (highlightedUnitId === unitId) {
+      setHighlightedUnitId(null);
+    }
+    setActiveUnitId(unitId);
+    setRecentlyChangedUnitId(unitId);
     setEntries((prev) => ({ ...prev, [unitId]: newEntry }));
   };
+
+  useEffect(() => {
+    if (!recentlyChangedUnitId) return undefined;
+    const timeout = window.setTimeout(() => setRecentlyChangedUnitId(null), 650);
+    return () => window.clearTimeout(timeout);
+  }, [recentlyChangedUnitId]);
 
   const grouped = useMemo(() => {
     const out = {};
@@ -321,6 +366,82 @@ export default function DailyReport() {
     () => units.filter((u) => entries[u.id]?.service_status).length,
     [units, entries]
   );
+
+  const totalPmToday = useMemo(
+    () => Object.values(totals).reduce((sum, value) => sum + value, 0),
+    [totals]
+  );
+
+  const inputFilterCounts = useMemo(() => {
+    const counts = {
+      all: units.length,
+      missing: 0,
+      partial: 0,
+      holiday: 0,
+      error: 0,
+    };
+
+    units.forEach((unit) => {
+      const entry = entries[unit.id];
+      if (!entry?.service_status) counts.missing += 1;
+      if (entry?.service_status === "sebagian") counts.partial += 1;
+      if (entry?.service_status === "libur") counts.holiday += 1;
+      if (entry?.error) counts.error += 1;
+    });
+
+    return counts;
+  }, [units, entries]);
+
+  const realtimeIssueCount = inputFilterCounts.missing + inputFilterCounts.error;
+  const saveDisabled = inputFilterCounts.error > 0;
+  const saveDisabledReason = saveDisabled
+    ? `${inputFilterCounts.error} error input harus diperbaiki sebelum simpan.`
+    : "";
+  const searchTerm = normalizeSearch(unitSearch);
+
+  const filteredGrouped = useMemo(() => {
+    const shouldShowUnit = (unit) => {
+      const entry = entries[unit.id];
+      if (searchTerm && !normalizeSearch(unit.name).includes(searchTerm)) return false;
+      if (activeInputFilter === "missing") return !entry?.service_status;
+      if (activeInputFilter === "partial") return entry?.service_status === "sebagian";
+      if (activeInputFilter === "holiday") return entry?.service_status === "libur";
+      if (activeInputFilter === "error") return Boolean(entry?.error);
+      return true;
+    };
+
+    const out = {};
+    CATEGORY_ORDER.forEach((category) => {
+      out[category] = (grouped[category] || []).filter(shouldShowUnit);
+    });
+    return out;
+  }, [activeInputFilter, entries, grouped, searchTerm]);
+
+  const visibleUnitCount = useMemo(
+    () => CATEGORY_ORDER.reduce((sum, category) => sum + (filteredGrouped[category]?.length || 0), 0),
+    [filteredGrouped]
+  );
+
+  const visibleUnits = useMemo(
+    () => CATEGORY_ORDER.flatMap((category) => filteredGrouped[category] || []),
+    [filteredGrouped]
+  );
+
+  useEffect(() => {
+    if (!visibleUnits.length) {
+      setActiveUnitId(null);
+      return;
+    }
+    if (!activeUnitId || !visibleUnits.some((unit) => unit.id === activeUnitId)) {
+      setActiveUnitId(visibleUnits[0].id);
+    }
+  }, [activeUnitId, visibleUnits]);
+
+  useEffect(() => {
+    setProgressPulse(true);
+    const timeout = window.setTimeout(() => setProgressPulse(false), 420);
+    return () => window.clearTimeout(timeout);
+  }, [totalFilled, totalPmToday, realtimeIssueCount]);
 
   const isAllFullSelected = useMemo(
     () =>
@@ -362,19 +483,108 @@ export default function DailyReport() {
     return dates;
   }, [reports]);
 
-  const openNewReport = () => {
+  const openNewReport = useCallback(() => {
     if (!isAdmin) return;
     setDate(getTodayISO());
     setEntries({});
+    setActiveInputFilter("all");
+    setHighlightedUnitId(null);
+    setActiveUnitId(null);
+    setUnitSearch("");
     setEditorOpen(true);
     setToast({ kind: null, message: null });
-  };
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin || !units.length || editorOpen) return;
+    if (window.sessionStorage?.getItem(DAILY_AUTO_OPEN_KEY) !== "1") return;
+    window.sessionStorage.removeItem(DAILY_AUTO_OPEN_KEY);
+    openNewReport();
+  }, [editorOpen, isAdmin, openNewReport, units.length]);
 
   const openEditReport = (reportDate) => {
     if (!isAdmin) return;
     setDate(reportDate);
+    setActiveInputFilter("all");
+    setHighlightedUnitId(null);
+    setActiveUnitId(null);
+    setUnitSearch("");
     setEditorOpen(true);
   };
+
+  const scrollToUnit = useCallback((unitId) => {
+    setActiveUnitId(unitId);
+    setHighlightedUnitId(unitId);
+    window.setTimeout(() => {
+      const target = document.querySelector(`[data-daily-unit-id="${unitId}"]`);
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+      target?.focus?.({ preventScroll: true });
+    }, 80);
+  }, []);
+
+  const moveActiveRow = useCallback((direction) => {
+    if (!visibleUnits.length) return;
+    const currentIndex = Math.max(
+      0,
+      visibleUnits.findIndex((unit) => unit.id === activeUnitId)
+    );
+    const nextIndex = Math.min(
+      visibleUnits.length - 1,
+      Math.max(0, currentIndex + direction)
+    );
+    scrollToUnit(visibleUnits[nextIndex].id);
+  }, [activeUnitId, scrollToUnit, visibleUnits]);
+
+  const triggerActiveStatus = useCallback((status) => {
+    if (!activeUnitId) return;
+    const button = document.querySelector(
+      `[data-daily-unit-id="${activeUnitId}"] [data-status-value="${status}"]`
+    );
+    button?.click();
+  }, [activeUnitId]);
+
+  useEffect(() => {
+    if (!editorOpen || !isAdmin) return undefined;
+
+    const handleKeyDown = (event) => {
+      const target = event.target;
+      const tagName = target?.tagName?.toLowerCase();
+      const isTyping =
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select" ||
+        target?.isContentEditable;
+
+      if (isTyping || event.metaKey || event.ctrlKey || event.altKey) return;
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        moveActiveRow(1);
+        return;
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        moveActiveRow(-1);
+        return;
+      }
+
+      const shortcut = event.key.toLowerCase();
+      if (shortcut === "f") {
+        event.preventDefault();
+        triggerActiveStatus("penuh");
+      } else if (shortcut === "s") {
+        event.preventDefault();
+        triggerActiveStatus("sebagian");
+      } else if (shortcut === "l") {
+        event.preventDefault();
+        triggerActiveStatus("libur");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [editorOpen, isAdmin, moveActiveRow, triggerActiveStatus]);
 
   const handleViewReport = async (report) => {
     try {
@@ -430,18 +640,9 @@ export default function DailyReport() {
 
   const handleFillAllFull = () => {
     if (!isAdmin) return;
-    const filledEntries = {};
-    units.forEach((unit) => {
-      const split = deriveEntrySplit(unit, { actual_pm: unit.default_target });
-      filledEntries[unit.id] = {
-        service_status: "penuh",
-        actual_pm: unit.default_target,
-        actual_small_portion: split.actual_small_portion,
-        actual_large_portion: split.actual_large_portion,
-        error: null,
-      };
-    });
-    setEntries(filledEntries);
+    setEntries(buildFullEntries(units));
+    setHighlightedUnitId(null);
+    setActiveUnitId(null);
   };
 
   const handleFillAllHoliday = () => {
@@ -457,6 +658,26 @@ export default function DailyReport() {
       };
     });
     setEntries(holidayEntries);
+    setHighlightedUnitId(null);
+    setActiveUnitId(null);
+  };
+
+  const handleResetEntries = () => {
+    if (!isAdmin || loading) return;
+    setEntries({});
+    setActiveInputFilter("all");
+    setHighlightedUnitId(null);
+    setActiveUnitId(null);
+    setUnitSearch("");
+    setToast({ kind: null, message: null });
+  };
+
+  const handleJumpToSearchResult = () => {
+    if (!searchTerm) return;
+    const matchedUnit = units.find((unit) => normalizeSearch(unit.name).includes(searchTerm));
+    if (!matchedUnit) return;
+    setActiveInputFilter("all");
+    scrollToUnit(matchedUnit.id);
   };
 
   const handleImportedReports = async (result) => {
@@ -525,20 +746,26 @@ export default function DailyReport() {
 
   const handleSubmit = async () => {
     if (!isAdmin) return;
-    const missing = units.filter((u) => !entries[u.id]?.service_status).length;
-    if (missing > 0) {
+    if (saveDisabled) {
+      const firstErrorUnit = units.find((u) => entries[u.id]?.error);
+      if (firstErrorUnit) {
+        setActiveInputFilter("all");
+        scrollToUnit(firstErrorUnit.id);
+      }
       setToast({
-        kind: "warning",
-        message: `Masih ada ${missing} unit yang belum diisi. Lengkapi semua status sebelum submit.`,
+        kind: "danger",
+        message: saveDisabledReason,
       });
       return;
     }
-
-    const hasErr = units.some((u) => entries[u.id]?.error);
-    if (hasErr) {
+    const firstMissingUnit = units.find((u) => !entries[u.id]?.service_status);
+    const missing = units.filter((u) => !entries[u.id]?.service_status).length;
+    if (missing > 0) {
+      setActiveInputFilter("all");
+      if (firstMissingUnit) scrollToUnit(firstMissingUnit.id);
       setToast({
-        kind: "danger",
-        message: "Perbaiki error pada form sebelum submit.",
+        kind: "warning",
+        message: `Masih ada ${missing} unit yang belum diisi. Lengkapi semua status sebelum submit.`,
       });
       return;
     }
@@ -785,104 +1012,167 @@ export default function DailyReport() {
                 </div>
                 <div className="daily-form-header-copy">
                   <h3>Form input laporan harian</h3>
-                  <p>Isi seluruh kelompok untuk tanggal laporan yang dipilih.</p>
+                  <p>Input cepat berbasis baris untuk seluruh kelompok pada tanggal laporan.</p>
                 </div>
-              </div>
-              <div className="page-actions page-actions-stack report-header-actions w-full sm:w-auto">
-                <DateInput value={date} onChange={setDate} />
               </div>
             </div>
 
-            <div className="quick-action-panel daily-input-quick-action daily-input-quick-action-desktop">
-              <span className="quick-action-icon">
-                <AppIcon name="history" size={22} weight={APP_ICON_WEIGHT.summary} />
-              </span>
-              <div className="quick-action-copy">
-                <strong>Isi cepat</strong>
-                <p>
-                  Gunakan aksi ini untuk layanan penuh, atau tandai seluruh unit libur jika tidak ada
-                  pelayanan.
-                </p>
-              </div>
-              <div className="quick-action-buttons">
+            <StickyFormHeader>
+              <div className="daily-editor-command-row">
+                <div className="daily-editor-date-field">
+                  <DateInput value={date} onChange={setDate} />
+                </div>
                 <button
                   type="button"
-                  className={`w-full sm:w-auto ${
-                    isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"
+                  className={`daily-editor-metric daily-editor-metric-button ${
+                    activeInputFilter === "all" ? "active" : ""
+                  } ${progressPulse ? "pulse" : ""}`}
+                  onClick={() => setActiveInputFilter("all")}
+                >
+                  <span>Progress</span>
+                  <strong>
+                    {totalFilled}/{units.length}
+                  </strong>
+                </button>
+                <button
+                  type="button"
+                  className={`daily-editor-metric daily-editor-metric-button ${
+                    realtimeIssueCount > 0 ? "warning" : ""
+                  } ${activeInputFilter === "missing" || activeInputFilter === "error" ? "active" : ""} ${
+                    progressPulse ? "pulse" : ""
                   }`}
-                  onClick={handleFillAllFull}
-                  disabled={loading}
+                  onClick={() => setActiveInputFilter(inputFilterCounts.error > 0 ? "error" : "missing")}
                 >
-                  <span className="button-with-icon">
-                    <AppIcon name="statusFull" size={18} weight={APP_ICON_WEIGHT.action} />
-                    <span>Semua sekolah dilayani penuh</span>
-                  </span>
+                  <span>Perlu cek</span>
+                  <strong>{realtimeIssueCount}</strong>
                 </button>
+                <div className={`daily-editor-metric daily-editor-total ${progressPulse ? "pulse" : ""}`}>
+                  <span>Total PM</span>
+                  <strong>{totalPmToday.toLocaleString("id-ID")}</strong>
+                </div>
                 <button
                   type="button"
-                  className="holiday-quick-btn w-full sm:w-auto"
-                  onClick={handleFillAllHoliday}
-                  disabled={loading}
+                  className="submit-btn daily-editor-save"
+                  onClick={handleSubmit}
+                  disabled={loading || saveDisabled}
+                  title={saveDisabled ? saveDisabledReason : undefined}
                 >
                   <span className="button-with-icon">
-                    <AppIcon name="date" size={18} weight={APP_ICON_WEIGHT.action} />
-                    <span>Tidak ada pelayanan karena hari libur</span>
+                    <AppIcon name="send" size={18} weight={APP_ICON_WEIGHT.action} />
+                    <span>{loading ? "Menyimpan..." : "Simpan laporan"}</span>
                   </span>
                 </button>
               </div>
-            </div>
 
-            <div className="report-modal-grid data-form-body daily-input-grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px]">
-              <div className="quick-action-panel daily-input-quick-action daily-input-quick-action-mobile">
-                <span className="quick-action-icon">
-                  <AppIcon name="history" size={22} weight={APP_ICON_WEIGHT.summary} />
-                </span>
-                <div className="quick-action-copy">
-                  <strong>Isi cepat</strong>
-                  <p>
-                    Gunakan aksi ini untuk layanan penuh, atau tandai seluruh unit libur jika tidak ada
-                    pelayanan.
-                  </p>
+              <div className="daily-editor-tools">
+                <div className="daily-editor-tools-main">
+                  <div className="daily-unit-search">
+                    <AppIcon name="search" size={16} weight={APP_ICON_WEIGHT.action} />
+                    <input
+                      type="search"
+                      value={unitSearch}
+                      onChange={(event) => setUnitSearch(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          handleJumpToSearchResult();
+                        }
+                      }}
+                      placeholder="Cari / lompat ke unit..."
+                      aria-label="Cari unit laporan harian"
+                    />
+                    {unitSearch ? (
+                      <button type="button" onClick={() => setUnitSearch("")} aria-label="Bersihkan pencarian">
+                        <AppIcon name="close" size={14} weight={APP_ICON_WEIGHT.action} />
+                      </button>
+                    ) : null}
+                  </div>
+
+                  <QuickActionBar ariaLabel="Aksi cepat laporan harian">
+                    <button
+                      type="button"
+                      className={isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"}
+                      onClick={handleFillAllFull}
+                      disabled={loading}
+                    >
+                      <AppIcon name="statusFull" size={17} weight={APP_ICON_WEIGHT.action} />
+                      Semua penuh
+                    </button>
+                    <button
+                      type="button"
+                      className="holiday-quick-btn"
+                      onClick={handleFillAllHoliday}
+                      disabled={loading}
+                    >
+                      <AppIcon name="date" size={17} weight={APP_ICON_WEIGHT.action} />
+                      Semua libur
+                    </button>
+                    <button
+                      type="button"
+                      className="daily-reset-btn"
+                      onClick={handleResetEntries}
+                      disabled={loading || totalFilled === 0}
+                    >
+                      <AppIcon name="close" size={16} weight={APP_ICON_WEIGHT.action} />
+                      Reset
+                    </button>
+                  </QuickActionBar>
                 </div>
-                <div className="quick-action-buttons">
-                  <button
-                    type="button"
-                    className={`w-full sm:w-auto ${
-                      isAllFullSelected ? "status-quick-btn active" : "status-quick-btn"
-                    }`}
-                    onClick={handleFillAllFull}
-                    disabled={loading}
-                  >
-                    <span className="button-with-icon">
-                      <AppIcon name="statusFull" size={18} weight={APP_ICON_WEIGHT.action} />
-                      <span>Semua sekolah dilayani penuh</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className="holiday-quick-btn w-full sm:w-auto"
-                    onClick={handleFillAllHoliday}
-                    disabled={loading}
-                  >
-                    <span className="button-with-icon">
-                      <AppIcon name="date" size={18} weight={APP_ICON_WEIGHT.action} />
-                      <span>Tidak ada pelayanan karena hari libur</span>
-                    </span>
-                  </button>
+
+                <div className="daily-filter-chips" aria-label="Filter baris laporan harian">
+                  {DAILY_FILTERS.map((filter) => (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      className={activeInputFilter === filter.id ? "active" : ""}
+                      onClick={() => setActiveInputFilter(filter.id)}
+                    >
+                      <span>{filter.label}</span>
+                      <strong>{inputFilterCounts[filter.id]}</strong>
+                    </button>
+                  ))}
                 </div>
               </div>
+              <div className={`daily-realtime-status ${realtimeIssueCount > 0 ? "warning" : "ready"}`}>
+                <AppIcon
+                  name={realtimeIssueCount > 0 ? "statusPartial" : "statusFull"}
+                  size={16}
+                  weight={APP_ICON_WEIGHT.action}
+                />
+                {realtimeIssueCount > 0
+                  ? `${inputFilterCounts.missing} belum diisi, ${inputFilterCounts.error} error input. Klik indikator Perlu cek untuk memfilter.`
+                  : "Semua baris terlihat siap. Data tetap bisa disesuaikan sebelum simpan."}
+                {inputFilterCounts.error > 0 ? (
+                  <strong className="daily-error-count">{inputFilterCounts.error} error</strong>
+                ) : null}
+              </div>
+            </StickyFormHeader>
+
+            <div className="report-modal-grid data-form-body daily-input-grid daily-spreadsheet-grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px]">
               <div className="groups space-y-4">
-                {CATEGORY_ORDER.map(
-                  (cat) =>
-                    grouped[cat]?.length > 0 && (
-                      <CategoryGroup
-                        key={cat}
-                        category={cat}
-                        units={grouped[cat]}
-                        entries={entries}
-                        onEntryChange={handleEntryChange}
-                      />
-                    )
+                {visibleUnitCount > 0 ? (
+                  CATEGORY_ORDER.map(
+                    (cat) =>
+                      filteredGrouped[cat]?.length > 0 && (
+                        <CategoryGroup
+                          key={cat}
+                          category={cat}
+                          units={filteredGrouped[cat]}
+                          entries={entries}
+                          onEntryChange={handleEntryChange}
+                          highlightedUnitId={highlightedUnitId}
+                          activeUnitId={activeUnitId}
+                          recentlyChangedUnitId={recentlyChangedUnitId}
+                          onActivateUnit={setActiveUnitId}
+                        />
+                      )
+                  )
+                ) : (
+                  <div className="daily-empty-filter-state">
+                    <AppIcon name="completeness" size={22} weight={APP_ICON_WEIGHT.summary} />
+                    <strong>Tidak ada baris pada filter ini</strong>
+                    <span>Pilih filter lain untuk melihat unit laporan.</span>
+                  </div>
                 )}
               </div>
 
@@ -892,31 +1182,26 @@ export default function DailyReport() {
                 totalUnits={units.length}
                 onSubmit={handleSubmit}
                 loading={loading}
+                disabled={saveDisabled}
+                disabledReason={saveDisabledReason}
                 className="desktop-summary-panel"
               />
             </div>
 
-            <div className="mobile-submit-bar">
-              <div className="mobile-submit-bar-copy">
-                <strong>
-                  {Object.values(totals)
-                    .reduce((sum, value) => sum + value, 0)
-                    .toLocaleString("id-ID")}{" "}
-                  PM
-                </strong>
-                <span>
-                  {totalFilled} dari {units.length} unit diisi
-                </span>
-              </div>
+            <MobileSubmitBar
+              title={`${totalPmToday.toLocaleString("id-ID")} PM`}
+              subtitle={`${totalFilled} dari ${units.length} unit diisi`}
+            >
               <button
                 type="button"
                 className="submit-btn mobile-submit-btn"
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || saveDisabled}
+                title={saveDisabled ? saveDisabledReason : undefined}
               >
                 {loading ? "Menyimpan..." : "Simpan laporan"}
               </button>
-            </div>
+            </MobileSubmitBar>
           </div>
         </div>
       )}

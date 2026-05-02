@@ -1,9 +1,9 @@
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 const STATUS_OPTIONS = [
-  { value: "penuh", label: "Dilayani penuh", icon: "statusFull" },
+  { value: "penuh", label: "Penuh", icon: "statusFull" },
+  { value: "sebagian", label: "Sebagian", icon: "statusPartial" },
   { value: "libur", label: "Libur", icon: "statusHoliday" },
-  { value: "sebagian", label: "Dilayani sebagian", icon: "statusPartial" },
 ];
 
 function getDefaultSplit(unit, actualPm) {
@@ -33,13 +33,35 @@ function getDefaultSplit(unit, actualPm) {
   return { actualSmall, actualLarge };
 }
 
-export default function SchoolCard({ unit, index, entry, onChange }) {
+export default function SchoolCard({
+  unit,
+  index,
+  entry,
+  highlighted = false,
+  active = false,
+  recentlyChanged = false,
+  onActivate,
+  onChange,
+}) {
   const smallTarget = Number(unit.small_target || 0);
   const largeTarget = Number(unit.large_target || 0);
   const hasSplitPortion = smallTarget > 0 && largeTarget > 0;
+  const rowStatus = entry.service_status || "missing";
+  const actualPm = Number(entry.actual_pm || 0);
+
+  const focusPartialInput = () => {
+    window.setTimeout(() => {
+      const input = document.querySelector(
+        `[data-daily-unit-id="${unit.id}"] [data-partial-primary="true"]`
+      );
+      input?.focus();
+      input?.select?.();
+    }, 0);
+  };
 
   // handle status button click
   const handleStatus = (status) => {
+    onActivate?.();
     let actual = 0;
     let actualSmall = 0;
     let actualLarge = 0;
@@ -71,10 +93,15 @@ export default function SchoolCard({ unit, index, entry, onChange }) {
       actual_large_portion: actualLarge,
       error: null,
     });
+
+    if (status === "sebagian") {
+      focusPartialInput();
+    }
   };
 
   // handle partial number input with validation
   const handlePartial = (raw) => {
+    onActivate?.();
     let error = null;
     let actual;
 
@@ -104,6 +131,7 @@ export default function SchoolCard({ unit, index, entry, onChange }) {
   };
 
   const handleSplitPartial = (field, raw) => {
+    onActivate?.();
     let error = null;
     const nextSmall =
       field === "actual_small_portion"
@@ -141,24 +169,41 @@ export default function SchoolCard({ unit, index, entry, onChange }) {
   };
 
   return (
-    <div className="school-card rounded-2xl p-3 sm:p-4">
-      <span className="school-card-index">{index}</span>
-      <div className="school-card-head">
-        <span className="name">{unit.name}</span>
-        <span className="target">
-          Target: <strong>{unit.default_target}</strong> PM
-        </span>
+    <div
+      className={`school-card daily-unit-row ${rowStatus} ${highlighted ? "highlighted" : ""} ${
+        active ? "active-row" : ""
+      } ${recentlyChanged ? "recently-changed" : ""}`}
+      data-daily-unit-id={unit.id}
+      tabIndex={0}
+      onClick={onActivate}
+      onFocus={onActivate}
+    >
+      <div className="daily-unit-main">
+        <span className="school-card-index">{index}</span>
+        <div className="school-card-head">
+          <span className="name">{unit.name}</span>
+          <span className="target">
+            Target <strong>{unit.default_target}</strong> PM
+            {entry.service_status ? (
+              <>
+                <span aria-hidden="true"> • </span>
+                Aktual <strong>{actualPm}</strong>
+              </>
+            ) : null}
+          </span>
+        </div>
       </div>
 
-      <div className="status-group flex-col sm:flex-row">
+      <div className="status-group daily-status-segment" role="group" aria-label={`Status ${unit.name}`}>
         {STATUS_OPTIONS.map((opt) => {
           const isActive = entry.service_status === opt.value;
           return (
             <button
               key={opt.value}
               type="button"
-              className={`status-btn min-h-10 ${isActive ? "active " + opt.value : ""}`}
+              className={`status-btn ${isActive ? "active " + opt.value : ""}`}
               onClick={() => handleStatus(opt.value)}
+              data-status-value={opt.value}
             >
               <AppIcon name={opt.icon} size={17} weight={APP_ICON_WEIGHT.action} />
               {opt.label}
@@ -169,7 +214,7 @@ export default function SchoolCard({ unit, index, entry, onChange }) {
 
       {entry.service_status === "sebagian" &&
         (hasSplitPortion ? (
-          <div className="partial-input-grid">
+          <div className="partial-input-grid daily-partial-inputs">
             <div className="partial-input-wrap">
               <label htmlFor={`partial-small-${unit.id}`}>Porsi kecil:</label>
               <input
@@ -183,6 +228,7 @@ export default function SchoolCard({ unit, index, entry, onChange }) {
                   handleSplitPartial("actual_small_portion", e.target.value)
                 }
                 placeholder="0"
+                data-partial-primary="true"
               />
               <span className="hint">maks {smallTarget}</span>
             </div>
@@ -204,7 +250,7 @@ export default function SchoolCard({ unit, index, entry, onChange }) {
             </div>
           </div>
         ) : (
-          <div className="partial-input-wrap">
+          <div className="partial-input-wrap daily-partial-inputs">
             <label htmlFor={`partial-${unit.id}`}>Jumlah aktual:</label>
             <input
               id={`partial-${unit.id}`}
@@ -215,6 +261,7 @@ export default function SchoolCard({ unit, index, entry, onChange }) {
               value={entry.actual_pm || ""}
               onChange={(e) => handlePartial(e.target.value)}
               placeholder="0"
+              data-partial-primary="true"
             />
             <span className="hint">maks {unit.default_target}</span>
           </div>

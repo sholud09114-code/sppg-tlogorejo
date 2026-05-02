@@ -1,7 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchReportByDate } from "../api/dailyReportApi.js";
 import { fetchFoodWasteMenuReference } from "../api/foodWasteApi.js";
+import { formatNumber, formatPortions, formatWeight } from "../shared/utils/formatters.js";
+import { MobileSubmitBar, StickyFormHeader, SummaryPanelCard } from "./ui/FormPatterns.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
+
+const WASTE_ROWS = [
+  { field: "carb_source", label: "Sumber karbohidrat", shortLabel: "Karbohidrat" },
+  { field: "protein_source", label: "Sumber protein", shortLabel: "Protein" },
+  { field: "vegetable", label: "Sayur", shortLabel: "Sayur" },
+  { field: "fruit", label: "Buah", shortLabel: "Buah" },
+];
 
 function getInitialState(initialData) {
   return {
@@ -22,6 +31,14 @@ function formatInfoState(referenceState) {
     return `Menu tanggal ini ditemukan dan diisikan otomatis. Tetap bisa Anda edit bila perlu.`;
   }
   return "Data menu pada tanggal ini tidak tersedia. Kolom menu bisa diisi manual.";
+}
+
+function focusWasteField(field) {
+  window.setTimeout(() => {
+    const input = document.querySelector(`[data-food-waste-field="${field}"]`);
+    input?.focus();
+    input?.select?.();
+  }, 0);
 }
 
 export default function FoodWasteForm({ open, initialData, loading, onClose, onSubmit }) {
@@ -176,6 +193,37 @@ export default function FoodWasteForm({ open, initialData, loading, onClose, onS
       Number(form.fruit || 0),
     [form.carb_source, form.protein_source, form.vegetable, form.fruit]
   );
+  const wastePercentage = useMemo(() => {
+    const totalPortions = Number(form.total_portions || 0);
+    if (!Number.isFinite(totalPortions) || totalPortions <= 0) return 0;
+    return (Number(form.total_kg || 0) / totalPortions) * 100;
+  }, [form.total_kg, form.total_portions]);
+  const wastePerPortion = useMemo(() => {
+    const totalPortions = Number(form.total_portions || 0);
+    if (!Number.isFinite(totalPortions) || totalPortions <= 0) return 0;
+    return Number(form.total_kg || 0) / totalPortions;
+  }, [form.total_kg, form.total_portions]);
+  const validationErrors = useMemo(() => {
+    const errors = [];
+    if (!form.report_date) errors.push("Tanggal wajib diisi.");
+
+    for (const [field, label] of [
+      ["total_portions", "Total porsi"],
+      ["carb_source", "Sumber karbohidrat"],
+      ["protein_source", "Sumber protein"],
+      ["vegetable", "Sayur"],
+      ["fruit", "Buah"],
+      ["total_kg", "Total kg"],
+    ]) {
+      const value = Number(form[field] || 0);
+      if (!Number.isFinite(value) || value < 0) {
+        errors.push(`${label} tidak boleh negatif.`);
+      }
+    }
+
+    return errors;
+  }, [form]);
+  const hasBlockingError = validationErrors.length > 0;
 
   useEffect(() => {
     if (!open) return;
@@ -190,6 +238,7 @@ export default function FoodWasteForm({ open, initialData, loading, onClose, onS
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    if (error) setError(null);
   };
 
   const handleNumberChange = (field, value) => {
@@ -206,6 +255,11 @@ export default function FoodWasteForm({ open, initialData, loading, onClose, onS
   const handleSubmit = (event) => {
     event.preventDefault();
     setError(null);
+
+    if (hasBlockingError) {
+      setError(validationErrors[0]);
+      return;
+    }
 
     if (!form.report_date) {
       setError("Tanggal wajib diisi.");
@@ -238,188 +292,219 @@ export default function FoodWasteForm({ open, initialData, loading, onClose, onS
     });
   };
 
+  const handleWasteKeyDown = (event, field) => {
+    if (event.key !== "Enter") return;
+    if (event.isComposing || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+
+    const fieldOrder = ["total_portions", ...WASTE_ROWS.map((row) => row.field), "menu_notes"];
+    const currentIndex = fieldOrder.indexOf(field);
+    const nextField = fieldOrder[Math.min(currentIndex + 1, fieldOrder.length - 1)];
+    focusWasteField(nextField);
+  };
+
   return (
     <div className="modal-backdrop" role="presentation">
-      <form className="modal-card data-form-card data-form-card-lg" onSubmit={handleSubmit}>
-        <div className="modal-header">
-          <div className="unified-modal-title">
-            <span className="unified-modal-icon">
-              <AppIcon name="foodWaste" size={22} weight={APP_ICON_WEIGHT.summary} />
-            </span>
-            <div className="unified-modal-title-copy">
+      <form
+        className="modal-card data-form-card data-form-card-lg food-waste-compact-card"
+        role="dialog"
+        aria-modal="true"
+        onSubmit={handleSubmit}
+      >
+        <div className="modal-header daily-report-editor-header food-waste-editor-header">
+          <button
+            type="button"
+            className="daily-form-close-icon daily-form-close-leading"
+            aria-label="Tutup form input sisa pangan"
+            onClick={onClose}
+            disabled={loading}
+          >
+            <AppIcon name="close" size={20} weight={APP_ICON_WEIGHT.action} />
+          </button>
+          <div className="daily-form-header-main min-w-0 flex-1">
+            <div className="daily-form-header-icon">
+              <AppIcon name="foodWaste" size={24} weight={APP_ICON_WEIGHT.summary} />
+            </div>
+            <div className="daily-form-header-copy">
               <h3>{initialData?.id ? "Edit sisa pangan" : "Tambah sisa pangan"}</h3>
-              <p>Input data sisa pangan harian dan hubungkan menu otomatis berdasarkan tanggal.</p>
+              <p>Catat sisa pangan harian dengan input ringkas dan konteks otomatis.</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} disabled={loading}>
-            Tutup
-          </button>
         </div>
 
-        <div className="data-form-body">
-          <section className="data-form-section">
-            <div className="data-form-section-head">
-              <span className="data-form-step">1.</span>
-              <div>
-                <h4>Tanggal dan Porsi</h4>
-                <p>Pilih tanggal laporan dan cek total porsi yang terhubung dari laporan harian.</p>
-              </div>
-            </div>
-            <div className="form-grid">
-              <div className="form-field">
-                <label htmlFor="food_waste_date">Tanggal</label>
-                <input
-                  id="food_waste_date"
-                  type="date"
-                  value={form.report_date}
-                  onChange={(event) => handleChange("report_date", event.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="food_waste_total_portions">Total porsi</label>
-                <input
-                  id="food_waste_total_portions"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.total_portions}
-                  onChange={(event) => handleNumberChange("total_portions", event.target.value)}
-                  disabled={loading}
-                />
-                <small className="field-hint">
-                  {portionReferenceState?.message ||
-                    "Akan diambil dari Laporan Harian jika tanggal tersedia, tetap bisa disesuaikan."}
-                </small>
-              </div>
-            </div>
-          </section>
-
-          <section className="data-form-section">
-            <div className="data-form-section-head">
-              <span className="data-form-step">2.</span>
-              <div>
-                <h4>Detail Sisa Pangan</h4>
-                <p>Masukkan berat sisa pangan per kategori. Total kilogram dihitung otomatis.</p>
-              </div>
-            </div>
-            <div className="form-grid">
-              <div className="form-field">
-                <label htmlFor="food_waste_carb">Sumber Karbohidrat (kg)</label>
-                <input
-                  id="food_waste_carb"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.carb_source}
-                  onChange={(event) => handleNumberChange("carb_source", event.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="food_waste_protein">Sumber Protein (kg)</label>
-                <input
-                  id="food_waste_protein"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.protein_source}
-                  onChange={(event) => handleNumberChange("protein_source", event.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="food_waste_vegetable">Sayur (kg)</label>
-                <input
-                  id="food_waste_vegetable"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.vegetable}
-                  onChange={(event) => handleNumberChange("vegetable", event.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="food_waste_fruit">Buah (kg)</label>
-                <input
-                  id="food_waste_fruit"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.fruit}
-                  onChange={(event) => handleNumberChange("fruit", event.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="form-field form-field-wide">
-                <label htmlFor="food_waste_total">Total (kg)</label>
-                <input
-                  id="food_waste_total"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.total_kg}
-                  readOnly
-                  disabled
-                />
-                <small className="field-hint">
-                  Otomatis dari sumber karbohidrat + protein + sayur + buah.
-                </small>
-              </div>
-            </div>
-          </section>
-
-          <section className="data-form-section">
-            <div className="data-form-section-head">
-              <span className="data-form-step">3.</span>
-              <div>
-                <h4>Menu / Keterangan</h4>
-                <p>Menu akan terisi otomatis jika data menu pada tanggal tersebut tersedia.</p>
-              </div>
-            </div>
-            <div className="form-field">
-              <label htmlFor="food_waste_menu_notes">Menu / Keterangan bahan sisa</label>
-              <textarea
-                id="food_waste_menu_notes"
-                rows="4"
-                value={form.menu_notes}
-                onChange={(event) => {
-                  setMenuAutoFilled(false);
-                  handleChange("menu_notes", event.target.value);
-                }}
-                disabled={loading}
-                placeholder="Akan terisi otomatis dari laporan menu jika tanggal tersedia."
-              />
-              {form.report_date && (
-                <div
-                  className={`toast mt-2 rounded-xl px-4 py-3 text-sm ${
-                    menuReferenceState?.kind || "info"
-                  }`}
-                >
-                  {loadingMenuReference
-                    ? "Memuat referensi menu..."
-                    : menuReferenceState?.message || formatInfoState(menuReferenceState)}
+        <div className="modal-form data-form food-waste-compact-form">
+          <StickyFormHeader className="food-waste-sticky-header">
+            <div className="daily-editor-command-row food-waste-command-row">
+              <div className="daily-editor-date-field">
+                <div className="date-input-wrap">
+                  <label htmlFor="food_waste_date">Tanggal</label>
+                  <input
+                    id="food_waste_date"
+                    type="date"
+                    value={form.report_date}
+                    onChange={(event) => handleChange("report_date", event.target.value)}
+                    disabled={loading}
+                  />
                 </div>
-              )}
+              </div>
+              <div className="daily-editor-metric">
+                <span>Total porsi</span>
+                <strong>{formatPortions(form.total_portions)}</strong>
+              </div>
+              <div className="daily-editor-metric food-waste-total-metric">
+                <span>Total sisa</span>
+                <strong>{formatWeight(form.total_kg)}</strong>
+              </div>
+              <div className={`daily-editor-metric ${hasBlockingError ? "menu-warning-metric" : ""}`}>
+                <span>Persentase sisa</span>
+                <strong>{wastePercentage.toFixed(2)}%</strong>
+              </div>
             </div>
-          </section>
-        </div>
 
-        {error && <div className="error-message mt-3">{error}</div>}
+            <div className="daily-editor-tools food-waste-editor-tools">
+              <div className={`daily-realtime-status ${hasBlockingError ? "warning" : "ready"}`}>
+                <AppIcon
+                  name={hasBlockingError ? "statusPartial" : "statusFull"}
+                  size={16}
+                  weight={APP_ICON_WEIGHT.action}
+                />
+                {hasBlockingError
+                  ? `${validationErrors.length} data wajib belum valid.`
+                  : "Data otomatis ditampilkan sebagai konteks. Enter pindah field berikutnya."}
+              </div>
+              <div className="food-waste-context-pills">
+                <span className={`food-waste-context-pill ${portionReferenceState?.kind || "info"}`}>
+                  Porsi: {portionReferenceState?.kind === "success" ? "otomatis" : "manual"}
+                </span>
+                <span className={`food-waste-context-pill ${menuReferenceState?.kind || "info"}`}>
+                  Menu: {menuAutoFilled ? "otomatis" : "manual"}
+                </span>
+              </div>
+            </div>
+          </StickyFormHeader>
 
-        <div className="modal-actions data-form-actions">
-          <button type="button" onClick={onClose} disabled={loading}>
-            Batal
-          </button>
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Menyimpan..." : "Simpan"}
-          </button>
+          <div className="food-waste-compact-workspace">
+            <div className="food-waste-compact-main">
+              <section className="food-waste-spreadsheet-section">
+                <div className="menu-spreadsheet-head">
+                  <div>
+                    <span className="menu-spreadsheet-kicker">Konteks laporan</span>
+                    <h4>Tanggal, porsi, dan menu</h4>
+                  </div>
+                  <span>{loadingMenuReference ? "Memuat menu..." : menuAutoFilled ? "Menu otomatis" : "Menu manual"}</span>
+                </div>
+
+                <div className="food-waste-context-grid">
+                  <label className="food-waste-context-field">
+                    <span>Total porsi</span>
+                    <input
+                      id="food_waste_total_portions"
+                      data-food-waste-field="total_portions"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={form.total_portions}
+                      onChange={(event) => handleNumberChange("total_portions", event.target.value)}
+                      onKeyDown={(event) => handleWasteKeyDown(event, "total_portions")}
+                      disabled={loading}
+                    />
+                    <small>{portionReferenceState?.message || "Diambil dari Laporan Harian bila tersedia."}</small>
+                  </label>
+                  <label className="food-waste-context-field food-waste-menu-field">
+                    <span>Menu / keterangan bahan sisa</span>
+                    <textarea
+                      id="food_waste_menu_notes"
+                      data-food-waste-field="menu_notes"
+                      rows="3"
+                      value={form.menu_notes}
+                      onChange={(event) => {
+                        setMenuAutoFilled(false);
+                        handleChange("menu_notes", event.target.value);
+                      }}
+                      disabled={loading}
+                      placeholder="Akan terisi otomatis dari laporan menu jika tanggal tersedia."
+                    />
+                    {form.report_date ? (
+                      <small>
+                        {loadingMenuReference
+                          ? "Memuat referensi menu..."
+                          : menuReferenceState?.message || formatInfoState(menuReferenceState)}
+                      </small>
+                    ) : null}
+                  </label>
+                </div>
+              </section>
+
+              <section className="food-waste-spreadsheet-section">
+                <div className="menu-spreadsheet-head">
+                  <div>
+                    <span className="menu-spreadsheet-kicker">Kategori sisa</span>
+                    <h4>Input berat per kategori</h4>
+                  </div>
+                  <span>Total dihitung otomatis</span>
+                </div>
+
+                <div className="food-waste-row-table" role="table" aria-label="Kategori sisa pangan">
+                  <div className="food-waste-row food-waste-row-head" role="row">
+                    <span>Kategori</span>
+                    <span>Berat</span>
+                    <span>Satuan</span>
+                  </div>
+                  {WASTE_ROWS.map((row) => (
+                    <div className="food-waste-row" role="row" key={row.field}>
+                      <strong>{row.label}</strong>
+                      <input
+                        id={`food_waste_${row.field}`}
+                        data-food-waste-field={row.field}
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={form[row.field]}
+                        onChange={(event) => handleNumberChange(row.field, event.target.value)}
+                        onKeyDown={(event) => handleWasteKeyDown(event, row.field)}
+                        disabled={loading}
+                      />
+                      <span>kg</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <SummaryPanelCard
+              className="food-waste-compact-summary"
+              title="Ringkasan sisa"
+              rows={[
+                { label: "Total porsi", value: formatPortions(form.total_portions) },
+                { label: "Total sisa", value: formatWeight(form.total_kg) },
+                { label: "Sisa per porsi", value: `${formatNumber(wastePerPortion)} kg` },
+              ]}
+              totalLabel="Persentase sisa"
+              totalValue={`${wastePercentage.toFixed(2)}%`}
+              submitLabel="Simpan sisa"
+              loading={loading}
+              disabled={hasBlockingError}
+              disabledReason={validationErrors[0]}
+              note="Total kg otomatis dari empat kategori. Payload tetap memakai field lama."
+            />
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <MobileSubmitBar
+            className="food-waste-mobile-submit-bar"
+            title={formatWeight(form.total_kg)}
+            subtitle={`${wastePercentage.toFixed(2)}% dari ${formatPortions(form.total_portions)} porsi`}
+          >
+            <button
+              type="submit"
+              className="submit-btn mobile-submit-btn"
+              disabled={loading || hasBlockingError}
+              title={hasBlockingError ? validationErrors[0] : undefined}
+            >
+              {loading ? "Menyimpan..." : "Simpan"}
+            </button>
+          </MobileSubmitBar>
         </div>
       </form>
     </div>

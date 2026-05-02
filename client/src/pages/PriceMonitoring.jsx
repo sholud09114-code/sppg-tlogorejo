@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PriceMonitoringModal from "../components/PriceMonitoringModal.jsx";
-import ActionIconButton from "../components/ActionIconButton.jsx";
 import LoadingMessage from "../components/LoadingMessage.jsx";
 import Toast from "../components/Toast.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
+import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
 import {
   fetchItemMasters,
   fetchPriceIncreaseDetection,
@@ -12,6 +12,18 @@ import {
   getCachedShoppingReports,
 } from "../api/shoppingReportApi.js";
 import { formatDateLong, formatMoney } from "../shared/utils/formatters.js";
+
+const HIGH_INCREASE_PERCENT = 10;
+const EMPTY_PRICE_ROWS = [];
+const EMPTY_PRICE_SUMMARY = {};
+const PRICE_FILTERS = [
+  { id: "all", label: "Semua" },
+  { id: "high", label: "Naik tinggi" },
+  { id: "up", label: "Naik" },
+  { id: "stable", label: "Stabil" },
+  { id: "down", label: "Turun" },
+  { id: "no-history", label: "Tanpa histori" },
+];
 
 function getTodayISO() {
   const now = new Date();
@@ -28,6 +40,14 @@ function formatPercent(value) {
   })}%`;
 }
 
+function getPriceStatusClass(status) {
+  return String(status || "tanpa histori").replace(/\s+/g, "-");
+}
+
+function isHighIncrease(row, minPercent = HIGH_INCREASE_PERCENT) {
+  return row.status === "naik" && Number(row.selisih_persen || 0) >= minPercent;
+}
+
 export default function PriceMonitoring() {
   const [defaultReportDate] = useState(getTodayISO);
   const [itemMasters, setItemMasters] = useState([]);
@@ -42,6 +62,7 @@ export default function PriceMonitoring() {
   });
   const [detectionLoading, setDetectionLoading] = useState(false);
   const [detectionData, setDetectionData] = useState(null);
+  const [activePriceFilter, setActivePriceFilter] = useState("all");
 
   useEffect(() => {
     const cachedMasterItems = getCachedItemMasters();
@@ -123,6 +144,7 @@ export default function PriceMonitoring() {
         minPercentIncrease: minPercentRaw,
       });
       setDetectionData(data);
+      setActivePriceFilter(onlyIncreased ? "up" : "all");
       setToast({ kind: null, message: null });
     } catch (err) {
       setDetectionData(null);
@@ -155,7 +177,35 @@ export default function PriceMonitoring() {
     setInitialDetectionLoaded(true);
   }, [initialDetectionLoaded, loading, detectionFilters.report_date]);
 
-  const detectionSummary = detectionData?.summary || {};
+  const detectionSummary = detectionData?.summary || EMPTY_PRICE_SUMMARY;
+  const detectionRows = detectionData?.rows || EMPTY_PRICE_ROWS;
+  const highIncreaseThreshold = Number(detectionFilters.min_percent_increase || HIGH_INCREASE_PERCENT);
+  const highIncreaseCount = useMemo(
+    () => detectionRows.filter((row) => isHighIncrease(row, highIncreaseThreshold)).length,
+    [detectionRows, highIncreaseThreshold]
+  );
+  const visibleDetectionRows = useMemo(() => {
+    return detectionRows.filter((row) => {
+      if (activePriceFilter === "high") return isHighIncrease(row, highIncreaseThreshold);
+      if (activePriceFilter === "up") return row.status === "naik";
+      if (activePriceFilter === "stable") return row.status === "tetap";
+      if (activePriceFilter === "down") return row.status === "turun";
+      if (activePriceFilter === "no-history") return row.status === "tanpa histori";
+      return true;
+    });
+  }, [activePriceFilter, detectionRows, highIncreaseThreshold]);
+
+  const priceFilterCounts = useMemo(
+    () => ({
+      all: detectionRows.length,
+      high: highIncreaseCount,
+      up: Number(detectionSummary.increased_count || 0),
+      stable: Number(detectionSummary.unchanged_count || 0),
+      down: Number(detectionSummary.decreased_count || 0),
+      "no-history": Number(detectionSummary.no_history_count || 0),
+    }),
+    [detectionRows.length, detectionSummary, highIncreaseCount]
+  );
 
   const openMonitoringForRow = (row) => {
     const rowItemName = row.nama_barang_query || row.nama_barang || "";
@@ -189,34 +239,35 @@ export default function PriceMonitoring() {
 
   return (
     <>
-      <section className="feature-page-card">
-        <div className="page-title gap-4">
-          <div className="min-w-0">
-            <h2>Monitoring Harga</h2>
-            <p>Pantau perubahan harga barang dari waktu ke waktu berdasarkan laporan belanja.</p>
+      <section className="feature-page-card price-monitoring-page">
+        <div className="price-monitoring-hero">
+          <div className="price-monitoring-hero-copy">
+            <span className="weekly-section-icon">
+              <AppIcon name="priceMonitoring" size={24} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="min-w-0">
+              <h2>Monitoring Harga</h2>
+              <p>Pantau perubahan harga barang, deteksi kenaikan, dan buka riwayat harga dari laporan belanja.</p>
+            </div>
+          </div>
+          <div className="price-monitoring-hero-meta">
+            <span>Tanggal deteksi</span>
+            <strong>{detectionFilters.report_date ? formatDateLong(detectionFilters.report_date) : "Belum dipilih"}</strong>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="price-monitoring-layout">
           {loading ? <LoadingMessage>Memuat master barang...</LoadingMessage> : null}
 
-          <div id="price-monitoring-trend-section">
-            <PriceMonitoringModal
-              embedded
-              itemMasters={itemMasters}
-              externalRequest={monitoringRequest}
-            />
-          </div>
-
-          <section className="weekly-section">
-            <div className="page-title weekly-section-head">
+          <section className="price-detection-panel">
+            <div className="price-section-head">
               <div>
-                <h2>Deteksi Kenaikan Harga</h2>
+                <h3>Deteksi kenaikan harga</h3>
                 <p>Periksa semua item belanja pada satu tanggal dan bandingkan dengan harga sebelumnya.</p>
               </div>
             </div>
 
-            <form className="weekly-filter-panel" onSubmit={handleDetectionSubmit}>
+            <form className="price-filter-panel" onSubmit={handleDetectionSubmit}>
               <div className="filter-field">
                 <label htmlFor="price_detection_date">Tanggal laporan</label>
                 <input
@@ -280,99 +331,116 @@ export default function PriceMonitoring() {
 
             {detectionData && (
               <div className="price-monitoring-results">
-                <div className="weekly-summary-grid price-monitoring-mobile-summary-grid">
+                <div className="price-kpi-grid">
                   <SummaryMetricCard
                     className="price-monitoring-mobile-summary-card"
-                    label="Total item diperiksa"
+                    label="Item diperiksa"
                     value={Number(detectionSummary.total_checked || 0).toLocaleString("id-ID")}
                     icon="database"
                     tone="blue"
                   />
                   <SummaryMetricCard
                     className="price-monitoring-mobile-summary-card"
-                    label="Jumlah barang naik"
+                    label="Naik harga"
                     value={Number(detectionSummary.increased_count || 0).toLocaleString("id-ID")}
                     icon="trendingUp"
-                    tone="green"
-                  />
-                  <SummaryMetricCard
-                    className="price-monitoring-mobile-summary-card"
-                    label="Jumlah barang turun"
-                    value={Number(detectionSummary.decreased_count || 0).toLocaleString("id-ID")}
-                    icon="trendingDown"
                     tone="amber"
                   />
                   <SummaryMetricCard
                     className="price-monitoring-mobile-summary-card"
-                    label="Jumlah barang tetap"
+                    label="Naik signifikan"
+                    value={highIncreaseCount.toLocaleString("id-ID")}
+                    helper={`>= ${highIncreaseThreshold.toLocaleString("id-ID")}%`}
+                    icon="statusPartial"
+                    tone="amber"
+                  />
+                  <SummaryMetricCard
+                    className="price-monitoring-mobile-summary-card"
+                    label="Stabil"
                     value={Number(detectionSummary.unchanged_count || 0).toLocaleString("id-ID")}
                     icon="activity"
                     tone="blue"
                   />
-                  <SummaryMetricCard
-                    className="price-monitoring-mobile-summary-card"
-                    label="Tanpa histori"
-                    value={Number(detectionSummary.no_history_count || 0).toLocaleString("id-ID")}
-                    icon="database"
-                    tone="blue"
-                  />
                 </div>
 
-                {detectionData.rows.length > 0 ? (
-                  <div className="table-wrap">
-                    <table className="data-table min-w-[1280px]">
-                      <thead>
-                        <tr>
-                          <th className="text-left">Kode Barang</th>
-                          <th className="text-left">Nama Barang</th>
-                          <th className="text-left">Tanggal Sebelumnya</th>
-                          <th className="text-right">Harga Sebelumnya</th>
-                          <th className="text-right">Harga Sekarang</th>
-                          <th className="text-right">Selisih Nominal</th>
-                          <th className="text-right">Selisih Persen</th>
-                          <th className="text-center">Status</th>
-                          <th className="text-center">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {detectionData.rows.map((row) => (
-                          <tr key={`${row.report_item_id}-${row.kode_barang}-${row.nama_barang}`}>
-                            <td className="text-left">{row.kode_barang}</td>
-                            <td className="text-left">{row.nama_barang}</td>
-                            <td className="text-left">{row.tanggal_sebelumnya ? formatDateLong(row.tanggal_sebelumnya) : "-"}</td>
-                            <td className="text-right">{row.harga_sebelumnya == null ? "-" : formatMoney(row.harga_sebelumnya)}</td>
-                            <td className="text-right">{formatMoney(row.harga_sekarang)}</td>
-                            <td className="text-right">{row.selisih_nominal == null ? "-" : formatMoney(row.selisih_nominal)}</td>
-                            <td className="text-right">{formatPercent(row.selisih_persen)}</td>
-                            <td className="text-center">
-                              <span className={`price-status-badge ${row.status.replace(/\s+/g, "-")}`}>
-                                {row.status}
-                              </span>
-                            </td>
-                            <td className="text-center">
-                              <ActionIconButton
-                                action="history"
-                                label="Lihat Riwayat"
-                                onClick={() => openMonitoringForRow(row)}
-                                disabled={
-                                  row.status === "tanpa histori" ||
-                                  (!row.master_item_id && !row.nama_barang_query && !row.nama_barang)
-                                }
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                <div className="daily-filter-chips price-filter-chips" aria-label="Filter status harga">
+                  {PRICE_FILTERS.map((filter) => (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      className={activePriceFilter === filter.id ? "active" : ""}
+                      onClick={() => setActivePriceFilter(filter.id)}
+                    >
+                      <span>{filter.label}</span>
+                      <strong>{priceFilterCounts[filter.id] || 0}</strong>
+                    </button>
+                  ))}
+                </div>
+
+                {visibleDetectionRows.length > 0 ? (
+                  <div className="price-detection-list">
+                    {visibleDetectionRows.map((row) => {
+                      const statusClass = getPriceStatusClass(row.status);
+                      const highIncrease = isHighIncrease(row, highIncreaseThreshold);
+                      const canOpenHistory =
+                        row.status !== "tanpa histori" &&
+                        (row.master_item_id || row.nama_barang_query || row.nama_barang);
+
+                      return (
+                        <article
+                          className={`price-detection-card ${statusClass} ${highIncrease ? "high-increase" : ""}`}
+                          key={`${row.report_item_id}-${row.kode_barang}-${row.nama_barang}`}
+                        >
+                          <div className="price-detection-main">
+                            <span className={`price-status-badge ${statusClass}`}>{row.status}</span>
+                            <div>
+                              <strong>{row.nama_barang || "Barang tanpa nama"}</strong>
+                              <span>{row.kode_barang || "Tanpa kode"} | {row.laporan_menu || "-"}</span>
+                            </div>
+                          </div>
+
+                          <div className="price-detection-values">
+                            <div>
+                              <span>Sebelumnya</span>
+                              <strong>{row.harga_sebelumnya == null ? "-" : formatMoney(row.harga_sebelumnya)}</strong>
+                              <small>{row.tanggal_sebelumnya ? formatDateLong(row.tanggal_sebelumnya) : "Tanpa histori"}</small>
+                            </div>
+                            <div>
+                              <span>Sekarang</span>
+                              <strong>{formatMoney(row.harga_sekarang)}</strong>
+                              <small>{formatMoney(row.selisih_nominal || 0)} | {formatPercent(row.selisih_persen)}</small>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="status-quick-btn price-history-btn"
+                            onClick={() => openMonitoringForRow(row)}
+                            disabled={!canOpenHistory}
+                          >
+                            <AppIcon name="history" size={16} weight={APP_ICON_WEIGHT.action} />
+                            Riwayat
+                          </button>
+                        </article>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="empty-state">
-                    Tidak ada item yang cocok dengan filter deteksi kenaikan pada tanggal ini.
+                    Tidak ada item yang cocok dengan filter harga ini.
                   </div>
                 )}
               </div>
             )}
           </section>
+
+          <div id="price-monitoring-trend-section" className="price-history-panel">
+            <PriceMonitoringModal
+              embedded
+              itemMasters={itemMasters}
+              externalRequest={monitoringRequest}
+            />
+          </div>
         </div>
       </section>
 

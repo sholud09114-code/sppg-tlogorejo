@@ -6,6 +6,8 @@ import {
 import { formatDateLong } from "../shared/utils/formatters.js";
 import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
+const MAX_BATCH_IMPORT_SIZE_BYTES = 5 * 1024 * 1024;
+
 function arrayBufferToBase64(buffer) {
   let binary = "";
   const bytes = new Uint8Array(buffer);
@@ -93,6 +95,14 @@ export default function DailyReportImportModal({
   const handleFileChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_BATCH_IMPORT_SIZE_BYTES) {
+      event.target.value = "";
+      setError("Ukuran file import maksimal 5 MB agar preview tetap stabil.");
+      setPreview(null);
+      setFilePayload(null);
+      return;
+    }
 
     try {
       setLoading(true);

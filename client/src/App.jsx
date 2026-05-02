@@ -96,7 +96,7 @@ export default function App() {
         ) : activePage === "price-monitoring" ? (
           <PriceMonitoring />
         ) : activePage === "weekly" ? (
-          <WeeklyReports />
+          <WeeklyReports onNavigate={navigateToPage} />
         ) : activePage === "beneficiary-groups" ? (
           <BeneficiaryGroups />
         ) : (

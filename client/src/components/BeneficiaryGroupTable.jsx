@@ -7,6 +7,7 @@ export default function BeneficiaryGroupTable({
   onEdit,
   onDelete,
   canManage = true,
+  getIssues = () => [],
 }) {
   if (loading) {
     return <LoadingMessage>Memuat data kelompok...</LoadingMessage>;
@@ -23,15 +24,31 @@ export default function BeneficiaryGroupTable({
   return (
     <>
       <div className="mobile-data-list">
-        {groups.map((group, index) => (
-          <article className="mobile-data-card" key={group.id}>
+        {groups.map((group) => {
+          const issues = getIssues(group);
+          const hasIssues = issues.length > 0;
+
+          return (
+          <article
+            className={`mobile-data-card beneficiary-mobile-card ${hasIssues ? "needs-review" : ""}`}
+            key={group.id}
+          >
             <div className="mobile-data-card-head">
               <div>
                 <div className="mobile-data-card-title">{group.group_name}</div>
                 <div className="mobile-data-card-subtitle">{group.group_type}</div>
               </div>
-              <span className="table-index-badge">{index + 1}</span>
+              <span className={`beneficiary-status-pill ${hasIssues ? "warning" : "ok"}`}>
+                {hasIssues ? "Perlu cek" : "Valid"}
+              </span>
             </div>
+            {hasIssues ? (
+              <div className="beneficiary-issue-list">
+                {issues.map((issue) => (
+                  <span key={issue}>{issue}</span>
+                ))}
+              </div>
+            ) : null}
             <div className="mobile-metric-grid">
               <div className="mobile-metric mobile-metric-emphasis">
                 <span>Total porsi</span>
@@ -61,12 +78,13 @@ export default function BeneficiaryGroupTable({
               </div>
             ) : null}
           </article>
-        ))}
+          );
+        })}
       </div>
 
       <div className="data-table-scroll-shell scroll-affordance desktop-data-table" data-scroll-hint="Geser tabel">
         <div className="table-wrap overflow-x-auto rounded-2xl">
-          <table className="data-table beneficiary-group-table min-w-[1320px]">
+          <table className="data-table beneficiary-group-table min-w-[1180px]">
             <thead>
               <tr>
                 <th className="col-no text-center">No</th>
@@ -77,12 +95,17 @@ export default function BeneficiaryGroupTable({
                 <th className="col-portion text-right">Porsi Siswa Besar</th>
                 <th className="col-portion text-right">Porsi Guru/Tendik Kecil</th>
                 <th className="col-portion text-right">Porsi Guru/Tendik Besar</th>
+                <th className="col-status text-left">Status</th>
                 {canManage ? <th className="col-actions text-center">Aksi</th> : null}
               </tr>
             </thead>
             <tbody>
-              {groups.map((group, index) => (
-                <tr key={group.id}>
+              {groups.map((group, index) => {
+                const issues = getIssues(group);
+                const hasIssues = issues.length > 0;
+
+                return (
+                <tr key={group.id} className={hasIssues ? "needs-review" : ""}>
                   <td className="col-no text-center">
                     <span className="table-index-badge">{index + 1}</span>
                   </td>
@@ -93,6 +116,16 @@ export default function BeneficiaryGroupTable({
                   <td className="col-portion text-right">{Number(group.student_large_portion).toLocaleString("id-ID")}</td>
                   <td className="col-portion text-right">{Number(group.staff_small_portion).toLocaleString("id-ID")}</td>
                   <td className="col-portion text-right">{Number(group.staff_large_portion).toLocaleString("id-ID")}</td>
+                  <td className="col-status text-left">
+                    <div className="beneficiary-status-cell">
+                      <span className={`beneficiary-status-pill ${hasIssues ? "warning" : "ok"}`}>
+                        {hasIssues ? "Perlu cek" : "Valid"}
+                      </span>
+                      {hasIssues ? (
+                        <span className="beneficiary-status-note">{issues.join(", ")}</span>
+                      ) : null}
+                    </div>
+                  </td>
                   {canManage ? (
                     <td className="col-actions text-center">
                       <div className="table-actions">
@@ -102,7 +135,8 @@ export default function BeneficiaryGroupTable({
                     </td>
                   ) : null}
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

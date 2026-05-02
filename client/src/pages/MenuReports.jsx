@@ -264,6 +264,7 @@ export default function MenuReports() {
         <MenuReportForm
           open={formOpen}
           initialData={selectedReport}
+          defaultData={selectedReport ? null : reports[0]}
           loading={saving}
           onClose={() => {
             if (saving) return;

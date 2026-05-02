@@ -802,6 +802,10 @@
   min-width: 130px;
 }
 
+.beneficiary-group-table .col-status {
+  min-width: 150px;
+}
+
 .empty-state {
   background: var(--bg-primary);
   border: 0.5px dashed var(--border-secondary);

@@ -3,6 +3,7 @@ import {
   importBeneficiaryGroups,
   previewBeneficiaryGroupImport,
 } from "../api/beneficiaryGroupApi.js";
+import { AppIcon, APP_ICON_WEIGHT } from "./ui/appIcons.jsx";
 
 const TEMPLATE_HEADERS = [
   "jenis_kelompok",
@@ -12,6 +13,7 @@ const TEMPLATE_HEADERS = [
   "porsi_guru_tendik_kecil",
   "porsi_guru_tendik_besar",
 ];
+const MAX_GROUP_IMPORT_SIZE_BYTES = 5 * 1024 * 1024;
 
 function arrayBufferToBase64(buffer) {
   let binary = "";
@@ -58,6 +60,15 @@ export default function BeneficiaryGroupImportModal({
     () => preview?.rows?.some((row) => row.errors.length > 0),
     [preview]
   );
+  const previewStats = useMemo(() => {
+    const rows = preview?.rows || [];
+    const invalidRows = rows.filter((row) => row.errors.length > 0).length;
+    return {
+      total: rows.length,
+      invalid: invalidRows,
+      valid: rows.length - invalidRows,
+    };
+  }, [preview]);
 
   if (!open) return null;
 
@@ -78,6 +89,14 @@ export default function BeneficiaryGroupImportModal({
   const handleFileChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_GROUP_IMPORT_SIZE_BYTES) {
+      event.target.value = "";
+      setError("Ukuran file import maksimal 5 MB agar preview tetap stabil.");
+      setPreview(null);
+      setFilePayload(null);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -120,22 +139,34 @@ export default function BeneficiaryGroupImportModal({
   return (
     <div className="modal-backdrop" role="presentation">
       <div
-        className="modal-card flex max-h-[calc(100vh-1.5rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
+        className="modal-card beneficiary-import-modal flex max-h-[calc(100vh-1.5rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl p-4 sm:p-5"
         role="dialog"
         aria-modal="true"
       >
-        <div className="modal-header">
-          <div>
-            <h3>Import CSV/Excel</h3>
-            <p>Upload file, cek preview, lalu simpan data kelompok secara batch.</p>
+        <div className="modal-header beneficiary-import-header">
+          <div className="unified-modal-title">
+            <span className="unified-modal-icon">
+              <AppIcon name="import" size={22} weight={APP_ICON_WEIGHT.summary} />
+            </span>
+            <div className="unified-modal-title-copy">
+              <h3>Import CSV/Excel</h3>
+              <p>Upload file, cek preview, lalu simpan data kelompok secara batch.</p>
+            </div>
           </div>
-          <button type="button" onClick={handleClose} disabled={loading || importing}>
-            Tutup
+          <button
+            type="button"
+            className="daily-form-close-icon"
+            onClick={handleClose}
+            disabled={loading || importing}
+            aria-label="Tutup import"
+          >
+            <AppIcon name="close" size={18} weight={APP_ICON_WEIGHT.action} />
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <label className="inline-flex cursor-pointer items-center rounded-xl border border-black/8 bg-white px-4 py-2 text-sm">
+        <div className="beneficiary-import-toolbar">
+          <label className="status-quick-btn beneficiary-file-picker">
+            <AppIcon name="import" size={16} weight={APP_ICON_WEIGHT.action} />
             Pilih file
             <input
               type="file"
@@ -148,10 +179,14 @@ export default function BeneficiaryGroupImportModal({
 
           <button
             type="button"
+            className="daily-reset-btn"
             onClick={downloadTemplate}
             disabled={loading || importing}
           >
-            Download template CSV
+            <span className="button-with-icon">
+              <AppIcon name="docs" size={16} weight={APP_ICON_WEIGHT.action} />
+              Download template CSV
+            </span>
           </button>
         </div>
 
@@ -168,21 +203,67 @@ export default function BeneficiaryGroupImportModal({
 
           {preview && (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="beneficiary-import-stats">
                 <div className="summary-card rounded-2xl p-4">
                   <span className="summary-card-label">Total baris preview</span>
-                  <strong>{preview.rows.length.toLocaleString("id-ID")}</strong>
+                  <strong>{previewStats.total.toLocaleString("id-ID")}</strong>
                 </div>
                 <div className="summary-card rounded-2xl p-4">
-                  <span className="summary-card-label">Status validasi</span>
+                  <span className="summary-card-label">Siap import</span>
+                  <strong className="text-[#2f6b11]">{previewStats.valid.toLocaleString("id-ID")}</strong>
+                </div>
+                <div className="summary-card rounded-2xl p-4">
+                  <span className="summary-card-label">Perlu cek</span>
                   <strong className={hasInvalidRows ? "text-[#a34040]" : "text-[#2f6b11]"}>
-                    {hasInvalidRows ? "Ada baris tidak valid" : "Semua baris valid"}
+                    {previewStats.invalid.toLocaleString("id-ID")}
                   </strong>
                 </div>
               </div>
 
-              <div className="table-wrap overflow-x-auto rounded-2xl">
-                <table className="data-table min-w-[1120px]">
+              <div className="beneficiary-import-mobile-list">
+                {preview.rows.map((row) => {
+                  const invalid = row.errors.length > 0;
+                  return (
+                    <article className={`mobile-data-card beneficiary-import-preview-card ${invalid ? "needs-review" : ""}`} key={row.row_number}>
+                      <div className="mobile-data-card-head">
+                        <div>
+                          <div className="mobile-data-card-title">
+                            {row.data?.group_name || row.raw.group_name || "-"}
+                          </div>
+                          <div className="mobile-data-card-subtitle">
+                            Baris {row.row_number} · {row.data?.group_type || row.raw.group_type || "-"}
+                          </div>
+                        </div>
+                        <span className={`beneficiary-status-pill ${invalid ? "warning" : "ok"}`}>
+                          {invalid ? "Error" : "Valid"}
+                        </span>
+                      </div>
+                      <div className="mobile-metric-grid">
+                        <div className="mobile-metric">
+                          <span>Siswa kecil</span>
+                          <strong>{Number(row.data?.student_small_portion || 0).toLocaleString("id-ID")}</strong>
+                        </div>
+                        <div className="mobile-metric">
+                          <span>Siswa besar</span>
+                          <strong>{Number(row.data?.student_large_portion || 0).toLocaleString("id-ID")}</strong>
+                        </div>
+                        <div className="mobile-metric">
+                          <span>Guru kecil</span>
+                          <strong>{Number(row.data?.staff_small_portion || 0).toLocaleString("id-ID")}</strong>
+                        </div>
+                        <div className="mobile-metric">
+                          <span>Guru besar</span>
+                          <strong>{Number(row.data?.staff_large_portion || 0).toLocaleString("id-ID")}</strong>
+                        </div>
+                      </div>
+                      {invalid ? <div className="beneficiary-issue-list"><span>{row.errors.join(", ")}</span></div> : null}
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="table-wrap beneficiary-import-table-wrap overflow-x-auto rounded-2xl">
+                <table className="data-table beneficiary-import-table min-w-[1120px]">
                   <thead>
                     <tr>
                       <th className="text-center">Baris</th>
@@ -197,7 +278,7 @@ export default function BeneficiaryGroupImportModal({
                   </thead>
                   <tbody>
                     {preview.rows.map((row) => (
-                      <tr key={row.row_number}>
+                      <tr key={row.row_number} className={row.errors.length ? "needs-review" : ""}>
                         <td className="text-center">{row.row_number}</td>
                         <td className="text-left">{row.data?.group_type || row.raw.group_type || "-"}</td>
                         <td className="text-left">{row.data?.group_name || row.raw.group_name || "-"}</td>
@@ -207,9 +288,9 @@ export default function BeneficiaryGroupImportModal({
                         <td className="text-right">{Number(row.data?.staff_large_portion || 0).toLocaleString("id-ID")}</td>
                         <td className="text-center">
                           {row.errors.length ? (
-                            <span className="text-[#a34040]">{row.errors.join(", ")}</span>
+                            <span className="beneficiary-status-note text-[#a34040]">{row.errors.join(", ")}</span>
                           ) : (
-                            <span className="text-[#2f6b11]">Valid</span>
+                            <span className="beneficiary-status-pill ok">Valid</span>
                           )}
                         </td>
                       </tr>
