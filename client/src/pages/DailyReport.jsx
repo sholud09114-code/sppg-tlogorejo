@@ -22,6 +22,12 @@ import {
 } from "../api/dailyReportApi.js";
 import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
 import { formatDateLong } from "../shared/utils/formatters.js";
+import {
+  buildDailyClipboardRow,
+  copyTextToClipboard,
+  DAILY_CLIPBOARD_COLUMNS,
+  formatDailyClipboardText,
+} from "../shared/utils/dailyClipboard.js";
 
 const REPORT_TRACKING_START_DATE = "2026-03-30";
 const DAILY_FILTERS = [
@@ -586,6 +592,40 @@ export default function DailyReport() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [editorOpen, isAdmin, moveActiveRow, triggerActiveStatus]);
 
+  const handleCopyReport = async (report) => {
+    try {
+      const detail = await fetchReportByDate(report.report_date);
+      if (!detail?.exists) {
+        setToast({
+          kind: "warning",
+          message: "Belum ada detail laporan untuk disalin.",
+        });
+        return;
+      }
+      const row = buildDailyClipboardRow(detail);
+      const text = formatDailyClipboardText(detail);
+      const ok = await copyTextToClipboard(text);
+      const filled = row.filter((value) => value !== "").length;
+      const labels = DAILY_CLIPBOARD_COLUMNS.map((col, idx) => `${col.label}: ${row[idx] || "-"}`).join(", ");
+      if (ok) {
+        setToast({
+          kind: "success",
+          message: `Baris ${formatDateLong(report.report_date)} disalin (${filled}/${DAILY_CLIPBOARD_COLUMNS.length} kolom). ${labels}`,
+        });
+      } else {
+        setToast({
+          kind: "danger",
+          message: "Gagal menyalin ke clipboard. Coba lagi atau salin manual: " + text,
+        });
+      }
+    } catch (err) {
+      setToast({
+        kind: "danger",
+        message: "Gagal menyalin laporan: " + err.message,
+      });
+    }
+  };
+
   const handleViewReport = async (report) => {
     try {
       const detail = await fetchReportByDate(report.report_date);
@@ -918,6 +958,7 @@ export default function DailyReport() {
 
         <div className="feature-data-panel mt-4">
           <DailyReportTable
+            onCopy={handleCopyReport}
             reports={reports}
             loading={reportsLoading}
             onView={handleViewReport}

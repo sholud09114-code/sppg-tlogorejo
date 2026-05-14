@@ -9,6 +9,7 @@ import reportRoutes from "./routes/reportRoutes.js";
 import beneficiaryGroupRoutes from "./routes/beneficiaryGroupRoutes.js";
 import menuReportRoutes from "./routes/menuReportRoutes.js";
 import shoppingReportRoutes from "./modules/shopping-reports/shoppingReport.routes.js";
+import menuPlanRoutes from "./modules/menu-plans/menuPlan.routes.js";
 import itemMasterRoutes from "./routes/itemMasterRoutes.js";
 import foodWasteRoutes from "./routes/foodWasteRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
@@ -19,6 +20,7 @@ import { ensureMenuReportsTable } from "./controllers/menuReportController.js";
 import { authenticateToken, requireAdminForMutations } from "./middleware/auth.js";
 import { ensureDailyReportDetailColumns } from "./modules/daily-reports/dailyReport.controller.js";
 import { ensureShoppingReportsTables } from "./modules/shopping-reports/shoppingReport.repository.js";
+import { ensureMenuPlansTables } from "./modules/menu-plans/menuPlan.repository.js";
 import { assertRuntimeConfig, isProductionEnv } from "./config/env.js";
 import { assertJwtSecretConfigured } from "./utils/jwt.js";
 import {
@@ -84,6 +86,7 @@ app.use("/api/units", schoolRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/beneficiary-groups", beneficiaryGroupRoutes);
 app.use("/api/menu-reports", menuReportRoutes);
+app.use("/api/menu-plans", menuPlanRoutes);
 app.use("/api/shopping-reports", shoppingReportRoutes);
 app.use("/api/item-masters", itemMasterRoutes);
 app.use("/api/food-waste", foodWasteRoutes);
@@ -111,6 +114,7 @@ async function initializeRuntimeTables() {
   await ensureMenuReportsTable();
   await ensureItemMastersTable();
   await ensureShoppingReportsTables();
+  await ensureMenuPlansTables();
   await ensureFoodWasteTable();
 }
 

@@ -5,6 +5,7 @@ const DESKTOP_TABS = [
   { id: "home", label: "Beranda", shortLabel: "Beranda", icon: "home" },
   { id: "daily", label: "Laporan Harian", shortLabel: "Harian", icon: "daily" },
   { id: "menu-reports", label: "Laporan Menu", shortLabel: "Menu", icon: "menuReports" },
+  { id: "menu-plans", label: "Rencana Menu", shortLabel: "Rencana", icon: "menuPlans" },
   { id: "shopping-reports", label: "Laporan Belanja", shortLabel: "Belanja", icon: "shoppingReports" },
   { id: "food-waste", label: "Sisa Pangan", shortLabel: "Sisa", icon: "foodWaste" },
   { id: "price-monitoring", label: "Monitoring Harga", shortLabel: "Harga", icon: "priceMonitoring" },
@@ -22,6 +23,7 @@ const MOBILE_PRIMARY_TABS = [
 ];
 
 const MOBILE_SECONDARY_TABS = [
+  { id: "menu-plans", label: "Rencana Menu", icon: "menuPlans" },
   { id: "shopping-reports", label: "Laporan Belanja", icon: "shoppingReports" },
   { id: "price-monitoring", label: "Monitoring Harga", icon: "priceMonitoring" },
   { id: "beneficiary-groups", label: "Data Kelompok", icon: "beneficiaryGroups" },

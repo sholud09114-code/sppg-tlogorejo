@@ -8,6 +8,7 @@ export default function DailyReportTable({
   onView,
   onEdit,
   onDelete,
+  onCopy,
   canManage = true,
 }) {
   if (loading) {
@@ -58,6 +59,13 @@ export default function DailyReportTable({
             </div>
             <div className="table-actions mobile-table-actions">
               <ActionIconButton action="view" label="Lihat" onClick={() => onView(report)} />
+              {onCopy ? (
+                <ActionIconButton
+                  action="copy"
+                  label="Salin"
+                  onClick={() => onCopy(report)}
+                />
+              ) : null}
               {canManage ? (
                 <>
                   <ActionIconButton action="edit" label="Edit" onClick={() => onEdit(report.report_date)} />
@@ -115,6 +123,13 @@ export default function DailyReportTable({
                   <td className="col-actions text-center">
                     <div className="table-actions">
                       <ActionIconButton action="view" label="Lihat" onClick={() => onView(report)} />
+                      {onCopy ? (
+                        <ActionIconButton
+                          action="copy"
+                          label="Salin"
+                          onClick={() => onCopy(report)}
+                        />
+                      ) : null}
                       {canManage ? (
                         <>
                           <ActionIconButton action="edit" label="Edit" onClick={() => onEdit(report.report_date)} />

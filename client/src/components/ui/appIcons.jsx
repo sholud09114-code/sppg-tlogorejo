@@ -7,6 +7,7 @@ import {
   ChartBar,
   ChartLineUp,
   ClipboardText,
+  Copy,
   ClockCounterClockwise,
   Calculator,
   CheckCircle,
@@ -51,6 +52,7 @@ export const appIconMap = {
   home: House,
   daily: CalendarCheck,
   menuReports: ListChecks,
+  menuPlans: CalendarDots,
   shoppingReports: ShoppingCart,
   foodWaste: Trash,
   priceMonitoring: ChartLineUp,
@@ -93,6 +95,7 @@ export const appIconMap = {
   statusHoliday: Prohibit,
   send: PaperPlaneTilt,
   add: Plus,
+  copy: Copy,
 };
 
 export function AppIcon({

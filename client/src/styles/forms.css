@@ -2442,3 +2442,1239 @@ textarea:focus {
 .beneficiary-import-mobile-list {
   display: none;
 }
+
+/* ====================
+ * Menu plans
+ * ==================== */
+
+.menu-plans-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-plan-table .data-cell-truncate {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-plan-modal {
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.menu-plan-form-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-plan-form-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.menu-plan-form-head h3 {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.menu-plan-form-head .muted {
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  margin-top: 4px;
+}
+
+.menu-plan-form-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.menu-plan-form-meta input {
+  width: 100%;
+  border: 1px solid rgba(149, 169, 226, 0.32);
+  border-radius: var(--radius-sm, 10px);
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+}
+
+.menu-plan-form-notes {
+  grid-column: span 2;
+}
+
+.menu-plan-grid-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(149, 169, 226, 0.22);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.menu-plan-grid {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.menu-plan-grid th,
+.menu-plan-grid td {
+  border-bottom: 1px solid rgba(149, 169, 226, 0.18);
+  border-right: 1px solid rgba(149, 169, 226, 0.18);
+  padding: 8px 10px;
+  vertical-align: top;
+  font-size: 12.5px;
+  background: #fff;
+}
+
+.menu-plan-grid thead th {
+  background: rgba(228, 235, 250, 0.55);
+  font-weight: 700;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.menu-plan-grid-corner {
+  width: 140px;
+  text-align: left !important;
+}
+
+.menu-plan-grid-rowhead {
+  width: 140px;
+  font-weight: 700;
+  background: rgba(245, 247, 253, 0.7) !important;
+  text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.menu-plan-day-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.menu-plan-day-head span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.menu-plan-grid td textarea {
+  width: 100%;
+  min-height: 56px;
+  resize: vertical;
+  border: 1px solid rgba(149, 169, 226, 0.22);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.menu-plan-grid td textarea:focus {
+  outline: none;
+  border-color: rgba(85, 117, 196, 0.6);
+  box-shadow: 0 0 0 2px rgba(85, 117, 196, 0.18);
+}
+
+.menu-plan-grid th.is-holiday,
+.menu-plan-grid td.is-holiday {
+  background: rgba(255, 230, 215, 0.5);
+}
+
+.menu-plan-holiday-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(149, 169, 226, 0.32);
+  background: #fff;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.menu-plan-holiday-toggle.active {
+  background: rgba(220, 60, 60, 0.12);
+  border-color: rgba(220, 60, 60, 0.38);
+  color: #b42318;
+}
+
+.menu-plan-holiday-cell {
+  text-align: center;
+  font-weight: 700;
+  color: #b42318;
+  letter-spacing: 0.04em;
+  padding: 8px 0;
+}
+
+.menu-plan-detail-cell {
+  margin: 0;
+  font-family: inherit;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.menu-plan-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.menu-plan-form-footer .secondary-btn {
+  background: #fff;
+  border: 1px solid rgba(149, 169, 226, 0.32);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menu-plan-notes {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(248, 251, 255, 0.8);
+  border: 1px solid rgba(149, 169, 226, 0.22);
+  border-radius: 12px;
+  font-size: 12.5px;
+}
+
+.form-error {
+  padding: 8px 12px;
+  background: rgba(220, 60, 60, 0.08);
+  border: 1px solid rgba(220, 60, 60, 0.32);
+  color: #b42318;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .menu-plan-form-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .menu-plan-form-notes {
+    grid-column: span 2;
+  }
+  .menu-plan-grid {
+    min-width: 720px;
+  }
+}
+
+/* ====================
+ * Menu plan import
+ * ==================== */
+
+.menu-plan-import-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.menu-plan-import-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-plan-import-dropzone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  border: 1.5px dashed rgba(149, 169, 226, 0.5);
+  border-radius: 16px;
+  background: rgba(248, 251, 255, 0.6);
+  cursor: pointer;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.menu-plan-import-dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.menu-plan-import-dropzone img {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.menu-plan-import-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.menu-plan-import-empty strong {
+  color: var(--text-primary);
+}
+
+.menu-plan-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.menu-plan-import-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.menu-plan-import-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(248, 251, 255, 0.85);
+  border: 1px solid rgba(149, 169, 226, 0.22);
+  border-radius: 14px;
+  font-size: 12.5px;
+}
+
+.menu-plan-import-summary strong {
+  display: block;
+  font-size: 13.5px;
+}
+
+.menu-plan-import-summary span {
+  display: block;
+  color: var(--text-secondary);
+}
+
+.menu-plan-import-count {
+  flex-shrink: 0;
+  background: rgba(85, 117, 196, 0.12);
+  color: rgba(40, 65, 130, 0.92);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.menu-plan-grid-compact th,
+.menu-plan-grid-compact td {
+  font-size: 11.5px;
+  padding: 6px 8px;
+}
+
+.menu-plan-grid-compact .menu-plan-detail-cell {
+  font-size: 11.5px;
+}
+
+.menu-plan-import-warnings {
+  list-style: disc inside;
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(254, 247, 224, 0.7);
+  border: 1px solid rgba(244, 196, 64, 0.4);
+  color: #7a4d00;
+  border-radius: 12px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-plan-import-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  border: 1px dashed rgba(149, 169, 226, 0.32);
+  border-radius: 16px;
+  padding: 32px 16px;
+  color: var(--text-secondary);
+}
+
+.menu-plan-import-placeholder strong {
+  color: var(--text-primary);
+}
+
+.action-btn-secondary {
+  background: #fff;
+  border: 1px solid rgba(149, 169, 226, 0.4);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.action-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .menu-plan-import-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ====================
+ * Menu plan detail (per-day cards)
+ * ==================== */
+
+.menu-plan-detail-modal {
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.menu-plan-day-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.menu-plan-day-card {
+  border: 1px solid rgba(149, 169, 226, 0.22);
+  border-radius: 16px;
+  background: #fff;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-plan-day-card.is-holiday {
+  background: rgba(255, 230, 215, 0.45);
+  border-color: rgba(220, 60, 60, 0.32);
+}
+
+.menu-plan-day-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.menu-plan-day-card-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-plan-day-card-title strong {
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.menu-plan-day-card-title span {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.menu-plan-day-holiday-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(220, 60, 60, 0.12);
+  color: #b42318;
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(220, 60, 60, 0.32);
+}
+
+.menu-plan-day-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.menu-plan-day-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 6px 0;
+  border-top: 1px dashed rgba(149, 169, 226, 0.22);
+}
+
+.menu-plan-day-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.menu-plan-day-row dt {
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.menu-plan-day-row dd {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.menu-plan-day-entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-plan-day-entries li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  line-height: 1.35;
+}
+
+.menu-plan-portion-tag {
+  display: inline-flex;
+  align-items: center;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.menu-plan-portion-tag.tag-pmb {
+  background: rgba(85, 117, 196, 0.12);
+  color: rgba(40, 65, 130, 0.92);
+  border-color: rgba(85, 117, 196, 0.32);
+}
+
+.menu-plan-portion-tag.tag-pmk {
+  background: rgba(78, 156, 86, 0.14);
+  color: rgba(36, 90, 50, 0.92);
+  border-color: rgba(78, 156, 86, 0.32);
+}
+
+@media (max-width: 720px) {
+  .menu-plan-day-list {
+    grid-template-columns: 1fr;
+  }
+  .menu-plan-day-row {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+}
+
+/* ====================
+ * Menu plan list views
+ * ==================== */
+
+.menu-plan-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(248, 251, 255, 0.85);
+  border: 1px solid rgba(149, 169, 226, 0.22);
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.menu-plan-view-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.menu-plan-view-toggle-btn.active {
+  background: #fff;
+  color: rgba(40, 65, 130, 0.92);
+  box-shadow: 0 1px 3px rgba(40, 65, 130, 0.12);
+}
+
+.menu-plan-daily-table th,
+.menu-plan-daily-table td {
+  vertical-align: top;
+  font-size: 12.5px;
+  padding: 10px 12px;
+}
+
+.menu-plan-daily-table thead th {
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.menu-plan-daily-table .menu-plan-period-cell {
+  background: rgba(248, 251, 255, 0.85);
+  border-right: 1px solid rgba(149, 169, 226, 0.18);
+  vertical-align: top;
+  text-align: left;
+  min-width: 160px;
+}
+
+.menu-plan-daily-table .menu-plan-period-cell strong {
+  display: block;
+  font-size: 13.5px;
+}
+
+.menu-plan-daily-table .menu-plan-period-cell span {
+  display: block;
+  font-size: 12px;
+}
+
+.menu-plan-daily-table .menu-plan-period-cell .muted {
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  margin-top: 4px;
+}
+
+.menu-plan-daily-table .menu-plan-day-cell strong {
+  display: block;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.menu-plan-daily-table .menu-plan-day-cell span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+}
+
+.menu-plan-daily-table tr.is-holiday > td:not(.menu-plan-actions-cell) {
+  background: rgba(255, 230, 215, 0.4);
+}
+
+.menu-plan-daily-table td.is-holiday {
+  background: rgba(255, 230, 215, 0.55);
+}
+
+.menu-plan-actions-cell {
+  background: rgba(248, 251, 255, 0.6);
+  border-left: 1px solid rgba(149, 169, 226, 0.18);
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .menu-plan-daily-table {
+    min-width: 760px;
+  }
+}
+
+/* ====================
+ * Menu plan action buttons (with labels)
+ * ==================== */
+
+.menu-plan-actions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.menu-plan-actions-stack.menu-plan-actions-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.menu-plan-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(149, 169, 226, 0.32);
+  background: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.menu-plan-action-btn:hover {
+  background: rgba(248, 251, 255, 0.96);
+  border-color: rgba(85, 117, 196, 0.45);
+  color: rgba(40, 65, 130, 0.92);
+}
+
+.menu-plan-action-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(85, 117, 196, 0.32);
+}
+
+.menu-plan-action-btn-danger {
+  color: #b42318;
+}
+
+.menu-plan-action-btn-danger:hover {
+  background: rgba(220, 60, 60, 0.08);
+  border-color: rgba(220, 60, 60, 0.45);
+  color: #b42318;
+}
+
+@media (max-width: 720px) {
+  .menu-plan-actions-stack.menu-plan-actions-inline {
+    flex-direction: column;
+  }
+}
+
+/* ====================
+ * Menu plan copy button
+ * ==================== */
+
+.menu-plan-day-cell-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.menu-plan-day-card-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-plan-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(149, 169, 226, 0.32);
+  background: #fff;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.menu-plan-copy-btn:hover {
+  background: rgba(85, 117, 196, 0.08);
+  border-color: rgba(85, 117, 196, 0.42);
+  color: rgba(40, 65, 130, 0.92);
+}
+
+.menu-plan-copy-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(85, 117, 196, 0.32);
+}
+
+/* ====================
+ * Menu plan mobile cards
+ * ==================== */
+
+.menu-plan-mobile-list {
+  display: none;
+}
+
+.menu-plan-mobile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-plan-mobile-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.menu-plan-mobile-card-head strong {
+  display: block;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.menu-plan-mobile-card-head span {
+  display: block;
+  font-size: 12.5px;
+}
+
+.menu-plan-mobile-card-head .muted {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.menu-plan-mobile-card-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.menu-plan-action-btn-compact {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  gap: 4px;
+}
+
+.menu-plan-mobile-notes {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  background: rgba(248, 251, 255, 0.85);
+  border-radius: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(149, 169, 226, 0.2);
+}
+
+.menu-plan-mobile-day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-plan-mobile-day {
+  border: 1px solid rgba(149, 169, 226, 0.22);
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-plan-mobile-day.is-holiday {
+  background: rgba(255, 230, 215, 0.45);
+  border-color: rgba(220, 60, 60, 0.32);
+}
+
+.menu-plan-mobile-day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.menu-plan-mobile-day-head strong {
+  display: block;
+  font-size: 13.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.menu-plan-mobile-day-head span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+.menu-plan-mobile-day-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.menu-plan-mobile-day-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.menu-plan-mobile-day-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 4px 0;
+  border-top: 1px dashed rgba(149, 169, 226, 0.22);
+}
+
+.menu-plan-mobile-day-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.menu-plan-mobile-day-row dt {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.menu-plan-mobile-day-row dd {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.menu-plan-mobile-day-row .menu-plan-day-entries li {
+  font-size: 12.5px;
+}
+
+@media (max-width: 720px) {
+  .menu-plan-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .menu-plans-page .desktop-data-table {
+    display: none;
+  }
+  .menu-plan-view-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+  .menu-plan-view-toggle-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .menu-plans-page .menu-reports-summary-grid,
+  .menu-plans-page .grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  .menu-plan-form-meta {
+    grid-template-columns: 1fr;
+  }
+  .menu-plan-form-notes {
+    grid-column: span 1;
+  }
+  .menu-plan-form-footer {
+    flex-direction: column;
+  }
+  .menu-plan-form-footer button {
+    width: 100%;
+    justify-content: center;
+  }
+  .menu-plan-mobile-day-row {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+  .menu-plan-day-list {
+    grid-template-columns: 1fr;
+  }
+  .menu-plan-import-grid {
+    grid-template-columns: 1fr;
+  }
+  .menu-plan-detail-modal,
+  .menu-plan-modal {
+    max-height: calc(100dvh - 16px);
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-plan-mobile-card-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .menu-plan-mobile-card-tools {
+    justify-content: flex-start;
+  }
+  .menu-plan-mobile-day-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .menu-plan-mobile-day-tools {
+    justify-content: flex-start;
+  }
+  .menu-plan-mobile-day-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+/* ====================
+ * Menu plan modal/form mobile polish
+ * ==================== */
+
+.menu-plan-form-mobile-editor {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .menu-plan-modal,
+  .menu-plan-detail-modal {
+    width: min(100%, calc(100vw - 12px));
+    max-height: calc(100dvh - 16px);
+    padding: 12px 12px 92px;
+    border-radius: 18px;
+  }
+
+  .menu-plan-form-shell {
+    gap: 12px;
+  }
+
+  .menu-plan-form-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .menu-plan-form-head h3 {
+    font-size: 16px;
+  }
+
+  .menu-plan-form-mobile-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .menu-plan-grid-desktop {
+    display: none;
+  }
+
+  .menu-plan-form-day {
+    border: 1px solid rgba(149, 169, 226, 0.22);
+    border-radius: 14px;
+    background: #fff;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .menu-plan-form-day.is-holiday {
+    background: rgba(255, 230, 215, 0.45);
+    border-color: rgba(220, 60, 60, 0.32);
+  }
+
+  .menu-plan-form-day-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .menu-plan-form-day-head strong {
+    display: block;
+    font-size: 13.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .menu-plan-form-day-head span {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+  }
+
+  .menu-plan-form-day-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .menu-plan-form-day-row {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  .menu-plan-form-day-label {
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding-top: 8px;
+  }
+
+  .menu-plan-form-day-row textarea {
+    width: 100%;
+    border: 1px solid rgba(149, 169, 226, 0.22);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 13px;
+    font-family: inherit;
+    min-height: 36px;
+    resize: vertical;
+  }
+
+  .menu-plan-form-footer {
+    position: sticky;
+    bottom: -12px;
+    margin: 0 -12px -12px;
+    padding: 10px 12px env(safe-area-inset-bottom);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(149, 169, 226, 0.18);
+    z-index: 5;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .menu-plan-form-footer button {
+    flex: 1;
+  }
+
+  .menu-plan-import-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-plan-import-uploader {
+    order: 1;
+  }
+
+  .menu-plan-import-preview {
+    order: 2;
+  }
+
+  .menu-plan-import-grid .menu-plan-grid-wrap {
+    display: none;
+  }
+
+  .menu-plan-import-grid .menu-plan-import-summary {
+    flex-wrap: wrap;
+  }
+
+  .menu-plan-day-row {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .menu-plan-form-day-row textarea {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-plan-modal,
+  .menu-plan-detail-modal {
+    border-radius: 14px;
+    padding: 10px 10px 88px;
+  }
+
+  .menu-plan-form-day-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .menu-plan-form-day-label {
+    padding-top: 0;
+  }
+}
+
+/* ====================
+ * Menu plan modal header polish (mobile)
+ * ==================== */
+
+.menu-plan-modal .menu-plan-form-head,
+.menu-plan-detail-modal .menu-plan-form-head {
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+
+.menu-plan-modal .menu-plan-form-head > div:first-child,
+.menu-plan-detail-modal .menu-plan-form-head > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.menu-plan-modal .menu-plan-form-head .rich-detail-eyebrow,
+.menu-plan-detail-modal .menu-plan-form-head .rich-detail-eyebrow {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.menu-plan-modal .menu-plan-form-head h3,
+.menu-plan-detail-modal .menu-plan-form-head h3 {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.menu-plan-modal .menu-plan-form-head .rich-detail-close-btn,
+.menu-plan-detail-modal .menu-plan-form-head .rich-detail-close-btn {
+  width: auto;
+  flex: 0 0 auto;
+  min-width: 0;
+  white-space: nowrap;
+  padding: 0 14px;
+}
+
+@media (max-width: 720px) {
+  .menu-plan-modal .menu-plan-form-head,
+  .menu-plan-detail-modal .menu-plan-form-head {
+    align-items: center;
+  }
+
+  .menu-plan-modal .menu-plan-form-head .rich-detail-close-btn,
+  .menu-plan-detail-modal .menu-plan-form-head .rich-detail-close-btn {
+    width: auto !important;
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 12.5px;
+  }
+
+  .menu-plan-modal .menu-plan-form-head h3,
+  .menu-plan-detail-modal .menu-plan-form-head h3 {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .menu-plan-modal .menu-plan-form-head .muted,
+  .menu-plan-detail-modal .menu-plan-form-head .muted {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .menu-plan-modal .menu-plan-form-head .rich-detail-eyebrow,
+  .menu-plan-detail-modal .menu-plan-form-head .rich-detail-eyebrow {
+    font-size: 10.5px;
+  }
+}
+
+/* ====================
+ * Daily report copy button
+ * ==================== */
+
+.daily-report-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

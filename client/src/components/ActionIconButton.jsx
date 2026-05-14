@@ -5,6 +5,7 @@ const ICON_MAP = {
   edit: "edit",
   delete: "delete",
   history: "history",
+  copy: "copy",
 };
 
 export default function ActionIconButton({

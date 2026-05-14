@@ -12,6 +12,7 @@ const DailyReport = lazy(() => import("./pages/DailyReport.jsx"));
 const FoodWaste = lazy(() => import("./pages/FoodWaste.jsx"));
 const Home = lazy(() => import("./pages/Home.jsx"));
 const MenuReports = lazy(() => import("./pages/MenuReports.jsx"));
+const MenuPlans = lazy(() => import("./pages/MenuPlans.jsx"));
 const PriceMonitoring = lazy(() => import("./pages/PriceMonitoring.jsx"));
 const ShoppingReports = lazy(() => import("./pages/ShoppingReports.jsx"));
 const WeeklyReports = lazy(() => import("./pages/WeeklyReports.jsx"));
@@ -20,6 +21,7 @@ const PAGE_ROUTES = {
   home: "/",
   daily: "/daily",
   "menu-reports": "/menu-reports",
+  "menu-plans": "/menu-plans",
   "shopping-reports": "/shopping-reports",
   "food-waste": "/food-waste",
   "price-monitoring": "/price-monitoring",
@@ -91,6 +93,8 @@ export default function App() {
             <DailyReport />
           ) : activePage === "menu-reports" ? (
             <MenuReports />
+          ) : activePage === "menu-plans" ? (
+            <MenuPlans />
           ) : activePage === "shopping-reports" ? (
             <ShoppingReports />
           ) : activePage === "food-waste" ? (
