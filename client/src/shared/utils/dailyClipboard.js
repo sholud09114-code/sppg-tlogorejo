@@ -139,28 +139,68 @@ export function formatDailyClipboardText(report) {
   return buildDailyClipboardRow(report).join("\t");
 }
 
-export async function copyTextToClipboard(text) {
-  if (text == null) return false;
-  if (navigator?.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (_err) {
-      // fall through
-    }
-  }
+function legacyCopyTextToClipboard(text) {
   try {
     const textarea = document.createElement("textarea");
     textarea.value = text;
     textarea.setAttribute("readonly", "");
     textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
     textarea.style.opacity = "0";
     document.body.appendChild(textarea);
+    const previousActive = document.activeElement;
+    textarea.focus();
     textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
     const ok = document.execCommand("copy");
     document.body.removeChild(textarea);
+    if (previousActive && typeof previousActive.focus === "function") {
+      previousActive.focus({ preventScroll: true });
+    }
     return ok;
   } catch (_err) {
     return false;
   }
+}
+
+export async function copyTextToClipboard(text) {
+  if (text == null) return false;
+  const value = String(text);
+
+  if (legacyCopyTextToClipboard(value)) {
+    return true;
+  }
+
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch (_err) {
+      // fall through
+    }
+  }
+
+  if (
+    typeof window !== "undefined" &&
+    typeof window.ClipboardItem !== "undefined" &&
+    navigator.clipboard?.write
+  ) {
+    try {
+      const item = new window.ClipboardItem({
+        "text/plain": new Blob([value], { type: "text/plain" }),
+      });
+      await navigator.clipboard.write([item]);
+      return true;
+    } catch (_err) {
+      // fall through
+    }
+  }
+
+  return false;
+}
+
+export function copyTextToClipboardSync(text) {
+  if (text == null) return false;
+  return legacyCopyTextToClipboard(String(text));
 }

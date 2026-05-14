@@ -592,38 +592,111 @@ export default function DailyReport() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [editorOpen, isAdmin, moveActiveRow, triggerActiveStatus]);
 
-  const handleCopyReport = async (report) => {
-    try {
-      const detail = await fetchReportByDate(report.report_date);
-      if (!detail?.exists) {
-        setToast({
-          kind: "warning",
-          message: "Belum ada detail laporan untuk disalin.",
-        });
-        return;
-      }
+  const handleCopyReport = (report) => {
+    const reportDateLabel = formatDateLong(report.report_date);
+
+    const computeText = (detail) => {
+      if (!detail?.exists) return "";
+      return formatDailyClipboardText(detail);
+    };
+
+    const showSuccess = (detail, _text) => {
       const row = buildDailyClipboardRow(detail);
-      const text = formatDailyClipboardText(detail);
-      const ok = await copyTextToClipboard(text);
       const filled = row.filter((value) => value !== "").length;
-      const labels = DAILY_CLIPBOARD_COLUMNS.map((col, idx) => `${col.label}: ${row[idx] || "-"}`).join(", ");
-      if (ok) {
-        setToast({
-          kind: "success",
-          message: `Baris ${formatDateLong(report.report_date)} disalin (${filled}/${DAILY_CLIPBOARD_COLUMNS.length} kolom). ${labels}`,
-        });
-      } else {
-        setToast({
-          kind: "danger",
-          message: "Gagal menyalin ke clipboard. Coba lagi atau salin manual: " + text,
-        });
-      }
-    } catch (err) {
+      const labels = DAILY_CLIPBOARD_COLUMNS.map(
+        (col, idx) => `${col.label}: ${row[idx] || "-"}`
+      ).join(", ");
+      setToast({
+        kind: "success",
+        message: `Baris ${reportDateLabel} disalin (${filled}/${DAILY_CLIPBOARD_COLUMNS.length} kolom). ${labels}`,
+      });
+    };
+
+    const showWarningEmpty = () => {
+      setToast({
+        kind: "warning",
+        message: "Belum ada detail laporan untuk disalin.",
+      });
+    };
+
+    const showFailure = (text) => {
       setToast({
         kind: "danger",
-        message: "Gagal menyalin laporan: " + err.message,
+        message: text
+          ? "Gagal menyalin ke clipboard. Salin manual: " + text
+          : "Gagal menyalin ke clipboard.",
       });
+    };
+
+    const fetchPromise = fetchReportByDate(report.report_date);
+
+    // Path 1: modern ClipboardItem with Promise content keeps the user gesture alive.
+    if (
+      typeof window !== "undefined" &&
+      typeof window.ClipboardItem !== "undefined" &&
+      navigator.clipboard?.write
+    ) {
+      let detailRef = null;
+      let textRef = "";
+
+      const textBlobPromise = fetchPromise.then((detail) => {
+        detailRef = detail;
+        textRef = computeText(detail);
+        return new Blob([textRef], { type: "text/plain" });
+      });
+
+      try {
+        const item = new window.ClipboardItem({
+          "text/plain": textBlobPromise,
+        });
+        navigator.clipboard
+          .write([item])
+          .then(() => {
+            if (!detailRef?.exists) {
+              showWarningEmpty();
+              return;
+            }
+            showSuccess(detailRef, textRef);
+          })
+          .catch((err) => {
+            console.warn("Clipboard write rejected", err);
+            if (!detailRef) {
+              showFailure("");
+              return;
+            }
+            if (!detailRef.exists) {
+              showWarningEmpty();
+              return;
+            }
+            showFailure(textRef);
+          });
+        return;
+      } catch (err) {
+        console.warn("Clipboard item unsupported, falling back", err);
+      }
     }
+
+    // Path 2: fallback for browsers without ClipboardItem (older Android, etc.).
+    fetchPromise
+      .then(async (detail) => {
+        if (!detail?.exists) {
+          showWarningEmpty();
+          return;
+        }
+        const text = computeText(detail);
+        const ok = await copyTextToClipboard(text);
+        if (ok) {
+          showSuccess(detail, text);
+        } else {
+          showFailure(text);
+        }
+      })
+      .catch((err) => {
+        setToast({
+          kind: "danger",
+          message: "Gagal menyalin laporan: " + err.message,
+        });
+      });
   };
 
   const handleViewReport = async (report) => {
