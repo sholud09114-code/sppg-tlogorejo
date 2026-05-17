@@ -16,6 +16,9 @@ const MenuPlans = lazy(() => import("./pages/MenuPlans.jsx"));
 const PriceMonitoring = lazy(() => import("./pages/PriceMonitoring.jsx"));
 const ShoppingReports = lazy(() => import("./pages/ShoppingReports.jsx"));
 const WeeklyReports = lazy(() => import("./pages/WeeklyReports.jsx"));
+const ReportEditor = lazy(() => import("./pages/ReportEditor.jsx"));
+const Documentation = lazy(() => import("./pages/Documentation.jsx"));
+const ReportSettings = lazy(() => import("./pages/ReportSettings.jsx"));
 
 const PAGE_ROUTES = {
   home: "/",
@@ -26,6 +29,9 @@ const PAGE_ROUTES = {
   "food-waste": "/food-waste",
   "price-monitoring": "/price-monitoring",
   weekly: "/weekly",
+  "report-editor": "/report-editor",
+  documentation: "/documentation",
+  "report-settings": "/report-settings",
   "beneficiary-groups": "/beneficiary-groups",
 };
 
@@ -103,6 +109,12 @@ export default function App() {
             <PriceMonitoring />
           ) : activePage === "weekly" ? (
             <WeeklyReports onNavigate={navigateToPage} />
+          ) : activePage === "report-editor" ? (
+            <ReportEditor />
+          ) : activePage === "documentation" ? (
+            <Documentation />
+          ) : activePage === "report-settings" ? (
+            <ReportSettings onNavigate={navigateToPage} />
           ) : activePage === "beneficiary-groups" ? (
             <BeneficiaryGroups />
           ) : (

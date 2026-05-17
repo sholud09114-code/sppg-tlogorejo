@@ -19,7 +19,12 @@ import {
   updateShoppingReport,
 } from "../api/shoppingReportApi.js";
 import { fetchMenuReports, getCachedMenuReports } from "../api/menuReportApi.js";
-import { formatMoney, formatNumber } from "../shared/utils/formatters.js";
+import { formatDate, formatMoney, formatNumber } from "../shared/utils/formatters.js";
+import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
+
+function normalizeSearch(value) {
+  return String(value || "").trim().toLowerCase();
+}
 
 function getDifferenceTone(value) {
   const amount = Number(value || 0);
@@ -42,6 +47,7 @@ export default function ShoppingReports() {
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState({ kind: null, message: null });
   const isAdmin = user?.role === "admin";
 
@@ -125,6 +131,25 @@ export default function ShoppingReports() {
       }
     );
   }, [reports]);
+
+  const filteredReports = useMemo(() => {
+    const normalizedSearch = normalizeSearch(searchTerm);
+    if (!normalizedSearch) return reports;
+
+    return reports.filter((report) => {
+      const searchableText = normalizeSearch(
+        [
+          report.menu_name,
+          report.report_date,
+          formatDate(report.report_date),
+          report.notes,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+      return searchableText.includes(normalizedSearch);
+    });
+  }, [reports, searchTerm]);
 
   const handleAdd = () => {
     if (!isAdmin) return;
@@ -345,14 +370,43 @@ export default function ShoppingReports() {
           />
         </div>
 
+        <div className="shopping-control-panel">
+          <div className="daily-unit-search shopping-search">
+            <AppIcon name="search" size={16} weight={APP_ICON_WEIGHT.action} />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Cari nama menu, mis. Sate Ayam..."
+              aria-label="Cari laporan belanja"
+            />
+            {searchTerm ? (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                aria-label="Bersihkan pencarian"
+              >
+                <AppIcon name="close" size={14} weight={APP_ICON_WEIGHT.action} />
+              </button>
+            ) : null}
+          </div>
+          {searchTerm ? (
+            <p className="shopping-search-summary">
+              {filteredReports.length.toLocaleString("id-ID")} dari{" "}
+              {reports.length.toLocaleString("id-ID")} laporan cocok dengan pencarian.
+            </p>
+          ) : null}
+        </div>
+
         <div className="feature-data-panel mt-4">
           <ShoppingReportTable
-            reports={reports}
+            reports={filteredReports}
             loading={loading}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
             canManage={isAdmin}
+            highlightTerm={searchTerm}
           />
         </div>
       </section>

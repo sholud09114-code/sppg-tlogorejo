@@ -7,6 +7,7 @@ import Toast from "../components/Toast.jsx";
 import SummaryMetricCard from "../components/ui/SummaryMetricCard.jsx";
 import { ActionToolbar, DataPanel, PageHeader, PageShell } from "../components/ui/index.js";
 import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
+import { formatDate } from "../shared/utils/formatters.js";
 import {
   createMenuReport,
   deleteMenuReport,
@@ -16,6 +17,10 @@ import {
   updateMenuReport,
 } from "../api/menuReportApi.js";
 
+function normalizeSearch(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
 export default function MenuReports() {
   const { user } = useAuth();
   const [reports, setReports] = useState([]);
@@ -24,6 +29,7 @@ export default function MenuReports() {
   const [formOpen, setFormOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState({ kind: null, message: null });
   const isAdmin = user?.role === "admin";
 
@@ -76,6 +82,29 @@ export default function MenuReports() {
         : "-",
     };
   }, [reports]);
+
+  const filteredReports = useMemo(() => {
+    const normalizedSearch = normalizeSearch(searchTerm);
+    if (!normalizedSearch) return reports;
+
+    return reports.filter((report) => {
+      const searchableText = normalizeSearch(
+        [
+          report.menu_name,
+          report.menu_name_1,
+          report.menu_name_2,
+          report.menu_name_3,
+          report.menu_name_4,
+          report.menu_name_5,
+          report.menu_date,
+          formatDate(report.menu_date),
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+      return searchableText.includes(normalizedSearch);
+    });
+  }, [reports, searchTerm]);
 
   const handleAdd = () => {
     if (!isAdmin) return;
@@ -251,14 +280,43 @@ export default function MenuReports() {
           </div>
         </div>
 
+        <div className="menu-reports-control-panel">
+          <div className="daily-unit-search menu-report-search">
+            <AppIcon name="search" size={16} weight={APP_ICON_WEIGHT.action} />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Cari nama menu, mis. Sate Ayam..."
+              aria-label="Cari nama menu"
+            />
+            {searchTerm ? (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                aria-label="Bersihkan pencarian"
+              >
+                <AppIcon name="close" size={14} weight={APP_ICON_WEIGHT.action} />
+              </button>
+            ) : null}
+          </div>
+          {searchTerm ? (
+            <p className="menu-report-search-summary">
+              {filteredReports.length.toLocaleString("id-ID")} dari{" "}
+              {reports.length.toLocaleString("id-ID")} menu cocok dengan pencarian.
+            </p>
+          ) : null}
+        </div>
+
         <DataPanel>
           <MenuReportTable
-            reports={reports}
+            reports={filteredReports}
             loading={loading}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
             canManage={isAdmin}
+            highlightTerm={searchTerm}
           />
         </DataPanel>
       </PageShell>

@@ -15,6 +15,7 @@ const NUMBER_FIELDS = [
 const IMPORT_COLUMN_MAP = {
   jenis_kelompok: "group_type",
   nama_kelompok: "group_name",
+  alamat: "address",
   porsi_siswa_kecil: "student_small_portion",
   porsi_siswa_besar: "student_large_portion",
   porsi_guru_tendik_kecil: "staff_small_portion",
@@ -44,6 +45,7 @@ function normalizePayload(body) {
   const payload = {
     group_type: groupType,
     group_name: groupName,
+    address: String(body.address || "").trim() || null,
   };
 
   for (const field of NUMBER_FIELDS) {
@@ -165,7 +167,7 @@ function parseImportPayload(body) {
 async function findBeneficiaryGroupById(id) {
   await ensureBeneficiaryGroupsTable();
   const [rows] = await pool.query(
-    `SELECT id, group_type, group_name,
+    `SELECT id, group_type, group_name, address,
             student_small_portion, student_large_portion,
             staff_small_portion, staff_large_portion,
             (
@@ -186,7 +188,7 @@ async function findBeneficiaryGroupById(id) {
 export async function listBeneficiaryGroups(req, res, next) {
   try {
     const [rows] = await pool.query(
-      `SELECT id, group_type, group_name,
+      `SELECT id, group_type, group_name, address,
               student_small_portion, student_large_portion,
               staff_small_portion, staff_large_portion,
               (
@@ -233,12 +235,13 @@ export async function createBeneficiaryGroup(req, res, next) {
 
     const [result] = await pool.query(
       `INSERT INTO beneficiary_groups
-        (group_type, group_name, student_small_portion, student_large_portion,
+        (group_type, group_name, address, student_small_portion, student_large_portion,
          staff_small_portion, staff_large_portion)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         payload.group_type,
         payload.group_name,
+        payload.address,
         payload.student_small_portion,
         payload.student_large_portion,
         payload.staff_small_portion,
@@ -293,6 +296,7 @@ export async function importBeneficiaryGroups(req, res, next) {
     const values = result.rows.map((row) => [
       row.data.group_type,
       row.data.group_name,
+      row.data.address,
       row.data.student_small_portion,
       row.data.student_large_portion,
       row.data.staff_small_portion,
@@ -301,7 +305,7 @@ export async function importBeneficiaryGroups(req, res, next) {
 
     await conn.query(
       `INSERT INTO beneficiary_groups
-        (group_type, group_name, student_small_portion, student_large_portion,
+        (group_type, group_name, address, student_small_portion, student_large_portion,
          staff_small_portion, staff_large_portion)
        VALUES ?`,
       [values]
@@ -340,6 +344,7 @@ export async function updateBeneficiaryGroup(req, res, next) {
       `UPDATE beneficiary_groups
           SET group_type = ?,
               group_name = ?,
+              address = ?,
               student_small_portion = ?,
               student_large_portion = ?,
               staff_small_portion = ?,
@@ -349,6 +354,7 @@ export async function updateBeneficiaryGroup(req, res, next) {
       [
         payload.group_type,
         payload.group_name,
+        payload.address,
         payload.student_small_portion,
         payload.student_large_portion,
         payload.staff_small_portion,

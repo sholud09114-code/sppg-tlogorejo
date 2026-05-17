@@ -2,7 +2,29 @@ import ActionIconButton from "./ActionIconButton.jsx";
 import LoadingMessage from "./LoadingMessage.jsx";
 import { formatDate, formatNumber } from "../shared/utils/formatters.js";
 
-function renderMenuNames(report, className = "") {
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightText(text, term) {
+  const value = String(text ?? "");
+  const needle = String(term ?? "").trim();
+  if (!needle) return value;
+
+  const regex = new RegExp(`(${escapeRegExp(needle)})`, "gi");
+  const parts = value.split(regex);
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <mark className="menu-report-highlight" key={`hl-${index}`}>
+        {part}
+      </mark>
+    ) : (
+      <span key={`txt-${index}`}>{part}</span>
+    )
+  );
+}
+
+function renderMenuNames(report, highlightTerm = "", className = "") {
   const menuNames = [
     report.menu_name_1,
     report.menu_name_2,
@@ -12,14 +34,30 @@ function renderMenuNames(report, className = "") {
   ].filter(Boolean);
 
   if (!menuNames.length) {
-    return report.menu_name || "-";
+    return highlightTerm
+      ? highlightText(report.menu_name || "-", highlightTerm)
+      : report.menu_name || "-";
   }
+
+  const normalizedTerm = String(highlightTerm || "").trim().toLowerCase();
 
   return (
     <div className={["menu-report-menu-list", className].filter(Boolean).join(" ")}>
-      {menuNames.map((name, index) => (
-        <div key={`${report.id}-${index}`}>{name}</div>
-      ))}
+      {menuNames.map((name, index) => {
+        const isMatch =
+          normalizedTerm && String(name).toLowerCase().includes(normalizedTerm);
+        const itemClassName = [
+          "menu-report-menu-item",
+          isMatch ? "menu-report-menu-item-match" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+        return (
+          <div key={`${report.id}-${index}`} className={itemClassName}>
+            {highlightTerm ? highlightText(name, highlightTerm) : name}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -58,6 +96,7 @@ export default function MenuReportTable({
   onEdit,
   onDelete,
   canManage = true,
+  highlightTerm = "",
 }) {
   if (loading) {
     return <LoadingMessage>Memuat data menu...</LoadingMessage>;
@@ -85,7 +124,7 @@ export default function MenuReportTable({
             <div className="mobile-data-section">
               <span className="mobile-data-label">Nama menu</span>
               <div className="mobile-data-copy menu-report-mobile-menu-copy">
-                {renderMenuNames(report, "menu-report-mobile-menu-list")}
+                {renderMenuNames(report, highlightTerm, "menu-report-mobile-menu-list")}
               </div>
             </div>
             <div className="menu-report-card-nutrition">
@@ -151,7 +190,7 @@ export default function MenuReportTable({
                   </td>
                   <td className="col-date text-left">{formatDate(report.menu_date)}</td>
                   <td className="col-menu text-left">
-                    <div className="menu-report-menu-cell">{renderMenuNames(report)}</div>
+                    <div className="menu-report-menu-cell">{renderMenuNames(report, highlightTerm)}</div>
                   </td>
                   <td className="col-nutrition text-left">
                     <NutritionBreakdown

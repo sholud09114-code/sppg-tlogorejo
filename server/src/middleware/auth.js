@@ -2,9 +2,14 @@ import { verifyToken } from "../utils/jwt.js";
 
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization || "";
-  const [scheme, token] = authHeader.split(" ");
+  const [scheme, headerToken] = authHeader.split(" ");
 
-  if (scheme !== "Bearer" || !token) {
+  let token = scheme === "Bearer" ? headerToken : null;
+  if (!token && (req.method === "GET" || req.method === "HEAD") && req.query?.token) {
+    token = String(req.query.token);
+  }
+
+  if (!token) {
     return res.status(401).json({ error: "Token autentikasi wajib dikirim." });
   }
 

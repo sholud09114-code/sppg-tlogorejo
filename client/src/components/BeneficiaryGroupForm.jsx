@@ -14,6 +14,7 @@ function getInitialState(initialData) {
   return {
     group_type: initialData?.group_type || "Paud/KB/TK",
     group_name: initialData?.group_name || "",
+    address: initialData?.address || "",
     student_small_portion: initialData?.student_small_portion ?? 0,
     student_large_portion: initialData?.student_large_portion ?? 0,
     staff_small_portion: initialData?.staff_small_portion ?? 0,
@@ -94,6 +95,7 @@ export default function BeneficiaryGroupForm({ open, initialData, loading, onClo
     const payload = {
       group_type: form.group_type,
       group_name: form.group_name.trim(),
+      address: String(form.address || "").trim(),
     };
 
     for (const field of NUMBER_FIELDS) {
@@ -183,6 +185,19 @@ export default function BeneficiaryGroupForm({ open, initialData, loading, onClo
                   {validation.fieldErrors.group_name ? (
                     <span className="field-error-text">{validation.fieldErrors.group_name}</span>
                   ) : null}
+                </div>
+
+                <div className="form-field form-field-wide md:col-span-2">
+                  <label htmlFor="address">Alamat (opsional)</label>
+                  <input
+                    id="address"
+                    type="text"
+                    className="w-full"
+                    value={form.address}
+                    onChange={(e) => handleChange("address", e.target.value)}
+                    placeholder="Contoh: Jl. Perintis Kemerdekaan, Tlogorejo, Temanggung"
+                    disabled={loading}
+                  />
                 </div>
               </div>
             </section>

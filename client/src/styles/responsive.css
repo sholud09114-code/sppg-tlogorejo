@@ -1,3 +1,26 @@
+@media (max-width: 1180px) {
+  .weekly-dashboard-command-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .weekly-range-field,
+  .weekly-range-summary {
+    grid-column: span 2;
+  }
+
+  .weekly-dashboard-submit {
+    grid-column: span 3;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .weekly-settings-link {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .beneficiary-hero,
   .beneficiary-control-panel,
@@ -482,6 +505,7 @@
   }
 
   .weekly-range-field {
+    grid-column: span 1;
     gap: 5px;
   }
 
@@ -499,6 +523,14 @@
   }
 
   .weekly-dashboard-submit {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 42px;
+    border-radius: 14px;
+    font-size: 13px;
+  }
+
+  .weekly-settings-link {
     grid-column: 1 / -1;
     width: 100%;
     min-height: 42px;

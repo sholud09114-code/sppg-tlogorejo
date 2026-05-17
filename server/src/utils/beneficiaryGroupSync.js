@@ -24,6 +24,7 @@ export function ensureBeneficiaryGroupsTable() {
           id INT AUTO_INCREMENT PRIMARY KEY,
           group_type ENUM('Paud/KB/TK', 'SD', 'SMP/MTs', 'SMK') NOT NULL,
           group_name VARCHAR(150) NOT NULL,
+          address VARCHAR(255) NULL,
           student_small_portion INT NOT NULL DEFAULT 0,
           student_large_portion INT NOT NULL DEFAULT 0,
           staff_small_portion INT NOT NULL DEFAULT 0,
@@ -34,6 +35,15 @@ export function ensureBeneficiaryGroupsTable() {
           INDEX idx_beneficiary_group_name (group_name)
         ) ENGINE=InnoDB`
       );
+
+      const [addressColumn] = await pool.query(
+        `SHOW COLUMNS FROM beneficiary_groups LIKE 'address'`
+      );
+      if (addressColumn.length === 0) {
+        await pool.query(
+          `ALTER TABLE beneficiary_groups ADD COLUMN address VARCHAR(255) NULL AFTER group_name`
+        );
+      }
 
       const [columns] = await pool.query(
         `SHOW COLUMNS FROM units LIKE 'beneficiary_group_id'`
@@ -46,6 +56,13 @@ export function ensureBeneficiaryGroupsTable() {
              ADD UNIQUE KEY uq_units_beneficiary_group_id (beneficiary_group_id),
              ADD INDEX idx_units_beneficiary_group_id (beneficiary_group_id)`
         );
+      }
+
+      const [unitAddressColumn] = await pool.query(
+        `SHOW COLUMNS FROM units LIKE 'address'`
+      );
+      if (unitAddressColumn.length === 0) {
+        await pool.query(`ALTER TABLE units ADD COLUMN address VARCHAR(255) NULL AFTER name`);
       }
     })().catch((err) => {
       ensureSetupPromise = null;
@@ -60,7 +77,7 @@ export async function syncBeneficiaryGroupsToUnits() {
   await ensureBeneficiaryGroupsTable();
 
   const [groups] = await pool.query(
-    `SELECT id, group_type, group_name,
+    `SELECT id, group_type, group_name, address,
             student_small_portion, student_large_portion,
             staff_small_portion, staff_large_portion
        FROM beneficiary_groups
@@ -98,21 +115,22 @@ export async function syncBeneficiaryGroupsToUnits() {
       await pool.query(
         `UPDATE units
             SET name = ?,
+                address = ?,
                 category = ?,
                 default_target = ?,
                 display_order = ?,
                 is_active = 1
           WHERE beneficiary_group_id = ?`,
-        [group.group_name, category, totalPortion, displayOrder, group.id]
+        [group.group_name, group.address || null, category, totalPortion, displayOrder, group.id]
       );
       continue;
     }
 
     await pool.query(
       `INSERT INTO units
-        (beneficiary_group_id, name, category, default_target, display_order, is_active)
-       VALUES (?, ?, ?, ?, ?, 1)`,
-      [group.id, group.group_name, category, totalPortion, displayOrder]
+        (beneficiary_group_id, name, address, category, default_target, display_order, is_active)
+       VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      [group.id, group.group_name, group.address || null, category, totalPortion, displayOrder]
     );
   }
 

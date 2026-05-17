@@ -11,7 +11,8 @@ const DESKTOP_TABS = [
   { id: "price-monitoring", label: "Monitoring Harga", shortLabel: "Harga", icon: "priceMonitoring" },
   { id: "beneficiary-groups", label: "Data Kelompok", shortLabel: "Kelompok", icon: "beneficiaryGroups" },
   { id: "weekly", label: "Laporan Mingguan", shortLabel: "Mingguan", icon: "weekly" },
-  { id: "docs", label: "Dokumentasi", shortLabel: "Docs", icon: "docs", disabled: true, badge: "Segera hadir" },
+  { id: "report-editor", label: "Report Editor (PDF)", shortLabel: "PDF", icon: "weekly" },
+  { id: "documentation", label: "Dokumentasi", shortLabel: "Docs", icon: "docs" },
 ];
 
 const MOBILE_PRIMARY_TABS = [
@@ -28,7 +29,8 @@ const MOBILE_SECONDARY_TABS = [
   { id: "price-monitoring", label: "Monitoring Harga", icon: "priceMonitoring" },
   { id: "beneficiary-groups", label: "Data Kelompok", icon: "beneficiaryGroups" },
   { id: "weekly", label: "Laporan Mingguan", icon: "weekly" },
-  { id: "docs", label: "Dokumentasi", icon: "docs", disabled: true, badge: "Segera hadir" },
+  { id: "report-editor", label: "Report Editor (PDF)", icon: "weekly" },
+  { id: "documentation", label: "Dokumentasi", icon: "docs" },
 ];
 
 function NavButton({ item, active, onPress, mobile = false }) {

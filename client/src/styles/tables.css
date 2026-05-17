@@ -771,6 +771,25 @@
   font-weight: 700;
 }
 
+.menu-report-menu-item-match {
+  background: rgba(255, 235, 153, 0.45);
+  border-radius: 8px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 6px;
+  margin-left: -4px;
+  padding-left: 18px;
+  box-shadow: inset 0 0 0 1px rgba(217, 168, 0, 0.35);
+}
+
+.menu-report-highlight {
+  background: #ffe27a;
+  color: #4a3500;
+  padding: 0 3px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
 .menu-report-nutrition-breakdown {
   display: grid;
   min-width: 0;
@@ -849,6 +868,25 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.shopping-report-highlight {
+  background: #ffe27a;
+  color: #4a3500;
+  padding: 0 3px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.beneficiary-address-cell {
+  max-width: 380px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #354159;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .shopping-money-cell {
@@ -948,6 +986,11 @@
 
 .beneficiary-group-table .col-name {
   min-width: 220px;
+}
+
+.beneficiary-group-table .col-address {
+  min-width: 320px;
+  width: 24%;
 }
 
 .beneficiary-group-table .col-portion {

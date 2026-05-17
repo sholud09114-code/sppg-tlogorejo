@@ -10,6 +10,12 @@ import beneficiaryGroupRoutes from "./routes/beneficiaryGroupRoutes.js";
 import menuReportRoutes from "./routes/menuReportRoutes.js";
 import shoppingReportRoutes from "./modules/shopping-reports/shoppingReport.routes.js";
 import menuPlanRoutes from "./modules/menu-plans/menuPlan.routes.js";
+import weeklyReportRoutes from "./modules/weekly-reports/weeklyReport.routes.js";
+import reportDraftRoutes from "./modules/report-drafts/reportDraft.routes.js";
+import { ensureReportDraftsTable } from "./modules/report-drafts/reportDraft.repository.js";
+import gdriveRoutes from "./modules/gdrive/gdrive.routes.js";
+import documentationRoutes from "./modules/documentation/documentation.routes.js";
+import { ensureDocumentationPhotosTable } from "./modules/documentation/documentation.repository.js";
 import itemMasterRoutes from "./routes/itemMasterRoutes.js";
 import foodWasteRoutes from "./routes/foodWasteRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
@@ -21,6 +27,7 @@ import { authenticateToken, requireAdminForMutations } from "./middleware/auth.j
 import { ensureDailyReportDetailColumns } from "./modules/daily-reports/dailyReport.controller.js";
 import { ensureShoppingReportsTables } from "./modules/shopping-reports/shoppingReport.repository.js";
 import { ensureMenuPlansTables } from "./modules/menu-plans/menuPlan.repository.js";
+import { ensureReportSettingsTable } from "./modules/weekly-reports/reportSettings.repository.js";
 import { assertRuntimeConfig, isProductionEnv } from "./config/env.js";
 import { assertJwtSecretConfigured } from "./utils/jwt.js";
 import {
@@ -83,6 +90,10 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth/login", loginRateLimiter);
 app.use("/api/auth", authRoutes);
 
+// GDrive OAuth callback must be reachable without Bearer (Google redirects the
+// browser here). The other gdrive endpoints are protected below.
+app.use("/api/gdrive/oauth/callback", gdriveRoutes);
+
 // Protected data routes
 app.use(authenticateToken);
 app.use(requireAdminForMutations);
@@ -91,6 +102,10 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/beneficiary-groups", beneficiaryGroupRoutes);
 app.use("/api/menu-reports", menuReportRoutes);
 app.use("/api/menu-plans", menuPlanRoutes);
+app.use("/api/weekly-reports", weeklyReportRoutes);
+app.use("/api/report-drafts", reportDraftRoutes);
+app.use("/api/gdrive", gdriveRoutes);
+app.use("/api/documentation", documentationRoutes);
 app.use("/api/shopping-reports", shoppingReportRoutes);
 app.use("/api/item-masters", itemMasterRoutes);
 app.use("/api/food-waste", foodWasteRoutes);
@@ -119,6 +134,9 @@ async function initializeRuntimeTables() {
   await ensureItemMastersTable();
   await ensureShoppingReportsTables();
   await ensureMenuPlansTables();
+  await ensureReportSettingsTable();
+  await ensureReportDraftsTable();
+  await ensureDocumentationPhotosTable();
   await ensureFoodWasteTable();
 }
 

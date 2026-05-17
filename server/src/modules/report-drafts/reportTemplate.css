@@ -1,0 +1,430 @@
+/* Report A4 Template — shared between server (HTML preview & PDF) and client (Preview tab).
+   Mirror this file at server/src/modules/report-drafts/reportTemplate.css when imported by
+   reportPreviewRenderer; client imports from this same path through the build. */
+
+@page {
+  size: A4;
+  margin: 25.4mm 25.4mm 25.4mm 25.4mm;
+}
+
+.report-doc * {
+  box-sizing: border-box;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.report-doc {
+  font-family: Calibri, Arial, Helvetica, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.34;
+  color: #000;
+  background: #f3f4f6;
+  padding: 0;
+  margin: 0;
+}
+
+.report-doc .page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 25.4mm;
+  background: white;
+  margin: 0 auto 6mm auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  page-break-after: always;
+  break-after: page;
+}
+.report-doc .page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+  margin-bottom: 0;
+}
+
+@media print {
+  .report-doc {
+    background: white;
+    padding: 0;
+  }
+  .report-doc .page {
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    width: auto;
+    min-height: 0;
+  }
+  .report-doc .cover {
+    min-height: 0;
+    padding-top: 0;
+  }
+}
+
+/* ===== Cover ===== */
+.report-doc .cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  min-height: 240mm;
+  padding-top: 26mm;
+}
+.report-doc .cover-logo {
+  width: 36mm;
+  height: 36mm;
+  object-fit: contain;
+  margin-bottom: 17mm;
+}
+.report-doc .cover-logo-fallback {
+  width: 36mm;
+  height: 36mm;
+  margin-bottom: 17mm;
+  border-radius: 50%;
+  background: #f8fafc;
+  border: 0.5mm dashed #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7pt;
+  color: #475569;
+}
+.report-doc .cover-title {
+  font-family: Calibri, Arial, Helvetica, sans-serif;
+  font-size: 23pt;
+  font-weight: 400;
+  letter-spacing: 0.6mm;
+  margin-bottom: 6mm;
+}
+.report-doc .cover-program {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 18pt;
+  font-weight: 700;
+  margin-bottom: 4mm;
+}
+.report-doc .cover-sppg {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 14pt;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  margin-bottom: 6mm;
+}
+.report-doc .cover-id {
+  font-size: 18pt;
+  color: #2f5ca8;
+  font-weight: 400;
+  margin-bottom: 10mm;
+}
+.report-doc .cover-yayasan {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 15pt;
+  margin-bottom: 9mm;
+}
+.report-doc .cover-period {
+  color: #2f5ca8;
+  font-size: 17pt;
+  font-weight: 400;
+  margin-bottom: 24mm;
+}
+.report-doc .cover-location {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 15pt;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  margin-bottom: 3mm;
+}
+
+/* ===== Headings & sections ===== */
+.report-doc h1.report-title {
+  font-size: 14pt;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 1mm 0;
+}
+.report-doc .report-subtitle {
+  text-align: center;
+  margin-bottom: 6mm;
+}
+.report-doc .report-subtitle p {
+  margin: 0;
+}
+
+.report-doc h2.bab {
+  font-size: 10.5pt;
+  font-weight: 700;
+  margin: 7mm 0 4mm 0;
+  text-transform: uppercase;
+  text-indent: 0;
+}
+.report-doc h3.subbab {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: #000;
+  margin: 5mm 0 2mm 0;
+  text-indent: 0;
+}
+.report-doc h4.subsubbab {
+  font-size: 10.5pt;
+  font-weight: 400;
+  color: #000;
+  margin: 3mm 0 1.5mm 0;
+  text-indent: 0;
+}
+.report-doc .prep-heading {
+  margin-left: 8.5mm;
+}
+.report-doc .coordination-label {
+  margin-left: 12.5mm;
+  font-weight: 400;
+}
+.report-doc .prep-heading + .coordination-label + .bullet-list {
+  margin-left: 12.5mm;
+  padding-left: 8mm;
+}
+
+.report-doc p {
+  margin: 0 0 2.4mm 0;
+  text-align: justify;
+  text-indent: 12.7mm;
+}
+.report-doc p.no-indent {
+  text-indent: 0;
+}
+
+.report-doc ol,
+.report-doc ul {
+  margin: 0 0 2.6mm 0;
+  padding-left: 13mm;
+}
+.report-doc li {
+  margin-bottom: 1mm;
+  text-align: justify;
+  padding-left: 1mm;
+}
+.report-doc .ordered-list {
+  list-style-position: outside;
+  padding-left: 14mm;
+}
+.report-doc .bullet-list {
+  list-style-position: outside;
+  padding-left: 12mm;
+}
+.report-doc .subbab + .ordered-list,
+.report-doc .subbab + .bullet-list,
+.report-doc p + .ordered-list,
+.report-doc p + .bullet-list {
+  margin-top: 1mm;
+}
+
+.report-doc .target-list {
+  list-style: none;
+  padding-left: 13mm;
+  width: 112mm;
+}
+.report-doc .target-list li {
+  display: grid;
+  grid-template-columns: 9mm 56mm 1fr;
+  column-gap: 1mm;
+  align-items: baseline;
+  margin-bottom: 0.8mm;
+  padding-left: 0;
+  text-align: left;
+}
+.report-doc .target-list .target-label {
+  text-align: left;
+}
+.report-doc .target-total {
+  margin-top: 2mm;
+  font-weight: 700;
+  padding-left: 13mm;
+}
+
+/* ===== Tables ===== */
+.report-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5mm;
+  font-size: 9.5pt;
+  line-height: 1.15;
+}
+.report-doc thead {
+  display: table-header-group;
+}
+.report-doc tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.report-doc th {
+  background: #35a6a1;
+  color: #000;
+  font-weight: 700;
+  text-align: center;
+  border: 0.2mm solid #000;
+  padding: 2mm 1.3mm;
+  vertical-align: middle;
+}
+.report-doc td {
+  border: 0.2mm solid #000;
+  padding: 1.2mm 1.4mm;
+  vertical-align: middle;
+}
+.report-doc td.text-center,
+.report-doc th.text-center {
+  text-align: center;
+}
+.report-doc td.text-top {
+  vertical-align: top;
+}
+.report-doc td .school-list {
+  margin: 0;
+  padding-left: 6mm;
+}
+.report-doc td .school-list li {
+  margin-bottom: 0.45mm;
+  text-align: left;
+}
+
+/* ===== Daily recipient header (Tanggal & Jumlah PM) ===== */
+.report-doc .daily-table-group {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-top: 4mm;
+}
+.report-doc .daily-block {
+  margin-top: 0;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.report-doc .daily-meta {
+  margin: 0 0 1mm 0;
+  text-indent: 0;
+}
+.report-doc .daily-meta strong {
+  font-weight: 700;
+}
+.report-doc .daily-meta.recipient-count {
+  color: #2f5ca8;
+  font-size: 14pt;
+  font-weight: 400;
+  margin-bottom: 2mm;
+}
+.report-doc .daily-recipient-table {
+  break-before: avoid;
+  page-break-before: avoid;
+}
+
+/* ===== Documentation grids ===== */
+.report-doc .photo-section-title {
+  background: #35a6a1;
+  color: #000;
+  font-weight: 700;
+  text-align: center;
+  border: 0.2mm solid #000;
+  padding: 2mm;
+}
+.report-doc .photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-left: 0.2mm solid #000;
+  border-right: 0.2mm solid #000;
+  border-bottom: 0.2mm solid #000;
+}
+.report-doc .photo-cell {
+  border: 0.2mm solid #000;
+  padding: 5mm;
+  text-align: center;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.report-doc .photo-cell .activity-photo {
+  width: 62mm;
+  height: 48mm;
+  object-fit: cover;
+}
+.report-doc .photo-cell .photo-caption {
+  margin-top: 2mm;
+  font-size: 9pt;
+  text-align: center;
+}
+.report-doc .photo-cell.empty {
+  min-height: 50mm;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.report-doc .menu-photo-cell {
+  text-align: center;
+}
+.report-doc .menu-photo {
+  width: 58mm;
+  height: 42mm;
+  object-fit: contain;
+}
+.report-doc .menu-photo-empty {
+  display: inline-block;
+  width: 60mm;
+  height: 42mm;
+  border: 0.2mm dashed #94a3b8;
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 9pt;
+  line-height: 42mm;
+}
+
+/* ===== Closing & signatures ===== */
+.report-doc .closing-block p {
+  margin-bottom: 3mm;
+}
+
+.report-doc .signature-table {
+  width: 100%;
+  margin-top: 12mm;
+  border-collapse: collapse;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.report-doc .signature-table td {
+  border: none !important;
+  vertical-align: top;
+  padding: 0;
+}
+.report-doc .signature-place {
+  text-align: right;
+  margin: 0 0 4mm 0;
+  text-indent: 0;
+}
+.report-doc .signature-cell {
+  width: 50%;
+  text-align: center;
+}
+.report-doc .signature-title {
+  margin: 0 0 1.5mm 0;
+  text-indent: 0;
+  text-align: center;
+  white-space: pre-line;
+}
+.report-doc .signature-spacer {
+  height: 24mm;
+}
+.report-doc .signature-name {
+  margin: 0;
+  text-indent: 0;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* ===== Misc ===== */
+.report-doc .page-break {
+  page-break-before: always;
+  break-before: page;
+}
+.report-doc .avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.report-doc .muted {
+  color: #6b7280;
+  font-style: italic;
+}

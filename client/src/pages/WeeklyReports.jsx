@@ -5,6 +5,7 @@ import { StickyFormHeader } from "../components/ui/FormPatterns.jsx";
 import { AppIcon, APP_ICON_WEIGHT } from "../components/ui/appIcons.jsx";
 import { fetchWeeklySummary } from "../api/dailyReportApi.js";
 import { fetchFoodWasteReports, getCachedFoodWasteReports } from "../api/foodWasteApi.js";
+import { downloadWeeklyDocument } from "../api/weeklyReportApi.js";
 import { REPORT_CATEGORY_ORDER as CATEGORY_ORDER } from "../shared/constants/reportConstants.js";
 import {
   formatDateLong,
@@ -181,15 +182,38 @@ export default function WeeklyReports({ onNavigate }) {
   const [weeklyError, setWeeklyError] = useState(null);
   const [foodWasteError, setFoodWasteError] = useState(null);
   const [foodWasteLoaded, setFoodWasteLoaded] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [toast, setToast] = useState({ kind: null, message: null });
 
   const handleChange = (field, value) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleDownloadDocument = async () => {
+    if (!filters.start_date || !filters.end_date) {
+      setToast({ kind: "warning", message: "Tentukan tanggal mulai dan selesai terlebih dahulu." });
+      return;
+    }
+    if (filters.end_date < filters.start_date) {
+      setToast({
+        kind: "warning",
+        message: "Tanggal selesai tidak boleh lebih kecil dari tanggal mulai.",
+      });
+      return;
+    }
+    try {
+      setDownloading(true);
+      await downloadWeeklyDocument(filters.start_date, filters.end_date);
+      setToast({ kind: "success", message: "Laporan berhasil diunduh." });
+    } catch (err) {
+      setToast({ kind: "danger", message: "Gagal mengunduh laporan: " + err.message });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     if (!filters.start_date) {
       setToast({ kind: "warning", message: "Tanggal mulai wajib diisi." });
       return;
@@ -407,6 +431,43 @@ export default function WeeklyReports({ onNavigate }) {
                 <span className="button-with-icon">
                   <AppIcon name="weekly" size={18} weight={APP_ICON_WEIGHT.action} />
                   <span>{loading ? "Memuat..." : "Tampilkan dashboard"}</span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="submit-btn weekly-dashboard-submit weekly-download-btn"
+                onClick={handleDownloadDocument}
+                disabled={downloading || loading}
+                title="Unduh laporan mingguan format DOCX untuk rentang ini"
+              >
+                <span className="button-with-icon">
+                  <AppIcon name="print" size={18} weight={APP_ICON_WEIGHT.action} />
+                  <span>{downloading ? "Mengunduh..." : "Unduh laporan (DOCX)"}</span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="submit-btn weekly-dashboard-submit"
+                onClick={() => onNavigate?.("report-editor")}
+                title="Buka Report Editor untuk membuat draft + export PDF"
+              >
+                <span className="button-with-icon">
+                  <AppIcon name="edit" size={18} weight={APP_ICON_WEIGHT.action} />
+                  <span>Buat laporan PDF</span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="action-btn-secondary action-btn-secondary-soft weekly-settings-link"
+                onClick={() => onNavigate?.("report-settings")}
+                title="Edit identitas SPPG, penandatangan, dan narasi BAB I/II/III/IV"
+              >
+                <span className="button-with-icon">
+                  <AppIcon name="edit" size={16} weight={APP_ICON_WEIGHT.action} />
+                  <span>Pengaturan dokumen</span>
                 </span>
               </button>
             </div>

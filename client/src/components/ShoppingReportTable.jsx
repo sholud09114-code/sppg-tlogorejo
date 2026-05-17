@@ -9,6 +9,28 @@ function getDifferenceTone(value) {
   return "neutral";
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightText(text, term) {
+  const value = String(text ?? "");
+  const needle = String(term ?? "").trim();
+  if (!needle) return value;
+
+  const regex = new RegExp(`(${escapeRegExp(needle)})`, "gi");
+  const parts = value.split(regex);
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <mark className="shopping-report-highlight" key={`hl-${index}`}>
+        {part}
+      </mark>
+    ) : (
+      <span key={`txt-${index}`}>{part}</span>
+    )
+  );
+}
+
 export default function ShoppingReportTable({
   reports,
   loading,
@@ -16,6 +38,7 @@ export default function ShoppingReportTable({
   onEdit,
   onDelete,
   canManage = true,
+  highlightTerm = "",
 }) {
   if (loading) {
     return <LoadingMessage>Memuat laporan belanja...</LoadingMessage>;
@@ -37,7 +60,9 @@ export default function ShoppingReportTable({
             <div className="mobile-data-card-head">
               <div>
                 <div className="mobile-data-card-title">{formatDate(report.report_date)}</div>
-                <div className="mobile-data-card-subtitle">{report.menu_name || "-"}</div>
+                <div className="mobile-data-card-subtitle">
+                  {highlightTerm ? highlightText(report.menu_name || "-", highlightTerm) : report.menu_name || "-"}
+                </div>
               </div>
               <div className="shopping-mobile-report-badges">
                 <span className="shopping-mobile-item-badge">{formatNumber(report.item_count)} item</span>
@@ -102,7 +127,9 @@ export default function ShoppingReportTable({
                     <span className="shopping-date-cell">{formatDate(report.report_date)}</span>
                   </td>
                   <td className="col-menu text-left">
-                    <div className="shopping-menu-cell">{report.menu_name || "-"}</div>
+                    <div className="shopping-menu-cell">
+                      {highlightTerm ? highlightText(report.menu_name || "-", highlightTerm) : report.menu_name || "-"}
+                    </div>
                   </td>
                   <td className="col-money text-right">
                     <span className="shopping-money-cell">{formatMoney(report.total_spending)}</span>

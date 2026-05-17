@@ -42,6 +42,12 @@ export default function BeneficiaryGroupTable({
                 {hasIssues ? "Perlu cek" : "Valid"}
               </span>
             </div>
+            {group.address ? (
+              <div className="mobile-data-section beneficiary-mobile-address">
+                <span className="mobile-data-label">Alamat</span>
+                <div className="mobile-data-copy">{group.address}</div>
+              </div>
+            ) : null}
             {hasIssues ? (
               <div className="beneficiary-issue-list">
                 {issues.map((issue) => (
@@ -84,12 +90,13 @@ export default function BeneficiaryGroupTable({
 
       <div className="data-table-scroll-shell scroll-affordance desktop-data-table" data-scroll-hint="Geser tabel">
         <div className="table-wrap overflow-x-auto rounded-2xl">
-          <table className="data-table beneficiary-group-table min-w-[1180px]">
+          <table className="data-table beneficiary-group-table min-w-[1280px]">
             <thead>
               <tr>
                 <th className="col-no text-center">No</th>
                 <th className="col-type text-left">Jenis Kelompok</th>
                 <th className="col-name text-left">Nama Kelompok</th>
+                <th className="col-address text-left">Alamat</th>
                 <th className="col-portion text-right">Total Porsi</th>
                 <th className="col-portion text-right">Porsi Siswa Kecil</th>
                 <th className="col-portion text-right">Porsi Siswa Besar</th>
@@ -111,6 +118,9 @@ export default function BeneficiaryGroupTable({
                   </td>
                   <td className="col-type text-left">{group.group_type}</td>
                   <td className="col-name text-left">{group.group_name}</td>
+                  <td className="col-address text-left beneficiary-address-cell">
+                    {group.address || <span className="weekly-muted">-</span>}
+                  </td>
                   <td className="col-portion text-right">{Number(group.total_portion).toLocaleString("id-ID")}</td>
                   <td className="col-portion text-right">{Number(group.student_small_portion).toLocaleString("id-ID")}</td>
                   <td className="col-portion text-right">{Number(group.student_large_portion).toLocaleString("id-ID")}</td>

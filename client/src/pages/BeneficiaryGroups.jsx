@@ -80,7 +80,7 @@ export default function BeneficiaryGroups() {
 
     return groups.filter((group) => {
       if (normalizedSearch) {
-        const searchableText = normalizeSearch(`${group.group_name} ${group.group_type}`);
+        const searchableText = normalizeSearch(`${group.group_name} ${group.group_type} ${group.address || ""}`);
         if (!searchableText.includes(normalizedSearch)) return false;
       }
 
